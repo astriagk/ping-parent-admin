@@ -19,7 +19,7 @@ import {
   DropdownPosition,
 } from '@src/components/custom/dropdown/dropdown'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
-import { RootState } from '@src/slices/reducer'
+import { useAppSelector } from '@src/store/hooks'
 import {
   AlignStartVertical,
   BellDot,
@@ -59,7 +59,6 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useSelector } from 'react-redux'
 import SimpleBar from 'simplebar-react'
 
 interface SidebarProps {
@@ -78,8 +77,8 @@ const Sidebar = ({
     useState<DropdownPosition>('top-right')
   const router = usePathname()
   const [scrolled, setScrolled] = useState(false)
-  const { layoutType, layoutSidebar } = useSelector(
-    (state: RootState) => state.Layout
+  const { layoutType, layoutSidebar } = useAppSelector(
+    (state) => state.Layout
   )
 
   useEffect(() => {

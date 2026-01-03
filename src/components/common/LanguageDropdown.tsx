@@ -8,10 +8,9 @@ import Link from 'next/link'
 import flagImg from '@assets/images/flag/us.svg'
 import { interNationalization } from '@src/data'
 import { InterNationalization } from '@src/dtos'
-import { AppDispatch, RootState } from '@src/slices/reducer'
-import { changeLayoutLanguage } from '@src/slices/thunk'
+import { changeLayoutLanguage } from '@src/store/features/layout'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 import i18n from '@src/utils/i18n'
-import { useDispatch, useSelector } from 'react-redux'
 import SimpleBar from 'simplebar-react'
 
 import { LAYOUT_LANGUAGES } from '../constants/layout'
@@ -22,9 +21,9 @@ import {
 } from '../custom/dropdown/dropdown'
 
 const LanguageDropdown = () => {
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
 
-  const { layoutLanguages } = useSelector((state: RootState) => state.Layout)
+  const { layoutLanguages } = useAppSelector((state) => state.Layout)
 
   // get country flag
   const getCountryFlag = (code: string) => {

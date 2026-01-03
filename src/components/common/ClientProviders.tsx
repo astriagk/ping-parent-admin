@@ -2,8 +2,7 @@
 
 import { ReactNode, useEffect } from 'react'
 
-import store from '@src/slices/reducer'
-import { Provider } from 'react-redux'
+import StoreProvider from '@src/store/provider'
 
 interface ClientProvidersProps {
   children: ReactNode
@@ -18,5 +17,5 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
     }
   }, [])
 
-  return <Provider store={store}>{children}</Provider>
+  return <StoreProvider>{children}</StoreProvider>
 }

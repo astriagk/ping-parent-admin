@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { getColorCodes } from '@src/components/common/colorCodes'
-import { RootState } from '@src/slices/reducer'
-import { useSelector } from 'react-redux'
+import { useAppSelector } from '@src/store/hooks'
 
 const useChartColors = (dataset: {
   chartColors: string
   chartDarkColors: string
 }) => {
   const [chartColors, setChartColors] = useState<string[]>([])
-  const { layoutDataColor, layoutMode } = useSelector(
-    (state: RootState) => state.Layout
+  const { layoutDataColor, layoutMode } = useAppSelector(
+    (state) => state.Layout
   )
 
   // Memoize the dataset to avoid unnecessary re-renders

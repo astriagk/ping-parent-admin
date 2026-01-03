@@ -3,14 +3,13 @@
 import React from 'react'
 
 import { LAYOUT_MODE_TYPES } from '@src/components/constants/layout'
-import { AppDispatch, RootState } from '@src/slices/reducer'
-import { changeLayoutMode } from '@src/slices/thunk'
+import { changeLayoutMode } from '@src/store/features/layout'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 import { Moon, Sun } from 'lucide-react'
-import { useDispatch, useSelector } from 'react-redux'
 
 const LandingThemeMode: React.FC<{ bgColor: string }> = ({ bgColor }) => {
-  const { layoutMode } = useSelector((state: RootState) => state.Layout)
-  const dispatch = useDispatch<AppDispatch>()
+  const { layoutMode } = useAppSelector((state) => state.Layout)
+  const dispatch = useAppDispatch()
   // change layout mode
   const handleChangeLayoutMode = (value: LAYOUT_MODE_TYPES) => {
     dispatch(changeLayoutMode(value))

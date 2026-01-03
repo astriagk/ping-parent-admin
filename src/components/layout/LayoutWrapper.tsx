@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from 'react'
 
 import { usePathname } from 'next/navigation'
 
+import AuthGuard from '@src/components/common/AuthGuard'
 import { routes } from '@src/components/common/DynamicTitle'
 import Layout from '@src/layout/Layout'
 
@@ -20,5 +21,9 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
       ? `${route.title} | Domiex - Premium Versatile Admin & Dashboard Template`
       : 'Domiex - Premium Versatile Admin & Dashboard Template'
   }, [route])
-  return <Layout>{children}</Layout>
+  return (
+    <AuthGuard>
+      <Layout>{children}</Layout>
+    </AuthGuard>
+  )
 }

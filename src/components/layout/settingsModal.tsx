@@ -1,21 +1,21 @@
 import React from 'react'
 
-import { initialState } from '@src/slices/layout/reducer'
-import { changeHTMLAttribute, setNewThemeData } from '@src/slices/layout/utils'
-import { AppDispatch, RootState } from '@src/slices/reducer'
 import {
   changeDarkModeClass,
   changeDataColor,
   changeDirection,
+  changeHTMLAttribute,
   changeLayout,
   changeLayoutContentWidth,
   changeLayoutMode,
   changeModernNavigation,
   changeSidebarColor,
   changeSidebarSize,
-} from '@src/slices/thunk'
+  initialState,
+  setNewThemeData,
+} from '@src/store/features/layout'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 import { RotateCcw, ShoppingBag, X } from 'lucide-react'
-import { useDispatch, useSelector } from 'react-redux'
 
 import {
   DARK_MODE_CLASS,
@@ -37,7 +37,7 @@ const SettingsModal = ({
   open: boolean
   handleCloseModal: () => void
 }) => {
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
   const {
     layoutMode,
     layoutType,
@@ -48,7 +48,7 @@ const SettingsModal = ({
     layoutDarkModeClass,
     layoutSidebarColor,
     layoutDataColor,
-  } = useSelector((state: RootState) => state.Layout)
+  } = useAppSelector((state) => state.Layout)
 
   const handleThemeLayout = (value: LAYOUT_MODE_TYPES) => {
     dispatch(changeLayoutMode(value))

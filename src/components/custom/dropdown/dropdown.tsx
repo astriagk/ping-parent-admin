@@ -12,8 +12,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/components/constants/layout'
-import { RootState } from '@src/slices/reducer'
-import { useSelector } from 'react-redux'
+import { useAppSelector } from '@src/store/hooks'
 
 export type DropdownPosition = '' | 'right' | 'top-right' | 'top-left'
 interface DropdownProps {
@@ -50,8 +49,8 @@ const Dropdown: React.FC<DropdownProps> = ({
   closeOnOutsideClickSidebar = true,
   toggleSidebar,
 }) => {
-  const { layoutType, layoutSidebar } = useSelector(
-    (state: RootState) => state.Layout
+  const { layoutType, layoutSidebar } = useAppSelector(
+    (state) => state.Layout
   )
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement | null>(null)

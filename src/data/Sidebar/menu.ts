@@ -4,19 +4,19 @@ const menu: MegaMenu[] = [
   {
     separator: true,
     title: 'Admins',
-    lang: 'pe-dashboards',
+    lang: 'pe-admins',
     children: [],
   },
   {
     title: 'Admins',
-    lang: 'pe-dashboards',
+    lang: 'pe-admins',
     icon: 'gauge',
     link: '#',
     separator: false,
     children: [
       {
         title: 'list',
-        lang: 'pe-analytics',
+        lang: 'pe-list',
         link: '/admins/list',
         dropdownPosition: null,
         children: [],

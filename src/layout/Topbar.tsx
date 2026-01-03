@@ -12,11 +12,13 @@ import {
   LAYOUT_MODE_TYPES,
   SIDEBAR_COLOR,
 } from '@src/components/constants/layout'
-import { AppDispatch, RootState } from '@src/slices/reducer'
-import { changeLayoutMode, changeSidebarColor } from '@src/slices/thunk'
+import {
+  changeLayoutMode,
+  changeSidebarColor,
+} from '@src/store/features/layout'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 import { Moon, PanelRightOpen, Search, Sun } from 'lucide-react'
 import Flatpickr from 'react-flatpickr'
-import { useDispatch, useSelector } from 'react-redux'
 
 interface TopBarProps {
   searchMenu: (value: string) => void
@@ -29,10 +31,10 @@ const Topbar: React.FC<TopBarProps> = ({
   searchText,
   toggleSidebar,
 }) => {
-  const { layoutMode, layoutSidebarColor } = useSelector(
-    (state: RootState) => state.Layout
+  const { layoutMode, layoutSidebarColor } = useAppSelector(
+    (state) => state.Layout
   )
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
   const [scrolled, setScrolled] = useState(false)
   const flatpickrRef = useRef<Flatpickr | null>(null)
   const [isOpen] = useState(false)

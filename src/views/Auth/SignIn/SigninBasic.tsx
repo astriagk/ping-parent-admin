@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -8,7 +8,11 @@ import { useRouter } from 'next/navigation'
 
 import whiteLogo from '@assets/images/logo-white.png'
 import LogoMain from '@assets/images/main-logo.png'
-import Google from '@assets/images/others/google.png'
+import { AUTH_MESSAGES } from '@src/components/constants/messages'
+import { ROUTES } from '@src/components/constants/routes-path'
+import { clearError, loginAdmin } from '@src/store/features/auth'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
+import { isAuthenticated } from '@utils/auth'
 import { Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -17,46 +21,45 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
+  const dispatch = useAppDispatch()
 
-  // Handle form submission
+  const { isLoading, isAuthenticated: reduxAuthenticated } = useAppSelector(
+    (state) => state.Auth
+  )
+
+  useEffect(() => {
+    if (isAuthenticated() || reduxAuthenticated) {
+      router.push(ROUTES.ADMIN.LIST)
+    }
+  }, [reduxAuthenticated, router])
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearError())
+    }
+  }, [dispatch])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!email || !password || !email.trim() || !password.trim()) {
-      toast.error('Email and password are required.')
+      toast.error(AUTH_MESSAGES.VALIDATION.EMAIL_PASSWORD_REQUIRED)
       return
     }
 
-    // Authentication removed - redirect directly to dashboard
-    toast.success('Login successful!')
-    router.push('/dashboards/ecommerce')
-    setEmail('')
-    setPassword('')
-  }
+    try {
+      const result = await dispatch(
+        loginAdmin({
+          email: email.trim(),
+          password: password.trim(),
+        })
+      ).unwrap()
 
-  const handleAdminLogin = async () => {
-    const adminEmail = 'admin@example.com'
-    const adminPassword = 'admin@123'
-
-    setEmail(adminEmail)
-    setPassword(adminPassword)
-
-    // Authentication removed - redirect directly to dashboard
-    toast.success('Admin login successful!')
-    router.push('/dashboards/ecommerce')
-  }
-
-  // handle user login
-  const handleUserLogin = async () => {
-    const userEmail = 'user@example.com'
-    const userPassword = 'user@123'
-
-    setEmail(userEmail)
-    setPassword(userPassword)
-
-    // Authentication removed - redirect directly to dashboard
-    toast.success('User login successful!')
-    router.push('/dashboards/ecommerce')
+      toast.success(result.message || AUTH_MESSAGES.SUCCESS.LOGIN_SUCCESS)
+      router.push(ROUTES.ADMIN.LIST)
+    } catch (err: any) {
+      toast.error(err || AUTH_MESSAGES.ERROR.LOGIN_FAILED)
+    }
   }
 
   return (
@@ -83,17 +86,10 @@ export default function LoginPage() {
                   />
                 </Link>
               </div>
-              <h4 className="mb-2 font-bold leading-relaxed text-center text-transparent drop-shadow-lg ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-primary-500 vie-purple-500 to-pink-500 bg-clip-text">
+              <h4 className="mb-6 font-bold leading-relaxed text-center text-transparent drop-shadow-lg ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-primary-500 vie-purple-500 to-pink-500 bg-clip-text">
                 Welcome Back, Sofia!
               </h4>
-              <p className="mb-5 text-center text-gray-500 dark:text-dark-500">
-                Don&apos;t have an account?{' '}
-                <Link
-                  href="/auth/signup-basic"
-                  className="font-medium link link-primary">
-                  Sign Up
-                </Link>
-              </p>
+
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-12 gap-5 mb-5 items-center">
                   <div className="col-span-12">
@@ -156,73 +152,15 @@ export default function LoginPage() {
                     </div>
                   </div>
                   <div className="col-span-12">
-                    <button type="submit" className="w-full btn btn-primary">
-                      Sign In
+                    <button
+                      type="submit"
+                      className="w-full btn btn-primary"
+                      disabled={isLoading}>
+                      {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                   </div>
                 </div>
               </form>
-
-              <div className="relative my-5 text-center text-gray-500 dark:text-dark-500 before:absolute before:border-gray-200 dark:before:border-dark-800 before:border-dashed before:w-full ltr:before:left-0 rtl:before:right-0 before:top-2.5 before:border-b">
-                <p className="relative inline-block px-2 bg-white dark:bg-dark-900">
-                  OR
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="w-full border-gray-200 btn hover:bg-gray-50 dark:border-dark-800 dark:hover:bg-dark-850 hover:text-primary-500">
-                  <Image
-                    src={Google}
-                    alt=""
-                    className="inline-block h-4 ltr:mr-1 rtl:ml-1"
-                    width={16}
-                    height={16}
-                  />{' '}
-                  Sign In Via Google
-                </button>
-                <button
-                  type="button"
-                  className="w-full border-gray-200 btn hover:bg-gray-50 dark:border-dark-800 dark:hover:bg-dark-850 hover:text-primary-500">
-                  <i className="ri-facebook-fill text-[20px] inline-block ltr:mr-1 rtl:ml-1 size-4 text-primary-500"></i>{' '}
-                  Sign In Via Facebook
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 mt-5">
-                <div className="grow">
-                  <h6 className="mb-1">Admin</h6>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Email: admin@example.com
-                  </p>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Password: admin@123
-                  </p>
-                </div>
-                <button
-                  className="shrink-0 btn btn-sub-gray"
-                  onClick={handleAdminLogin}>
-                  Login
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 mt-3">
-                <div className="grow">
-                  <h6 className="mb-1">Users</h6>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Email: user@example.com
-                  </p>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Password: user@123
-                  </p>
-                </div>
-                <button
-                  className="shrink-0 btn btn-sub-gray"
-                  onClick={handleUserLogin}>
-                  Login
-                </button>
-              </div>
             </div>
           </div>
         </div>

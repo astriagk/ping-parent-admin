@@ -10,8 +10,8 @@ import {
   SIDEBAR_COLOR,
   SIDEBAR_SIZE,
 } from '@src/components/constants/layout'
+import { AppDispatch, RootState } from '@src/store'
 
-import { AppDispatch, RootState } from '../reducer'
 import {
   changeLayoutAction,
   changeLayoutDarkModeClass,
@@ -23,14 +23,14 @@ import {
   changeLayoutSidebarAction,
   changeLayoutSidebarColorAction,
   changeLayoutWidthAction,
-} from './reducer'
+} from './layoutSlice'
 import {
   appendDarkModeClass,
   changeHTMLAttribute,
   getPreviousStorageData,
   removeAttribute,
   setNewThemeData,
-} from './utils'
+} from './layoutUtils'
 
 /**
  * Changes the layout type

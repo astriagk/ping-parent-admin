@@ -8,11 +8,13 @@ import Head from 'next/head'
 import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/components/constants/layout'
 import { menu } from '@src/data/Sidebar/menu'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
-import { changeSettingModalOpen } from '@src/slices/layout/reducer'
-import { changeHTMLAttribute, setNewThemeData } from '@src/slices/layout/utils'
-import { AppDispatch, RootState } from '@src/slices/reducer'
-import { changeSidebarSize } from '@src/slices/thunk'
-import { useDispatch, useSelector } from 'react-redux'
+import {
+  changeHTMLAttribute,
+  changeSidebarSize,
+  changeSettingModalOpen,
+  setNewThemeData,
+} from '@src/store/features/layout'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 
 import Footer from './Footer'
 import Sidebar from './Sidebar'
@@ -38,8 +40,8 @@ export default function Layout({
     layoutSidebarColor,
     layoutDataColor,
     layoutDirection,
-  } = useSelector((state: RootState) => state.Layout)
-  const dispatch = useDispatch<AppDispatch>()
+  } = useAppSelector((state) => state.Layout)
+  const dispatch = useAppDispatch()
   const [searchSidebar, setSearchSidebar] = useState<MegaMenu[]>(menu)
   const [searchValue, setSearchValue] = useState<string>('')
   const handleThemeSidebarSize = useCallback(() => {

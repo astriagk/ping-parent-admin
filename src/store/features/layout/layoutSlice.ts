@@ -87,8 +87,8 @@ export const initialState: LayoutItemsState = {
   isSettingModalOpen: false,
 }
 
-const LayoutSlice = createSlice({
-  name: 'layoutdata',
+const layoutSlice = createSlice({
+  name: 'layout',
   initialState,
   reducers: {
     changeLayoutAction(state, action: PayloadAction<LAYOUT_TYPES>) {
@@ -151,6 +151,6 @@ export const {
   changeLayoutModalNavigationAction,
   changeLayoutDarkModeClass,
   changeSettingModalOpen,
-} = LayoutSlice.actions
+} = layoutSlice.actions
 
-export default LayoutSlice.reducer
+export default layoutSlice.reducer

@@ -21,6 +21,8 @@
       "@common/*": ["./src/common/*"],
       "@custom/*": ["./src/components/custom/*"],
       "@dtos/*": ["./src/dtos/*"],
+      "@slices/*": ["./src/slices/*"],
+      "@utils/*": ["./src/utils/*"],
       "api_ data/*": ["./src/api_data/*"],
       "react": ["./node_modules/@types/react"]
     },
