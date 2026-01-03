@@ -15,11 +15,8 @@ import { changeSidebarSize } from '@src/slices/thunk'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Footer from './Footer'
+import Sidebar from './Sidebar'
 import Topbar from './Topbar'
-
-const SidebarComponent = dynamic(() => import('./Sidebar'), {
-  ssr: false, // Disable SSR for this component
-})
 
 export default function Layout({
   breadcrumbTitle,
@@ -75,6 +72,7 @@ export default function Layout({
       handleThemeSidebarSize()
     }
   }
+
   useEffect(() => {
     const handleResize = () => {
       // Update the sidebar state based on the window width
@@ -149,30 +147,6 @@ export default function Layout({
       setSearchSidebar(menu)
     }
   }
-
-  // useEffect(() => {
-  //   let timer: NodeJS.Timeout
-
-  //   if (typeof window !== 'undefined') {
-  //     // Check if page was refreshed by checking sessionStorage
-  //     const isPageRefreshed = sessionStorage.getItem('isRefreshed')
-  //     console.log(isPageRefreshed)
-  //     if (!isPageRefreshed) {
-  //       sessionStorage.setItem('isRefreshed', 'true')
-  //     } else {
-  //       if (window.innerWidth >= 768) {
-  //         timer = setTimeout(() => {
-  //           dispatch(changeSettingModalOpen(true))
-  //         }, 500) // Delay to show modal after a short timeout
-  //       }
-  //     }
-  //   }
-  //   // Cleanup the timeout if the component is unmounted or the effect is cleaned up
-  //   return () => {
-  //     clearTimeout(timer)
-  //     sessionStorage.removeItem('isRefreshed')
-  //   }
-  // }, [dispatch])
 
   const sidebarColors =
     (typeof document !== 'undefined' &&
@@ -255,7 +229,7 @@ export default function Layout({
       />
 
       {/* sidebar */}
-      <SidebarComponent
+      <Sidebar
         searchSidebar={searchSidebar}
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
