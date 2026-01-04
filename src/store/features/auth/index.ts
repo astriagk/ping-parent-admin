@@ -1,4 +1,4 @@
 export { default as authReducer } from './authSlice'
-export * from './authActions'
+export { clearError, setAdmin, logout } from './authSlice'
 export * from './authThunks'
 export * from './authSelectors'

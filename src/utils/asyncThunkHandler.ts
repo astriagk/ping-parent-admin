@@ -27,9 +27,10 @@ export const handleAsyncThunkApi = async <T>(
     if (response.data) {
       return response.data
     }
-
+    console.log(errorMessage)
     return rejectWithValue(errorMessage)
   } catch (error: any) {
+    console.log(error, errorMessage)
     return rejectWithValue(handleAsyncThunkError(error, errorMessage))
   }
 }

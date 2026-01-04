@@ -1,6 +1,8 @@
 import { LoginPayload, LoginResponse, VerifyTokenResponse } from '@dtos/admin'
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { AUTH_MESSAGES } from '@src/components/constants/messages'
+import { MESSAGES } from '@src/components/constants/messages'
+import { AUTH_LOGIN, AUTH_VERIFY_TOKEN } from '@src/store/actionTypes'
+import { handleAsyncThunkApi } from '@src/utils/asyncThunkHandler'
 import { getAccessToken } from '@utils/auth'
 import api from '@utils/axios_api'
 import {
@@ -8,37 +10,32 @@ import {
   NEXT_PUBLIC_ADMIN_VERIFY_TOKEN_API,
 } from '@utils/url_helper'
 
-import { handleAsyncThunkApi } from '../../../utils/asyncThunkHandler'
-
 export const loginAdmin = createAsyncThunk<
   LoginResponse,
   LoginPayload,
   { rejectValue: string }
->('auth/login', async (credentials, { rejectWithValue }) => {
+>(AUTH_LOGIN, async (credentials, { rejectWithValue }) => {
   return handleAsyncThunkApi(
     () => api.post(NEXT_PUBLIC_ADMIN_LOGIN_API, credentials),
     rejectWithValue,
-    AUTH_MESSAGES.ERROR.LOGIN_FAILED
+    MESSAGES.AUTH.ERROR.LOGIN_FAILED
   )
 })
 
-/**
- * Verify admin token thunk
- */
 export const verifyAdminToken = createAsyncThunk<
   VerifyTokenResponse,
   void,
   { rejectValue: string }
->('auth/verifyToken', async (_, { rejectWithValue }) => {
+>(AUTH_VERIFY_TOKEN, async (_, { rejectWithValue }) => {
   const token = getAccessToken()
 
   if (!token) {
-    return rejectWithValue(AUTH_MESSAGES.ERROR.TOKEN_NOT_FOUND)
+    return rejectWithValue(MESSAGES.COMMON.ERROR.NO_AUTH_TOKEN)
   }
 
   return handleAsyncThunkApi(
     () => api.get(NEXT_PUBLIC_ADMIN_VERIFY_TOKEN_API),
     rejectWithValue,
-    AUTH_MESSAGES.ERROR.TOKEN_VERIFICATION_FAILED
+    MESSAGES.COMMON.ERROR.TOKEN_VERIFICATION_FAILED
   )
 })

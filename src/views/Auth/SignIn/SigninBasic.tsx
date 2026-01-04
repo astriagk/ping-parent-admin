@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import whiteLogo from '@assets/images/logo-white.png'
 import LogoMain from '@assets/images/main-logo.png'
 import { paths } from '@src/components/common/DynamicTitle'
-import { AUTH_MESSAGES } from '@src/components/constants/messages'
+import { MESSAGES } from '@src/components/constants/messages'
 import { clearError, loginAdmin } from '@src/store/features/auth'
 import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 import { Eye, EyeOff } from 'lucide-react'
@@ -42,7 +42,7 @@ export default function LoginPage() {
     e.preventDefault()
 
     if (!email || !password || !email.trim() || !password.trim()) {
-      toast.error(AUTH_MESSAGES.VALIDATION.EMAIL_PASSWORD_REQUIRED)
+      toast.error(MESSAGES.AUTH.VALIDATION.EMAIL_PASSWORD_REQUIRED)
       return
     }
 
@@ -54,10 +54,10 @@ export default function LoginPage() {
         })
       ).unwrap()
 
-      toast.success(result.message || AUTH_MESSAGES.SUCCESS.LOGIN_SUCCESS)
+      toast.success(result.message || MESSAGES.AUTH.SUCCESS.LOGIN_SUCCESS)
       router.push(paths.ADMINS.LIST)
     } catch (err: any) {
-      toast.error(err || AUTH_MESSAGES.ERROR.LOGIN_FAILED)
+      toast.error(err || MESSAGES.AUTH.ERROR.LOGIN_FAILED)
     }
   }
 
@@ -99,7 +99,7 @@ export default function LoginPage() {
                       type="text"
                       id="emailOrUsername"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)} // Update state on change
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full form-input"
                       placeholder="Enter your email or username"
                     />
@@ -110,16 +110,16 @@ export default function LoginPage() {
                     </label>
                     <div className="relative">
                       <input
-                        type={showPassword ? 'text' : 'password'} // Use state to show/hide password
+                        type={showPassword ? 'text' : 'password'}
                         id="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)} // Update state on change
+                        onChange={(e) => setPassword(e.target.value)}
                         className="w-full ltr:pr-8 rtl:pl-8 form-input"
                         placeholder="Enter your password"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPassword((prev) => !prev)} // Toggle password visibility
+                        onClick={() => setShowPassword((prev) => !prev)}
                         className="absolute inset-y-0 flex items-center text-gray-500 ltr:right-3 rtl:left-3 focus:outline-hidden dark:text-dark-500">
                         {showPassword ? (
                           <Eye className="size-5" />

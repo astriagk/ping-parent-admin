@@ -1,4 +1,4 @@
-import { Admin, AdminState, LoginResponse } from '@dtos/admin'
+import { Admin, LoginResponse } from '@dtos/admin'
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import {
   clearAuthData,
@@ -7,8 +7,16 @@ import {
   setAuthTokens,
 } from '@utils/auth'
 
-import { clearAuthState, clearError, logout, setAdmin } from './authActions'
 import { loginAdmin, verifyAdminToken } from './authThunks'
+
+interface AdminState {
+  admin: Admin | null
+  access_token: string | null
+  refresh_token: string | null
+  isLoading: boolean
+  error: string | null
+  isAuthenticated: boolean
+}
 
 const initialState: AdminState = {
   admin: null,
@@ -19,69 +27,71 @@ const initialState: AdminState = {
   isAuthenticated: !!getAccessToken(),
 }
 
+// Helper functions for state mutations
+const setLoadingState = (state: AdminState) => {
+  state.isLoading = true
+  state.error = null
+}
+
+const setAuthenticatedState = (
+  state: AdminState,
+  admin: Admin,
+  accessToken: string,
+  refreshToken: string
+) => {
+  state.admin = admin
+  state.access_token = accessToken
+  state.refresh_token = refreshToken
+  state.isAuthenticated = true
+  state.isLoading = false
+  state.error = null
+}
+
+const clearAuthenticatedState = (state: AdminState, error?: string) => {
+  state.admin = null
+  state.access_token = null
+  state.refresh_token = null
+  state.isAuthenticated = false
+  state.isLoading = false
+  state.error = error || null
+  clearAuthData()
+}
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null
+    },
+    setAdmin: (state, action: PayloadAction<Admin>) => {
+      state.admin = action.payload
+      state.isAuthenticated = true
+    },
+    logout: (state) => {
+      clearAuthenticatedState(state)
+    },
+  },
   extraReducers: (builder) => {
-    // Synchronous actions
-    builder
-      .addCase(clearError, (state) => {
-        state.error = null
-      })
-      .addCase(setAdmin, (state, action: PayloadAction<Admin>) => {
-        state.admin = action.payload
-        state.isAuthenticated = true
-      })
-      .addCase(clearAuthState, (state) => {
-        state.admin = null
-        state.access_token = null
-        state.refresh_token = null
-        state.isAuthenticated = false
-        state.error = null
-        clearAuthData()
-      })
-      .addCase(logout, (state) => {
-        state.admin = null
-        state.access_token = null
-        state.refresh_token = null
-        state.isAuthenticated = false
-        state.error = null
-        clearAuthData()
-      })
-
-    // Asynchronous actions (thunks)
     builder
       .addCase(loginAdmin.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        setLoadingState(state)
       })
       .addCase(
         loginAdmin.fulfilled,
         (state, action: PayloadAction<LoginResponse>) => {
-          state.isLoading = false
-          state.admin = action.payload.data.admin
-          state.access_token = action.payload.data.access_token
-          state.refresh_token = action.payload.data.refresh_token
-          state.isAuthenticated = true
-          state.error = null
-
-          setAuthTokens(
-            action.payload.data.access_token,
-            action.payload.data.refresh_token
-          )
+          const { admin, access_token, refresh_token } = action.payload.data
+          setAuthenticatedState(state, admin, access_token, refresh_token)
+          setAuthTokens(access_token, refresh_token)
         }
       )
       .addCase(loginAdmin.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload as string
-        state.isAuthenticated = false
+        clearAuthenticatedState(state, action.payload as string)
       })
 
-    // Verify token thunk
     builder
       .addCase(verifyAdminToken.pending, (state) => {
-        state.isLoading = true
+        setLoadingState(state)
       })
       .addCase(verifyAdminToken.fulfilled, (state) => {
         state.isLoading = false
@@ -89,15 +99,11 @@ const authSlice = createSlice({
         state.error = null
       })
       .addCase(verifyAdminToken.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload as string
-        state.isAuthenticated = false
-        state.admin = null
-        state.access_token = null
-        state.refresh_token = null
-        clearAuthData()
+        clearAuthenticatedState(state, action.payload as string)
       })
   },
 })
+
+export const { clearError, setAdmin, logout } = authSlice.actions
 
 export default authSlice.reducer
