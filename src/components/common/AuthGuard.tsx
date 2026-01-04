@@ -8,7 +8,7 @@ import { verifyAdminToken } from '@src/store/features/auth'
 import { useAppDispatch } from '@src/store/hooks'
 
 import { AUTH_MESSAGES } from '../constants/messages'
-import { ROUTES } from '../constants/routes-path'
+import { paths } from './DynamicTitle'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -21,7 +21,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const [isVerifying, setIsVerifying] = useState(true)
   const [isValidToken, setIsValidToken] = useState(false)
 
-  const publicRoutes = [ROUTES.AUTH.SIGNIN_BASIC]
+  const publicRoutes = [paths.AUTH.SIGNIN_BASIC]
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -39,7 +39,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         await dispatch(verifyAdminToken()).unwrap()
         setIsValidToken(true)
       } catch (error) {
-        router.push(ROUTES.AUTH.SIGNIN_BASIC)
+        router.push(paths.AUTH.SIGNIN_BASIC)
         setIsValidToken(false)
       }
 

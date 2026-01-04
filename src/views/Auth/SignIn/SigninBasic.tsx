@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation'
 
 import whiteLogo from '@assets/images/logo-white.png'
 import LogoMain from '@assets/images/main-logo.png'
+import { paths } from '@src/components/common/DynamicTitle'
 import { AUTH_MESSAGES } from '@src/components/constants/messages'
-import { ROUTES } from '@src/components/constants/routes-path'
 import { clearError, loginAdmin } from '@src/store/features/auth'
 import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 import { Eye, EyeOff } from 'lucide-react'
@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (reduxAuthenticated) {
-      router.push(ROUTES.ADMIN.LIST)
+      router.push(paths.ADMINS.LIST)
     }
   }, [reduxAuthenticated, router])
 
@@ -55,7 +55,7 @@ export default function LoginPage() {
       ).unwrap()
 
       toast.success(result.message || AUTH_MESSAGES.SUCCESS.LOGIN_SUCCESS)
-      router.push(ROUTES.ADMIN.LIST)
+      router.push(paths.ADMINS.LIST)
     } catch (err: any) {
       toast.error(err || AUTH_MESSAGES.ERROR.LOGIN_FAILED)
     }
