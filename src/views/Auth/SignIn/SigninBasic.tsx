@@ -12,7 +12,6 @@ import { AUTH_MESSAGES } from '@src/components/constants/messages'
 import { ROUTES } from '@src/components/constants/routes-path'
 import { clearError, loginAdmin } from '@src/store/features/auth'
 import { useAppDispatch, useAppSelector } from '@src/store/hooks'
-import { isAuthenticated } from '@utils/auth'
 import { Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -28,7 +27,7 @@ export default function LoginPage() {
   )
 
   useEffect(() => {
-    if (isAuthenticated() || reduxAuthenticated) {
+    if (reduxAuthenticated) {
       router.push(ROUTES.ADMIN.LIST)
     }
   }, [reduxAuthenticated, router])

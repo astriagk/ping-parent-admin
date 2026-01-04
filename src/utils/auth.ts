@@ -2,7 +2,6 @@
 
 const ACCESS_TOKEN_KEY = 'access_token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
-const ADMIN_DATA_KEY = 'admin_data'
 
 const isBrowser = typeof window !== 'undefined'
 
@@ -42,41 +41,13 @@ export const getRefreshToken = (): string | null => {
   }
 }
 
-export const setAdminData = (adminData: any): void => {
-  if (!isBrowser) return
-
-  try {
-    localStorage.setItem(ADMIN_DATA_KEY, JSON.stringify(adminData))
-  } catch (error) {
-    console.error('Error storing admin data:', error)
-  }
-}
-
-export const getAdminData = (): any | null => {
-  if (!isBrowser) return null
-
-  try {
-    const data = localStorage.getItem(ADMIN_DATA_KEY)
-    return data ? JSON.parse(data) : null
-  } catch (error) {
-    console.error('Error getting admin data:', error)
-    return null
-  }
-}
-
 export const clearAuthData = (): void => {
   if (!isBrowser) return
 
   try {
     localStorage.removeItem(ACCESS_TOKEN_KEY)
     localStorage.removeItem(REFRESH_TOKEN_KEY)
-    localStorage.removeItem(ADMIN_DATA_KEY)
   } catch (error) {
     console.error('Error clearing auth data:', error)
   }
-}
-
-export const isAuthenticated = (): boolean => {
-  const token = getAccessToken()
-  return !!token
 }

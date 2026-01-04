@@ -3,9 +3,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import {
   clearAuthData,
   getAccessToken,
-  getAdminData,
   getRefreshToken,
-  setAdminData as setAdminDataUtil,
   setAuthTokens,
 } from '@utils/auth'
 
@@ -13,7 +11,7 @@ import { clearAuthState, clearError, logout, setAdmin } from './authActions'
 import { loginAdmin, verifyAdminToken } from './authThunks'
 
 const initialState: AdminState = {
-  admin: getAdminData(),
+  admin: null,
   access_token: getAccessToken(),
   refresh_token: getRefreshToken(),
   isLoading: false,
@@ -34,7 +32,6 @@ const authSlice = createSlice({
       .addCase(setAdmin, (state, action: PayloadAction<Admin>) => {
         state.admin = action.payload
         state.isAuthenticated = true
-        setAdminDataUtil(action.payload)
       })
       .addCase(clearAuthState, (state) => {
         state.admin = null
@@ -73,7 +70,6 @@ const authSlice = createSlice({
             action.payload.data.access_token,
             action.payload.data.refresh_token
           )
-          setAdminDataUtil(action.payload.data.admin)
         }
       )
       .addCase(loginAdmin.rejected, (state, action) => {

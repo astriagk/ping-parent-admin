@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { verifyAdminToken } from '@src/store/features/auth'
 import { useAppDispatch } from '@src/store/hooks'
-import { isAuthenticated } from '@utils/auth'
 
 import { AUTH_MESSAGES } from '../constants/messages'
 import { ROUTES } from '../constants/routes-path'
@@ -33,12 +32,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       if (isPublicRoute) {
         setIsVerifying(false)
         setIsValidToken(true)
-        return
-      }
-
-      if (!isAuthenticated()) {
-        router.push(ROUTES.AUTH.SIGNIN_BASIC)
-        setIsVerifying(false)
         return
       }
 
