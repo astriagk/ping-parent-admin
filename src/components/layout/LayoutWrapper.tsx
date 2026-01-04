@@ -21,6 +21,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
       ? `${route.title} | Domiex - Premium Versatile Admin & Dashboard Template`
       : 'Domiex - Premium Versatile Admin & Dashboard Template'
   }, [route])
+
   return (
     <AuthGuard>
       <Layout>{children}</Layout>
