@@ -13,11 +13,11 @@ const BreadCrumb = ({ title, subTitle }: BreadcrumbItems) => {
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    setHydrated(true) // Ensures that hydration is completed
+    setHydrated(true)
   }, [])
 
   if (!hydrated) {
-    return null // Prevent render until hydrated
+    return null
   }
   return (
     <React.Fragment>

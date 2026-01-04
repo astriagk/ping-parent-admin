@@ -5,13 +5,13 @@ import React, { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 
-import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/components/constants/layout'
 import { menu } from '@src/data/Sidebar/menu'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
+import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/shared/constants/layout'
 import {
   changeHTMLAttribute,
-  changeSidebarSize,
   changeSettingModalOpen,
+  changeSidebarSize,
   setNewThemeData,
 } from '@src/store/features/layout'
 import { useAppDispatch, useAppSelector } from '@src/store/hooks'

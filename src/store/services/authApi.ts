@@ -1,5 +1,5 @@
 import { LoginPayload, LoginResponse, VerifyTokenResponse } from '@dtos/admin'
-import { ApiMethods, AuthTags } from '@src/components/constants/enums'
+import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
 import {
   NEXT_PUBLIC_ADMIN_LOGIN_API,
   NEXT_PUBLIC_ADMIN_VERIFY_TOKEN_API,

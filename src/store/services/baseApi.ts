@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { AuthTags } from '@src/components/constants/enums'
+import { AuthTags } from '@src/shared/constants/enums'
 
 export const baseApi = createApi({
   reducerPath: 'api',

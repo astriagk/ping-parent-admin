@@ -7,11 +7,8 @@ import Link from 'next/link'
 
 import whiteLogo from '@assets/images/logo-white.png'
 import logo from '@assets/images/main-logo.png'
-import LanguageDropdown from '@src/components/common/LanguageDropdown'
-import {
-  LAYOUT_MODE_TYPES,
-  SIDEBAR_COLOR,
-} from '@src/components/constants/layout'
+import LanguageDropdown from '@src/shared/common/LanguageDropdown'
+import { LAYOUT_MODE_TYPES, SIDEBAR_COLOR } from '@src/shared/constants/layout'
 import {
   changeLayoutMode,
   changeSidebarColor,

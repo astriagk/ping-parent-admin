@@ -9,7 +9,7 @@ import {
   MODERN_NAVIGATION,
   SIDEBAR_COLOR,
   SIDEBAR_SIZE,
-} from '@src/components/constants/layout'
+} from '@src/shared/constants/layout'
 import { AppDispatch, RootState } from '@src/store'
 
 import {

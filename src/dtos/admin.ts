@@ -1,4 +1,4 @@
-import { UserRolesType } from '@src/components/constants/enums'
+import { UserRolesType } from '@src/shared/constants/enums'
 
 export interface LoginPayload {
   email: string
@@ -13,11 +13,6 @@ export interface LoginResponse {
     refresh_token: string
   }
   message: string
-}
-
-export interface ErrorResponse {
-  success: false
-  error: string
 }
 
 export interface Admin {
@@ -39,4 +34,23 @@ export interface VerifyTokenResponse {
     role: UserRolesType
     tokenValid: boolean
   }
+}
+
+// Admin Entity for List
+export interface AdminListItem {
+  admin_id: string
+  username: string
+  email: string
+  phone_number: string
+  admin_role: UserRolesType
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  last_login: string
+}
+
+export interface AdminListResponse {
+  success: boolean
+  data: AdminListItem[]
+  message: string
 }

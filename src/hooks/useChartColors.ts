@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { getColorCodes } from '@src/components/common/colorCodes'
+import { getColorCodes } from '@src/shared/common/colorCodes'
 import { useAppSelector } from '@src/store/hooks'
 
 const useChartColors = (dataset: {

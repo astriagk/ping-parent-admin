@@ -7,7 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { verifyAdminToken } from '@src/store/features/auth'
 import { useAppDispatch } from '@src/store/hooks'
 
-import { AUTH_MESSAGES } from '../constants/messages'
+import { MESSAGES } from '../constants/messages'
 import { paths } from './DynamicTitle'
 
 interface AuthGuardProps {
@@ -55,7 +55,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">
-            {AUTH_MESSAGES.LOADING.VERIFYING_AUTH}
+            {MESSAGES.COMMON.LOADING.VERIFYING_AUTH}
           </p>
         </div>
       </div>

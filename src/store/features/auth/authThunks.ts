@@ -1,6 +1,6 @@
 import { LoginPayload, LoginResponse, VerifyTokenResponse } from '@dtos/admin'
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { MESSAGES } from '@src/components/constants/messages'
+import { MESSAGES } from '@src/shared/constants/messages'
 import { AUTH_LOGIN, AUTH_VERIFY_TOKEN } from '@src/store/actionTypes'
 import { handleAsyncThunkApi } from '@src/utils/asyncThunkHandler'
 import { getAccessToken } from '@utils/auth'

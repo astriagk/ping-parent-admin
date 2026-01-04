@@ -2,8 +2,8 @@
 
 import React from 'react'
 
-import { LAYOUT_DIRECTION } from '@src/components/constants/layout'
 import { NextPageWithLayout } from '@src/dtos'
+import { LAYOUT_DIRECTION } from '@src/shared/constants/layout'
 import { useAppSelector } from '@src/store/hooks'
 import SigninBasic from '@src/views/Auth/SignIn/SigninBasic'
 import { ToastContainer } from 'react-toastify'

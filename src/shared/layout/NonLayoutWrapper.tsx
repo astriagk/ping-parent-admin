@@ -4,15 +4,15 @@ import { ReactNode, useEffect } from 'react'
 
 import { usePathname } from 'next/navigation'
 
-import AuthGuard from '@src/components/common/AuthGuard'
-import { routes } from '@src/components/common/DynamicTitle'
-import Layout from '@src/layout/Layout'
+import Layout2 from '@src/layout/Layout2'
+
+import { routes } from '../common/DynamicTitle'
 
 interface LayoutWrapperProps {
   children: ReactNode
 }
 
-export default function LayoutWrapper({ children }: LayoutWrapperProps) {
+export default function NonLayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname()
   const route = routes.find((r) => r.path === pathname)
 
@@ -20,9 +20,5 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     document.title = route ? `${route.title} | Ping Parent` : 'Ping Parent'
   }, [route])
 
-  return (
-    <AuthGuard>
-      <Layout>{children}</Layout>
-    </AuthGuard>
-  )
+  return <Layout2>{children}</Layout2>
 }

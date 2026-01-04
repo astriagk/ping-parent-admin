@@ -11,14 +11,14 @@ import logoSmDark from '@assets/images/logo-sm-dark.png'
 import logoSm from '@assets/images/logo-sm-white.png'
 import logoWhite from '@assets/images/logo-white.png'
 import mainLogo from '@assets/images/main-logo.png'
-import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/components/constants/layout'
+import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
+import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/shared/constants/layout'
 import {
   Dropdown,
   DropdownButton,
   DropdownMenu,
   DropdownPosition,
-} from '@src/components/custom/dropdown/dropdown'
-import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
+} from '@src/shared/custom/dropdown/dropdown'
 import { useAppSelector } from '@src/store/hooks'
 import {
   AlignStartVertical,
@@ -77,9 +77,7 @@ const Sidebar = ({
     useState<DropdownPosition>('top-right')
   const router = usePathname()
   const [scrolled, setScrolled] = useState(false)
-  const { layoutType, layoutSidebar } = useAppSelector(
-    (state) => state.Layout
-  )
+  const { layoutType, layoutSidebar } = useAppSelector((state) => state.Layout)
 
   useEffect(() => {
     const handleScroll = () => {
