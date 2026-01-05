@@ -18,6 +18,7 @@ const accessorkeys = {
   adminRole: 'admin_role',
   isActive: 'is_active',
   actions: 'Actions',
+  userType: 'user_type',
 }
 
 const headerKeys = {
@@ -28,6 +29,7 @@ const headerKeys = {
   adminRole: 'Role',
   isActive: 'Active',
   actions: 'Actions',
+  userType: 'User Type',
 }
 
 export { badges, accessorkeys, headerKeys, buttonsKeys }

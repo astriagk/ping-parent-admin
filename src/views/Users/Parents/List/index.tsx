@@ -10,10 +10,14 @@ import {
   buttonsKeys,
   headerKeys,
 } from '@src/shared/constants/columns'
-import { useGetAdminListQuery } from '@src/store/services/adminApi'
+import { UserRoles, UserRolesType } from '@src/shared/constants/enums'
+import { useGetParentListQuery } from '@src/store/services/parentApi'
 
-const AdminsList = () => {
-  const { data: adminListData } = useGetAdminListQuery()
+const ParentsList = () => {
+  const { data: parentListData } = useGetParentListQuery({
+    user_type: UserRoles.PARENT,
+  })
+
   const columns = useMemo(
     () => [
       {
@@ -21,10 +25,16 @@ const AdminsList = () => {
         header: headerKeys.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.username, header: headerKeys.username },
-      { accessorKey: accessorkeys.email, header: headerKeys.email },
       { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
-      { accessorKey: accessorkeys.adminRole, header: headerKeys.adminRole },
+      {
+        accessorKey: accessorkeys.userType,
+        header: headerKeys.userType,
+        cell: ({ row }: { row: { original: any } }) => {
+          const userType = row.original.user_type
+          const userTypeLabels: Record<string, string> = UserRolesType
+          return userTypeLabels[userType] || userType
+        },
+      },
       {
         accessorKey: accessorkeys.isActive,
         header: headerKeys.isActive,
@@ -43,6 +53,7 @@ const AdminsList = () => {
       {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
+        className: 'text-right',
         cell: ({ row }: { row: { original: any } }) => {
           const { is_active } = row.original
           const mapKey = String(!is_active) as keyof typeof buttonsKeys
@@ -70,13 +81,13 @@ const AdminsList = () => {
 
   return (
     <React.Fragment>
-      <BreadCrumb title="Admins List" subTitle="Admins" />
+      <BreadCrumb title="Drivers List" subTitle="Drivers" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
           <div className="card-body">
             <DatatablesHover
               columns={columns}
-              data={adminListData?.data || []}
+              data={parentListData?.data || []}
             />
           </div>
         </div>
@@ -84,5 +95,4 @@ const AdminsList = () => {
     </React.Fragment>
   )
 }
-
-export default AdminsList
+export default ParentsList

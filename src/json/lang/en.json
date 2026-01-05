@@ -1,4 +1,7 @@
 {
   "pe-admins": "Admins",
-  "pe-list": "List"
+  "pe-list": "List",
+  "pe-users": "Users",
+  "pe-drivers": "Drivers",
+  "pe-parents": "Parents"
 }
