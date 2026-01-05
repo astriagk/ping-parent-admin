@@ -2,16 +2,15 @@
 
 import React from 'react'
 
-import { LAYOUT_DIRECTION } from '@src/components/constants/layout'
 import { NextPageWithLayout } from '@src/dtos'
-import { RootState } from '@src/slices/reducer'
+import { LAYOUT_DIRECTION } from '@src/shared/constants/layout'
+import { useAppSelector } from '@src/store/hooks'
 import SigninBasic from '@src/views/Auth/SignIn/SigninBasic'
-import { useSelector } from 'react-redux'
 import { ToastContainer } from 'react-toastify'
 
 const SignInBasicPage: NextPageWithLayout = () => {
-  const { layoutMode, layoutDirection } = useSelector(
-    (state: RootState) => state.Layout
+  const { layoutMode, layoutDirection } = useAppSelector(
+    (state) => state.Layout
   )
 
   return (

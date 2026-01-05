@@ -1,5 +1,5 @@
-import { LAYOUT_LANGUAGES } from '@src/components/constants/layout'
 import { InterNationalization } from '@src/dtos'
+import { LAYOUT_LANGUAGES } from '@src/shared/constants/layout'
 
 const interNationalization: InterNationalization[] = [
   {

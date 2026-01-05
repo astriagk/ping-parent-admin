@@ -2,7 +2,7 @@ import { FC, ReactElement } from 'react'
 
 import { StaticImageData } from 'next/image'
 
-import { LAYOUT_LANGUAGES } from '@src/components/constants/layout'
+import { LAYOUT_LANGUAGES } from '@src/shared/constants/layout'
 
 // Define the type for pages that use a custom layout
 export type NextPageWithLayout = FC & {

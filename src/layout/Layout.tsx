@@ -5,21 +5,20 @@ import React, { useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 
-import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/components/constants/layout'
 import { menu } from '@src/data/Sidebar/menu'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
-import { changeSettingModalOpen } from '@src/slices/layout/reducer'
-import { changeHTMLAttribute, setNewThemeData } from '@src/slices/layout/utils'
-import { AppDispatch, RootState } from '@src/slices/reducer'
-import { changeSidebarSize } from '@src/slices/thunk'
-import { useDispatch, useSelector } from 'react-redux'
+import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/shared/constants/layout'
+import {
+  changeHTMLAttribute,
+  changeSettingModalOpen,
+  changeSidebarSize,
+  setNewThemeData,
+} from '@src/store/features/layout'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
 
 import Footer from './Footer'
+import Sidebar from './Sidebar'
 import Topbar from './Topbar'
-
-const SidebarComponent = dynamic(() => import('./Sidebar'), {
-  ssr: false, // Disable SSR for this component
-})
 
 export default function Layout({
   breadcrumbTitle,
@@ -41,8 +40,8 @@ export default function Layout({
     layoutSidebarColor,
     layoutDataColor,
     layoutDirection,
-  } = useSelector((state: RootState) => state.Layout)
-  const dispatch = useDispatch<AppDispatch>()
+  } = useAppSelector((state) => state.Layout)
+  const dispatch = useAppDispatch()
   const [searchSidebar, setSearchSidebar] = useState<MegaMenu[]>(menu)
   const [searchValue, setSearchValue] = useState<string>('')
   const handleThemeSidebarSize = useCallback(() => {
@@ -75,6 +74,7 @@ export default function Layout({
       handleThemeSidebarSize()
     }
   }
+
   useEffect(() => {
     const handleResize = () => {
       // Update the sidebar state based on the window width
@@ -149,30 +149,6 @@ export default function Layout({
       setSearchSidebar(menu)
     }
   }
-
-  // useEffect(() => {
-  //   let timer: NodeJS.Timeout
-
-  //   if (typeof window !== 'undefined') {
-  //     // Check if page was refreshed by checking sessionStorage
-  //     const isPageRefreshed = sessionStorage.getItem('isRefreshed')
-  //     console.log(isPageRefreshed)
-  //     if (!isPageRefreshed) {
-  //       sessionStorage.setItem('isRefreshed', 'true')
-  //     } else {
-  //       if (window.innerWidth >= 768) {
-  //         timer = setTimeout(() => {
-  //           dispatch(changeSettingModalOpen(true))
-  //         }, 500) // Delay to show modal after a short timeout
-  //       }
-  //     }
-  //   }
-  //   // Cleanup the timeout if the component is unmounted or the effect is cleaned up
-  //   return () => {
-  //     clearTimeout(timer)
-  //     sessionStorage.removeItem('isRefreshed')
-  //   }
-  // }, [dispatch])
 
   const sidebarColors =
     (typeof document !== 'undefined' &&
@@ -255,7 +231,7 @@ export default function Layout({
       />
 
       {/* sidebar */}
-      <SidebarComponent
+      <Sidebar
         searchSidebar={searchSidebar}
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}

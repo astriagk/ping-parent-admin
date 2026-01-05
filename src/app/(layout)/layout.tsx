@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import LayoutWrapper from '@src/components/layout/LayoutWrapper'
+import LayoutWrapper from '@src/shared/layout/LayoutWrapper'
 
 interface DefaultLayoutProps {
   children: ReactNode

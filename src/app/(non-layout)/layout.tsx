@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import NonLayoutWrapper from '@src/components/layout/NonLayoutWrapper'
+import NonLayoutWrapper from '@src/shared/layout/NonLayoutWrapper'
 
 interface DefaultLayoutProps {
   children: ReactNode
