@@ -1,55 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
-import { usePathname, useRouter } from 'next/navigation'
-
-import { verifyAdminToken } from '@src/store/features/auth'
-import { useAppDispatch } from '@src/store/hooks'
+import { useVerifyTokenQuery } from '@src/store/services/authApi'
 
 import { MESSAGES } from '../constants/messages'
-import { paths } from './DynamicTitle'
 
 interface AuthGuardProps {
   children: React.ReactNode
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const dispatch = useAppDispatch()
-  const [isVerifying, setIsVerifying] = useState(true)
-  const [isValidToken, setIsValidToken] = useState(false)
+  const { data, error, isLoading } = useVerifyTokenQuery()
 
-  const publicRoutes = [paths.AUTH.SIGNIN_BASIC]
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const isPublicRoute = publicRoutes.some((route) =>
-        pathname?.startsWith(route)
-      )
-
-      if (isPublicRoute) {
-        setIsVerifying(false)
-        setIsValidToken(true)
-        return
-      }
-
-      try {
-        await dispatch(verifyAdminToken()).unwrap()
-        setIsValidToken(true)
-      } catch (error) {
-        router.push(paths.AUTH.SIGNIN_BASIC)
-        setIsValidToken(false)
-      }
-
-      setIsVerifying(false)
-    }
-
-    checkAuth()
-  }, [pathname, router, dispatch])
-
-  if (isVerifying) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -62,5 +24,17 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     )
   }
 
-  return <>{isValidToken ? children : null}</>
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="mt-4 text-gray-600">
+            404 | {MESSAGES.COMMON.ERROR.TOKEN_VERIFICATION_FAILED}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return <>{data ? children : null}</>
 }

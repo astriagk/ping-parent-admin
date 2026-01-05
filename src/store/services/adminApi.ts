@@ -6,7 +6,7 @@ import { baseApi } from './baseApi'
 
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAdminList: builder.query<AdminListResponse, void | void>({
+    getAdminList: builder.query<AdminListResponse, void>({
       query: () => {
         const queryParams = new URLSearchParams()
         return {

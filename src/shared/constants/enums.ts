@@ -3,8 +3,6 @@ const AuthTags = {
   ADMIN: 'Admin',
 } as const
 
-type AuthTagsType = typeof AuthTags
-
 const ApiMethods = {
   GET: 'GET',
   POST: 'POST',
@@ -19,4 +17,12 @@ type UserRolesType = {
   MODERATOR: 'moderator'
 }
 
-export { AuthTags, ApiMethods, type UserRolesType }
+enum AssignmentStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  PENDING = 'pending',
+  PARENT_REQUESTED = 'parent_requested',
+  REJECTED = 'rejected',
+}
+
+export { AuthTags, ApiMethods, type UserRolesType, AssignmentStatus }

@@ -3,10 +3,12 @@ import { HYDRATE } from 'next-redux-wrapper'
 
 import { authReducer } from './features/auth'
 import { layoutReducer } from './features/layout'
+import { baseApi } from './services'
 
 const rootReducer = combineReducers({
   Layout: layoutReducer,
   Auth: authReducer,
+  [baseApi.reducerPath]: baseApi.reducer,
 })
 
 const reducer = (
@@ -30,7 +32,7 @@ export const makeStore = () =>
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: false,
-      }),
+      }).concat(baseApi.middleware),
   })
 
 const store = makeStore()
