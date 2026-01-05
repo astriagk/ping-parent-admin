@@ -2,7 +2,10 @@
 
 import React, { useMemo } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import BreadCrumb from '@src/shared/common/BreadCrumb'
+import { paths } from '@src/shared/common/DynamicTitle'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import {
   accessorkeys,
@@ -14,6 +17,7 @@ import { UserRoles, UserRolesType } from '@src/shared/constants/enums'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 
 const DriversList = () => {
+  const router = useRouter()
   const { data: driverListData } = useGetDriverListQuery({
     user_type: UserRoles.DRIVER,
   })
@@ -68,7 +72,11 @@ const DriversList = () => {
               </button>
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => console.log('View', row.original)}>
+                onClick={() =>
+                  router.push(
+                    `${paths.USERS.DRIVER_DETAILS}/${row.original._id}`
+                  )
+                }>
                 View
               </button>
             </div>
@@ -95,4 +103,5 @@ const DriversList = () => {
     </React.Fragment>
   )
 }
+
 export default DriversList

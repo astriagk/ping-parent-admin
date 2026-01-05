@@ -1,4 +1,4 @@
-import DriversList from '@src/views/Users/Drivers/List'
+import DriversList from '@src/views/Users/Drivers/DriversList'
 
 const DriversListPage = () => {
   return <DriversList />

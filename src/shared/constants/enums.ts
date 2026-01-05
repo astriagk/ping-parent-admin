@@ -37,4 +37,24 @@ enum AssignmentStatus {
   REJECTED = 'rejected',
 }
 
-export { AuthTags, ApiMethods, UserRoles, UserRolesType, AssignmentStatus }
+enum ApprovalStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+const ApprovalStatusType = {
+  pending: 'Pending',
+  approved: 'Approved',
+  rejected: 'Rejected',
+}
+
+export {
+  AuthTags,
+  ApiMethods,
+  UserRoles,
+  UserRolesType,
+  AssignmentStatus,
+  ApprovalStatus,
+  ApprovalStatusType,
+}

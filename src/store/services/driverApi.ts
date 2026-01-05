@@ -1,6 +1,14 @@
-import { DriverListResponse } from '@src/dtos/driver'
+import {
+  DriverDetailsResponse,
+  DriverListResponse,
+  UpdateDriverApprovalStatusRequest,
+  UpdateDriverApprovalStatusResponse,
+} from '@src/dtos/driver'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
-import { NEXT_PUBLIC_USERS_LIST_API } from '@utils/url_helper'
+import {
+  NEXT_PUBLIC_DRIVER_DETAILS_API,
+  NEXT_PUBLIC_USERS_LIST_API,
+} from '@utils/url_helper'
 
 import { baseApi } from './baseApi'
 
@@ -22,7 +30,31 @@ export const driverApi = baseApi.injectEndpoints({
       },
       providesTags: [AuthTags.DRIVER],
     }),
+    getDriverDetails: builder.query<DriverDetailsResponse, string>({
+      query: (id) => ({
+        url: `${NEXT_PUBLIC_DRIVER_DETAILS_API}/${id}/details`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.DRIVER],
+    }),
+    updateDriverApprovalStatus: builder.mutation<
+      UpdateDriverApprovalStatusResponse,
+      UpdateDriverApprovalStatusRequest
+    >({
+      query: ({ id, approval_status, rejection_reason }) => ({
+        url: `${NEXT_PUBLIC_DRIVER_DETAILS_API}/${id}/approval-status`,
+        method: ApiMethods.PATCH,
+        body: { approval_status, rejection_reason },
+      }),
+      invalidatesTags: [AuthTags.DRIVER],
+    }),
   }),
 })
 
-export const { useGetDriverListQuery, useLazyGetDriverListQuery } = driverApi
+export const {
+  useGetDriverListQuery,
+  useLazyGetDriverListQuery,
+  useGetDriverDetailsQuery,
+  useLazyGetDriverDetailsQuery,
+  useUpdateDriverApprovalStatusMutation,
+} = driverApi

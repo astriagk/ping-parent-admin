@@ -2,8 +2,6 @@ import { getLocalStorage } from '@src/utils/crud_functions'
 
 const isNotApi = process.env.NEXT_PUBLIC_IS_API_ACTIVE === 'false'
 
-console.log(isNotApi)
-
 // init store data from local storage
 export const initStore = (key: string) => {
   if (isNotApi) {
