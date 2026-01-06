@@ -3,5 +3,7 @@
   "pe-list": "List",
   "pe-users": "Users",
   "pe-drivers": "Drivers",
-  "pe-parents": "Parents"
+  "pe-parents": "Parents",
+  "pe-students": "Students",
+  "pe-schools": "Schools"
 }

@@ -7,3 +7,6 @@ export const NEXT_PUBLIC_ADMIN_LIST_API = '/admin'
 export const NEXT_PUBLIC_USERS_LIST_API = '/admin/users'
 // DRIVER MANAGEMENT APIS
 export const NEXT_PUBLIC_DRIVER_DETAILS_API = '/admin/drivers'
+// SCHOOL MANAGEMENT APIS
+export const NEXT_PUBLIC_SCHOOLS_LIST_API = '/schools'
+export const NEXT_PUBLIC_SCHOOL_DETAILS_API = '/schools/admin'

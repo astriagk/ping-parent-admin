@@ -3,6 +3,7 @@ const AuthTags = {
   ADMIN: 'Admin',
   DRIVER: 'Driver',
   PARENT: 'Parent',
+  SCHOOL: 'School',
 } as const
 
 const ApiMethods = {
@@ -49,6 +50,12 @@ const ApprovalStatusType = {
   rejected: 'Rejected',
 }
 
+enum ModelModes {
+  ADD = 'add',
+  EDIT = 'edit',
+  VIEW = 'view',
+}
+
 export {
   AuthTags,
   ApiMethods,
@@ -57,4 +64,5 @@ export {
   AssignmentStatus,
   ApprovalStatus,
   ApprovalStatusType,
+  ModelModes,
 }

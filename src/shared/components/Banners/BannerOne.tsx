@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
@@ -11,15 +11,21 @@ interface CustomerSupportProps {
   description?: string
   icon?: React.ReactNode
   color?: string
+  show?: boolean
 }
 
 const BannerOne = ({
   title,
   description,
   icon,
-  color = 'alert-solid-primary',
+  color = 'primary',
+  show = true,
 }: CustomerSupportProps) => {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    setIsOpen(show)
+  }, [show])
 
   const handleClose = () => {
     setIsOpen(false)
@@ -27,7 +33,7 @@ const BannerOne = ({
 
   return (
     <div className="col-span-12">
-      {isOpen && (
+      {show && isOpen && (
         <div className={`mb-5 alert-solid-${color} alert`}>
           <div className="flex items-center gap-3">
             {icon || (

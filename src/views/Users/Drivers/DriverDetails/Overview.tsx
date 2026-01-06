@@ -20,7 +20,6 @@ const Overview = ({
   isLoading: boolean
   error: any
 }) => {
-  console.log(driverDetails)
   return (
     <React.Fragment>
       <div className="col-span-12 card">

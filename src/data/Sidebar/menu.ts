@@ -68,6 +68,28 @@ const menu: MegaMenu[] = [
       },
     ],
   },
+  {
+    separator: true,
+    title: 'Schools',
+    lang: 'pe-schools',
+    children: [],
+  },
+  {
+    title: 'Schools',
+    lang: 'pe-schools',
+    icon: 'gauge',
+    link: '#',
+    separator: false,
+    children: [
+      {
+        title: 'List',
+        lang: 'pe-list',
+        link: '/schools/list',
+        dropdownPosition: null,
+        children: [],
+      },
+    ],
+  },
 ]
 
 export { menu }

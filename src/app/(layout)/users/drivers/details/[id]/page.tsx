@@ -1,11 +1,12 @@
 import DriversDetails from '@src/views/Users/Drivers/DriverDetails'
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-const DriversDetailsPage = ({ params }: PageProps) => {
-  return <DriversDetails id={params.id} />
+const DriversDetailsPage = async ({ params }: PageProps) => {
+  const { id } = await params
+  return <DriversDetails id={id} />
 }
 
 export default DriversDetailsPage

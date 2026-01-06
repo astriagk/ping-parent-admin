@@ -1,316 +1,420 @@
-# AI Prompts for API Integration with Store
+# AI Prompts for Complete Feature Implementation
 
-This document provides comprehensive AI prompts for creating and extending API integrations with Redux store in the admin-template-pp-ui project.
+This document provides comprehensive AI prompts for creating complete features end-to-end in the ping-parent-admin project, including API integration, pages, components, types, and enums.
 
 ## Prerequisites
 
 Before using these prompts, ensure you have the following information:
 
-1. **Endpoint**: The API endpoint URL (e.g., `/admin/users`)
-2. **Method**: HTTP method (GET, POST, PUT, PATCH, DELETE)
-3. **Payload**: Request body structure (for POST, PUT, PATCH)
-4. **Response**: Expected response structure
-5. **Error**: Expected error structure
-6. **Feature Name**: Name of the feature (e.g., "users", "products", "orders")
+1. **Feature Name**: Name of the feature (e.g., "users", "products", "orders")
+2. **Endpoint**: The API endpoint URL (e.g., `/admin/users`)
+3. **Method**: HTTP method (GET, POST, PUT, PATCH, DELETE)
+4. **Payload**: Request body structure (for POST, PUT, PATCH)
+5. **Response**: Expected response structure
+6. **Page Route**: Next.js route path (e.g., `/admins/list`, `/users/drivers/details/[id]`)
 
 ---
 
-## Prompt 1: Create New Feature with Complete Store Setup
+## Prompt 1: Create Complete List Page Feature (GET Endpoint)
 
-Use this prompt when creating a **brand new feature** from scratch.
+Use this prompt when creating a **complete list page** with table display.
 
 ### Template:
 
 ```
-Create a new feature called "[FEATURE_NAME]" with complete Redux store integration using the following details:
+Create a complete "[FEATURE_NAME]" list page feature with the following details:
 
 **API Details:**
 - Endpoint: [ENDPOINT_URL]
-- Method: [GET/POST/PUT/PATCH/DELETE]
-- Payload Structure:
-- Response Structure:
-- Error Structure:
+- Method: GET
+- Response Structure: [Provide TypeScript interface]
+
+**Page Route:**
+- Path: /[feature-route]/list
 
 **Requirements:**
 
-1. Create folder structure at src/store/features/[FEATURE_NAME]/ with:
-   - [FEATURE_NAME]Slice.ts (Redux slice with state management)
-   - [FEATURE_NAME]Thunks.ts (Async thunk actions)
-   - [FEATURE_NAME]Selectors.ts (State selectors)
-   - index.ts (Export all modules)
+1. **API Service** (src/store/services/[featureName]Api.ts):
+   - Create RTK Query service extending baseApi
+   - Add endpoint using builder.query
+   - Use ApiMethods.GET from enums
+   - Provide appropriate cache tags from AuthTags
+   - Export hooks: useGet[FeatureName]ListQuery, useLazyGet[FeatureName]ListQuery
 
-2. Create service file at src/store/services/[FEATURE_NAME]Api.ts with RTK Query endpoints
+2. **DTOs** (src/dtos/[featureName].ts):
+   - Create [FeatureName]ListItem interface with all fields
+   - Create [FeatureName]ListResponse interface
+   - Use types from enums where applicable
+   - Import generic types from @src/dtos/generic.ts if needed
 
-3. Add action type constant in src/store/actionTypes.ts:
-   - Format: [FEATURE_NAME_UPPER]\_[ACTION] (e.g., USERS_FETCH_LIST, USERS_CREATE)
+3. **URL Helper** (src/utils/url_helper.ts):
+   - Add endpoint constant: NEXT_PUBLIC_[FEATURE_NAME_UPPER]_LIST_API = '/[endpoint-path]'
 
-4. Create DTO interfaces in src/dtos/[FEATURE_NAME].ts:
-   - Use generic interfaces from src/dtos/generic.ts where applicable
-   - Keep feature-specific interfaces in feature file
+4. **Enums** (src/shared/constants/enums.ts) - if needed:
+   - Add new enum types specific to this feature
+   - Add mapping objects for display values
+   - Add to AuthTags if cache tagging needed
 
-5. Add endpoint constant in src/utils/url_helper.ts:
-   - Format: NEXT*PUBLIC*[FEATURE_NAME_UPPER]\_[ACTION]\_API
+5. **Column Constants** (src/shared/constants/columns.ts):
+   - Add accessor keys to accessorkeys object for each table column
+   - Add header labels to headerKeys object
+   - Add badge configurations to badges object if status display needed
+   - Add button configurations to buttonsKeys object if action buttons needed
 
-6. Add messages in src/shared/constants/messages.ts:
-   - SUCCESS messages
-   - ERROR messages
-   - LOADING messages
-   - VALIDATION messages
+6. **View Component** (src/views/[FeatureName]/List/index.tsx):
+   - Add 'use client' directive at top
+   - Import useGet[FeatureName]ListQuery hook
+   - Import BreadCrumb, DatatablesHover components
+   - Import column constants
+   - Define columns array with useMemo including:
+     * ID column with row index
+     * Data columns using accessorKey
+     * Status/badge columns with custom cell renderer
+     * Actions column with buttons and handlers
+   - Use DatatablesHover component with columns and data
+   - Handle loading and empty states
 
-**Code Structure Reference:**
+7. **Page Component** (src/app/(layout)/[feature-route]/list/page.tsx):
+   - Import view component
+   - For Next.js 15+, make async if using params/searchParams
+   - Await params/searchParams if applicable
+   - Return view component
 
-- Follow the pattern from src/store/features/auth/
-- Use handleAsyncThunkApi utility for error handling
-- Implement proper TypeScript typing throughout
-- Use helper functions for state mutations in slice
+**Reference Implementation:**
+- API: src/store/services/adminApi.ts
+- DTOs: src/dtos/admin.ts
+- View: src/views/Admins/List/index.tsx
+- Page: src/app/(layout)/admins/list/page.tsx
+- Columns: src/shared/constants/columns.ts
 ```
 
 ### Example Usage:
 
 ```
-
-Create a new feature called "users" with complete Redux store integration using the following details:
+Create a complete "products" list page feature with the following details:
 
 **API Details:**
-
-- Endpoint: /admin/users
+- Endpoint: /admin/products
 - Method: GET
-- Payload Structure: None (GET request)
-- Response Structure:
-- Error Structure:
+- Response Structure: { success: boolean, data: ProductListItem[], message: string }
+
+**Page Route:**
+- Path: /products/list
 
 **Requirements:**
-[Same as template above]
-
+[Follow all 7 steps from template above]
 ```
 
 ---
 
-## Prompt 2: Add New Action to Existing Feature
+## Prompt 2: Create Complete Details Page Feature (GET by ID Endpoint)
 
-Use this prompt when you need to **add a new API action** to an existing feature (e.g., add "delete user" to existing "users" feature).
+Use this prompt when creating a **details/view page** for a specific resource.
 
 ### Template:
 
 ```
-
-Add a new action to the existing "[FEATURE_NAME]" feature for [ACTION_DESCRIPTION].
+Create a complete "[FEATURE_NAME]" details page feature with the following details:
 
 **API Details:**
+- Endpoint: [ENDPOINT_URL]/[id] or [ENDPOINT_URL]/details/[id]
+- Method: GET
+- Response Structure: [Provide TypeScript interface]
 
-- Endpoint: [ENDPOINT_URL]
-- Method: [GET/POST/PUT/PATCH/DELETE]
-- Payload Structure:
-- Response Structure:
+**Page Route:**
+- Path: /[feature-route]/details/[id]
+- Dynamic route parameter: id
 
 **Requirements:**
 
-1. Update src/store/features/[FEATURE_NAME]/[FEATURE_NAME]Thunks.ts:
-   - Add new async thunk for this action
-   - Use handleAsyncThunkApi for error handling
+1. **API Service** (src/store/services/[featureName]Api.ts):
+   - Add endpoint using builder.query with id parameter
+   - Use ApiMethods.GET from enums
+   - Provide appropriate cache tags
+   - Export hooks: useGet[FeatureName]DetailsQuery, useLazyGet[FeatureName]DetailsQuery
 
-2. Update src/store/features/[FEATURE_NAME]/[FEATURE_NAME]Slice.ts:
-   - Add new state properties if needed
-   - Add extraReducers cases (pending, fulfilled, rejected)
-   - Add helper functions for state mutations if needed
+2. **DTOs** (src/dtos/[featureName].ts):
+   - Create [FeatureName]Details interface with all fields
+   - Create [FeatureName]DetailsResponse interface
+   - Include nested objects if applicable
+   - Use enum types where needed
 
-3. Update src/store/features/[FEATURE_NAME]/[FEATURE_NAME]Selectors.ts:
-   - Add selectors for new state properties
+3. **URL Helper** (src/utils/url_helper.ts):
+   - Add endpoint constant: NEXT_PUBLIC_[FEATURE_NAME_UPPER]_DETAILS_API = '/[endpoint-path]'
 
-4. Update src/store/services/[FEATURE_NAME]Api.ts:
-   - Add new RTK Query endpoint (mutation or query)
+4. **View Component** (src/views/[FeatureName]/[FeatureName]Details/index.tsx):
+   - Add 'use client' directive
+   - Accept id as prop: { id: string }
+   - Use useGet[FeatureName]DetailsQuery(id) hook
+   - Destructure { data, isLoading, error } from query
+   - Create child components for different sections (Overview, Reports, etc.)
+   - Add BannerOne for conditional alerts based on status
+   - Pass data to child components
+   - Handle loading, error, and empty states
 
-5. Update src/store/features/[FEATURE_NAME]/index.ts:
-   - Export new thunk and actions
+5. **Child Components** (src/views/[FeatureName]/[FeatureName]Details/):
+   - Create Overview component for main details display
+   - Create additional section components as needed
+   - Each component should accept data and handle its own display logic
 
-6. Add action type in src/store/actionTypes.ts:
-   - Format: [FEATURE_NAME_UPPER]\_[ACTION]
+6. **Page Component** (src/app/(layout)/[feature-route]/details/[id]/page.tsx):
+   - Import view component
+   - Make component async
+   - Define PageProps interface with params: Promise<{ id: string }>
+   - Await params and destructure id
+   - Pass id to view component
 
-7. Add DTOs in src/dtos/[FEATURE_NAME].ts if needed
+7. **Conditional UI Elements** (if needed):
+   - Use BannerOne component for status-based alerts
+   - Check status using enums (e.g., ApprovalStatus.REJECTED)
+   - Pass appropriate props: title, description, icon, color, show
 
-8. Add endpoint in src/utils/url_helper.ts:
-   - Format: NEXT*PUBLIC*[FEATURE_NAME_UPPER]\_[ACTION]\_API
-
-9. Add messages in src/shared/constants/messages.ts:
-   - Under existing [FEATURE_NAME_UPPER] section
-
-**Important:**
-
-- Reuse existing files - DO NOT create new feature folder
-- Follow the existing code patterns in the feature
-- Maintain consistency with existing actions
-
+**Reference Implementation:**
+- API: src/store/services/driverApi.ts
+- DTOs: src/dtos/driver.ts
+- View: src/views/Users/Drivers/DriverDetails/index.tsx
+- Page: src/app/(layout)/users/drivers/details/[id]/page.tsx
+- Enums: src/shared/constants/enums.ts (ApprovalStatus, AssignmentStatus)
 ```
 
 ### Example Usage:
 
 ```
-
-Add a new action to the existing "users" feature for creating a new user.
-
-**API Details:**
-
-- Endpoint: /admin/users
-- Method: POST
-- Payload Structure:
-- Response Structure:
-
-
-**Requirements:**
-[Same as template above]
-
-```
-
----
-
-## Prompt 3: Add Multiple Related Actions to Existing Feature
-
-Use this prompt when adding **multiple related actions** to an existing feature (e.g., CRUD operations).
-
-### Template:
-
-```
-
-Add the following actions to the existing "[FEATURE_NAME]" feature:
-
-**Action 1: [ACTION_1_NAME]**
-
-- Endpoint: [ENDPOINT_URL_1]
-- Method: [METHOD_1]
-- Payload: [PAYLOAD_1]
-- Response: [RESPONSE_1]
-
-**Action 2: [ACTION_2_NAME]**
-
-- Endpoint: [ENDPOINT_URL_2]
-- Method: [METHOD_2]
-- Payload: [PAYLOAD_2]
-- Response: [RESPONSE_2]
-
-**Action 3: [ACTION_3_NAME]**
-
-- Endpoint: [ENDPOINT_URL_3]
-- Method: [METHOD_3]
-- Payload: [PAYLOAD_3]
-- Response: [RESPONSE_3]
-
-**Requirements:**
-
-1. Update all files in src/store/features/[FEATURE_NAME]/:
-   - Add thunks for all actions
-   - Update slice with state for all actions
-   - Add selectors for all new state
-
-2. Update src/store/services/[FEATURE_NAME]Api.ts with all endpoints
-
-3. Add all action types to src/store/actionTypes.ts
-
-4. Add all DTOs to src/dtos/[FEATURE_NAME].ts
-
-5. Add all endpoints to src/utils/url_helper.ts
-
-6. Add all messages to src/shared/constants/messages.ts
-
-**Important:**
-
-- Keep all actions in the same feature files
-- Ensure consistent naming patterns
-- Reuse common interfaces where possible
-
-```
-
----
-
-## Prompt 4: Create Feature with Pagination Support
-
-Use this prompt for features that require **pagination, filtering, or sorting**.
-
-### Template:
-
-```
-
-Create a new feature called "[FEATURE_NAME]" with pagination, filtering, and sorting support.
+Create a complete "order" details page feature with the following details:
 
 **API Details:**
-
-- Endpoint: [ENDPOINT_URL]?page=[PAGE]&limit=[LIMIT]&sort=[SORT]&filter=[FILTER]
+- Endpoint: /admin/orders/[id]
 - Method: GET
-- Query Parameters:
+- Response Structure: { success: boolean, data: OrderDetails, message: string }
 
-- Response Structure:
-
-**Additional State Requirements:**
-
-- Current page
-- Items per page
-- Total items count
-- Sort configuration
-- Filter configuration
-- Loading states for pagination
+**Page Route:**
+- Path: /orders/details/[id]
+- Dynamic route parameter: id
 
 **Requirements:**
-[Follow Prompt 1 requirements plus pagination-specific state management]
-
+[Follow all 7 steps from template above]
 ```
 
 ---
 
-## Prompt 5: Update Feature with Error Handling Improvements
+## Prompt 3: Add Mutation Action to Existing Feature (POST/PUT/PATCH/DELETE)
 
-Use this prompt to enhance **error handling** in existing features.
+Use this prompt when adding a **mutation action** to an existing feature (create, update, delete, approve, reject, etc.).
 
 ### Template:
 
 ```
+Add a "[ACTION_NAME]" mutation action to the existing "[FEATURE_NAME]" feature.
 
-Update the "[FEATURE_NAME]" feature to improve error handling for the following scenarios:
-
-1. Network errors
-2. Validation errors
-3. Authentication errors
-4. Server errors (500+)
-5. Timeout errors
+**API Details:**
+- Endpoint: [ENDPOINT_URL]
+- Method: [POST/PUT/PATCH/DELETE]
+- Payload Structure: [Provide TypeScript interface]
+- Response Structure: [Provide TypeScript interface]
 
 **Requirements:**
 
-1. Update src/store/features/[FEATURE_NAME]/[FEATURE_NAME]Slice.ts:
-   - Add detailed error state structure
-   - Add error type discrimination
+1. **API Service** (src/store/services/[featureName]Api.ts):
+   - Add new endpoint using builder.mutation
+   - Use appropriate ApiMethods enum value
+   - Include payload type and response type
+   - Implement invalidatesTags for cache invalidation
+   - Export mutation hook: use[ActionName][FeatureName]Mutation
 
-2. Update src/shared/constants/messages.ts:
-   - Add specific error messages for each scenario
+2. **DTOs** (src/dtos/[featureName].ts):
+   - Create [ActionName][FeatureName]Payload interface
+   - Create [ActionName][FeatureName]Response interface
+   - Reuse existing types where applicable
 
-3. Ensure all thunks properly handle and categorize errors
+3. **URL Helper** (src/utils/url_helper.ts):
+   - Add endpoint constant: NEXT_PUBLIC_[FEATURE_NAME_UPPER]_[ACTION_UPPER]_API
 
-**Error Response Structure:**
+4. **Component Integration**:
+   - Use the mutation hook in the component
+   - Destructure [actionName, { isLoading, isError, isSuccess }]
+   - Call mutation with payload in event handler
+   - Handle loading, success, and error states
+   - Show appropriate toast/notification messages
 
+**Mutation Hook Pattern:**
+- Query hooks: useGet[Feature]Query for fetching data
+- Mutation hooks: use[Action][Feature]Mutation for modifying data
+- Lazy query hooks: useLazy[Action][Feature]Query for manual triggering
+
+**Cache Invalidation:**
+- Use invalidatesTags to refresh related queries after mutation
+- Common tags: [AuthTags.ADMIN], [AuthTags.DRIVER], [AuthTags.PARENT]
+
+**Reference Implementation:**
+- API: src/store/services/driverApi.ts (approve/reject mutations)
+- DTOs: src/dtos/driver.ts
+```
+
+### Example Usage:
+
+```
+Add a "approve driver" mutation action to the existing "driver" feature.
+
+**API Details:**
+- Endpoint: /admin/drivers/[id]/approve
+- Method: PATCH
+- Payload Structure: { driver_id: string, approved_by: string }
+- Response Structure: { success: boolean, data: DriverDetails, message: string }
+
+**Requirements:**
+[Follow all 4 steps from template above]
 ```
 
 ---
 
-## Prompt 6: Add Optimistic Updates to Feature
+## Prompt 4: Create Complete Feature with List and Details Pages
 
-Use this prompt to implement **optimistic UI updates**.
+Use this prompt when creating a **complete CRUD feature** with both list and details pages.
 
 ### Template:
 
 ```
+Create a complete "[FEATURE_NAME]" feature with list and details pages.
 
-Add optimistic updates to the "[FEATURE_NAME]" feature for [ACTION_NAME] action.
+**API Endpoints:**
+
+1. List: GET [LIST_ENDPOINT] → Returns array of items
+2. Details: GET [DETAILS_ENDPOINT]/[id] → Returns single item details
+3. Create (optional): POST [CREATE_ENDPOINT] → Creates new item
+4. Update (optional): PUT/PATCH [UPDATE_ENDPOINT]/[id] → Updates item
+5. Delete (optional): DELETE [DELETE_ENDPOINT]/[id] → Deletes item
+
+**Page Routes:**
+- List: /[feature-route]/list
+- Details: /[feature-route]/details/[id]
 
 **Requirements:**
 
-1. Update slice to implement optimistic state updates
-2. Add rollback logic for failed requests
-3. Handle cache invalidation properly
-4. Update RTK Query configuration for optimistic updates
+1. **API Service** (src/store/services/[featureName]Api.ts):
+   - Create service extending baseApi
+   - Add query for list endpoint
+   - Add query for details endpoint
+   - Add mutations for create/update/delete if applicable
+   - Configure cache tags and invalidation
+   - Export all hooks
 
-**Use Case:**
-[Describe when optimistic update should occur]
+2. **DTOs** (src/dtos/[featureName].ts):
+   - [FeatureName]ListItem interface
+   - [FeatureName]ListResponse interface
+   - [FeatureName]Details interface
+   - [FeatureName]DetailsResponse interface
+   - Payload interfaces for mutations
 
-**Rollback Strategy:**
-[Describe how to rollback on failure]
+3. **URL Helper** (src/utils/url_helper.ts):
+   - Add all endpoint constants
 
+4. **Enums** (src/shared/constants/enums.ts):
+   - Add feature-specific enums
+   - Add status/type mapping objects
+   - Add cache tags if needed
+
+5. **Column Constants** (src/shared/constants/columns.ts):
+   - Add accessorkeys for table columns
+   - Add headerKeys for column labels
+   - Add badge/button configurations
+
+6. **List View** (src/views/[FeatureName]/List/index.tsx):
+   - Implement as per Prompt 1
+
+7. **Details View** (src/views/[FeatureName]/[FeatureName]Details/index.tsx):
+   - Implement as per Prompt 2
+
+8. **List Page** (src/app/(layout)/[feature-route]/list/page.tsx):
+   - Simple wrapper for list view
+
+9. **Details Page** (src/app/(layout)/[feature-route]/details/[id]/page.tsx):
+   - Async component with params handling
+
+**Reference Implementation:**
+- Complete feature: driver (list + details + approve/reject)
+- List only: admin
+```
+
+---
+
+## Prompt 5: Add Nested Dynamic Route Page
+
+Use this prompt for creating **nested dynamic routes** like /users/[userType]/details/[id].
+
+### Template:
+
+```
+Create a nested dynamic route page for "[FEATURE_NAME]" with multiple route parameters.
+
+**Page Route:**
+- Path: /[parent-route]/[param1]/[child-route]/[param2]
+- Example: /users/drivers/details/[id], /orders/[status]/items/[itemId]
+
+**Route Parameters:**
+- [param1]: [description and type]
+- [param2]: [description and type]
+
+**Requirements:**
+
+1. **Page Component** (src/app/(layout)/[parent-route]/[param1]/[child-route]/[param2]/page.tsx):
+   - Make component async
+   - Define PageProps with params: Promise<{ param1: string, param2: string }>
+   - Await params and destructure all parameters
+   - Pass parameters to view component
+
+2. **View Component**:
+   - Accept all route parameters as props
+   - Use parameters in API calls or logic
+   - Handle invalid parameter scenarios
+
+**Reference Implementation:**
+- Page: src/app/(layout)/users/drivers/details/[id]/page.tsx
+```
+
+---
+
+## Prompt 6: Add Conditional Banner/Alert to Page
+
+Use this prompt to add **conditional banners** based on data state (like BannerOne component).
+
+### Template:
+
+```
+Add a conditional banner to the "[FEATURE_NAME]" page that displays based on [CONDITION].
+
+**Banner Details:**
+- Title: [BANNER_TITLE]
+- Description: [BANNER_DESCRIPTION]
+- Color: [red/yellow/blue/green/primary]
+- Icon: [Icon component name from lucide-react]
+- Show Condition: [TypeScript condition expression]
+
+**Requirements:**
+
+1. **View Component** updates:
+   - Import BannerOne from @src/shared/components/Banners/BannerOne
+   - Import icon from lucide-react
+   - Add BannerOne component with props:
+     * title: Banner title text
+     * description: Banner description text
+     * icon: Icon component with appropriate classes
+     * color: Theme color
+     * show: Boolean condition based on data state
+
+2. **BannerOne Component Features**:
+   - Automatically shows/hides based on show prop
+   - User can dismiss the banner
+   - Syncs with parent show prop changes via useEffect
+   - Supports custom icons and colors
+
+**Condition Examples:**
+- data?.data?.approval_status === ApprovalStatus.REJECTED
+- data?.data?.is_active === false
+- data?.data?.payment_status === PaymentStatus.PENDING
+
+**Reference Implementation:**
+- Component: src/shared/components/Banners/BannerOne.tsx
+- Usage: src/views/Users/Drivers/DriverDetails/index.tsx
 ```
 
 ---
@@ -320,204 +424,269 @@ Add optimistic updates to the "[FEATURE_NAME]" feature for [ACTION_NAME] action.
 ### File Structure to Follow:
 
 ```
-
 src/
+├── app/
+│ └── (layout)/
+│ └── [feature-route]/
+│ ├── list/
+│ │ └── page.tsx # List page
+│ └── details/
+│ └── [id]/
+│ └── page.tsx # Details page
+├── views/
+│ └── [FeatureName]/
+│ ├── List/
+│ │ └── index.tsx # List view component
+│ └── [FeatureName]Details/
+│ ├── index.tsx # Details view component
+│ ├── Overview.tsx # Detail sections
+│ └── Reports.tsx # Detail sections
 ├── store/
-│ ├── features/
-│ │ └── [featureName]/
-│ │ ├── index.ts # Export all feature modules
-│ │ ├── [featureName]Slice.ts # Redux slice
-│ │ ├── [featureName]Thunks.ts # Async thunks
-│ │ └── [featureName]Selectors.ts # Selectors
-│ ├── services/
-│ │ └── [featureName]Api.ts # RTK Query API
-│ └── actionTypes.ts # Action type constants
+│ └── services/
+│ └── [featureName]Api.ts # RTK Query API service
 ├── dtos/
 │ ├── [featureName].ts # Feature-specific DTOs
 │ └── generic.ts # Reusable generic DTOs
-├── utils/
-│ └── url_helper.ts # API endpoint constants
-└── components/
-└── constants/
-└── messages.ts # User-facing messages
-
+├── shared/
+│ ├── constants/
+│ │ ├── enums.ts # Enums and constant objects
+│ │ ├── columns.ts # Table column configurations
+│ │ └── messages.ts # User-facing messages
+│ ├── components/
+│ │ ├── Table/
+│ │ │ └── DatatablesHover.tsx # Table component
+│ │ └── Banners/
+│ │ └── BannerOne.tsx # Alert banner component
+│ └── common/
+│ └── BreadCrumb.tsx # Breadcrumb component
+└── utils/
+└── url_helper.ts # API endpoint constants
 ```
 
 ### Naming Conventions:
 
-1. **Feature Folders**: camelCase (e.g., `users`, `productCategories`)
-2. **Files**: camelCase with feature prefix (e.g., `usersSlice.ts`, `usersThunks.ts`)
-3. **Action Types**: SCREAMING_SNAKE_CASE (e.g., `USERS_FETCH_LIST`)
-4. **Endpoints**: SCREAMING_SNAKE_CASE with prefix (e.g., `NEXT_PUBLIC_USERS_FETCH_API`)
-5. **Interfaces**: PascalCase with descriptive suffix (e.g., `FetchUsersResponse`, `CreateUserPayload`)
-6. **Selectors**: camelCase with `select` prefix (e.g., `selectUsers`, `selectUsersLoading`)
+1. **Feature Routes**: kebab-case (e.g., `/admins/list`, `/users/drivers/details/[id]`)
+2. **View Folders**: PascalCase (e.g., `Admins/List`, `Users/Drivers/DriverDetails`)
+3. **Service Files**: camelCase with Api suffix (e.g., `adminApi.ts`, `driverApi.ts`)
+4. **DTO Files**: camelCase (e.g., `admin.ts`, `driver.ts`)
+5. **Endpoints**: SCREAMING_SNAKE_CASE with prefix (e.g., `NEXT_PUBLIC_ADMIN_LIST_API`)
+6. **Interfaces**: PascalCase with descriptive suffix (e.g., `AdminListResponse`, `DriverDetails`)
+7. **Enums**: PascalCase for enum names, SCREAMING_CASE for values
+8. **Hooks**: use[Action][Feature]Query/Mutation (e.g., `useGetAdminListQuery`, `useApproveDriverMutation`)
 
-### State Shape Pattern:
+### RTK Query Service Pattern:
+
+- Use `baseApi.injectEndpoints()` to add endpoints
+- Queries for GET requests: `builder.query<ResponseType, ParamsType>`
+- Mutations for POST/PUT/PATCH/DELETE: `builder.mutation<ResponseType, PayloadType>`
+- Always configure cache tags with `providesTags` and `invalidatesTags`
+- Export generated hooks at the bottom
+
+### DTO Pattern:
 
 ```typescript
-interface FeatureState {
-  data: DataType | null // Main data
-  isLoading: boolean // Loading state
-  error: string | null // Error message
-  // Action-specific states
-  isCreating?: boolean
-  isUpdating?: boolean
-  isDeleting?: boolean
+// List response
+export interface [Feature]ListResponse {
+  success: boolean
+  data: [Feature]ListItem[]
+  message: string
+}
+
+// Details response
+export interface [Feature]DetailsResponse {
+  success: boolean
+  data: [Feature]Details
+  message: string
+}
+
+// Mutation payload
+export interface [Action][Feature]Payload {
+  [field]: type
 }
 ```
 
-### Messages Pattern:
+### Enum Pattern:
 
 ```typescript
-export const MESSAGES = {
-  [FEATURE_NAME_UPPER]: {
-    VALIDATION: {
-      // Validation messages
-    },
-    SUCCESS: {
-      // Success messages
-    },
-    ERROR: {
-      // Error messages
-    },
-    LOADING: {
-      // Loading messages
-    },
-  },
+// Enum definition
+enum Status {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+// Display mapping
+const StatusType = {
+  pending: 'Pending',
+  approved: 'Approved',
+  rejected: 'Rejected',
+}
+
+// Export both
+export { Status, StatusType }
+```
+
+### Column Configuration Pattern:
+
+```typescript
+const accessorkeys = {
+  fieldName: 'api_field_name',
+}
+
+const headerKeys = {
+  fieldName: 'Display Label',
+}
+
+const badges = {
+  true: { label: 'Active', className: 'badge-green' },
+  false: { label: 'Inactive', className: 'badge-yellow' },
+}
+
+const buttonsKeys = {
+  true: { label: 'Activate', className: 'btn-green' },
+  false: { label: 'Deactivate', className: 'btn-orange' },
 }
 ```
 
-### Thunk Pattern:
+### Next.js 15+ Page Pattern:
 
 ```typescript
-export const [actionName] = createAsyncThunk<
-  ResponseType,
-  PayloadType,
-  { rejectValue: string }
->(
-  ACTION_TYPE_CONSTANT,
-  async (payload, { rejectWithValue }) => {
-    return handleAsyncThunkApi(
-      () => api.[method](ENDPOINT_CONSTANT, payload),
-      rejectWithValue,
-      MESSAGES.[FEATURE].ERROR.[ACTION]_FAILED
-    )
-  }
-)
-```
+// For dynamic routes - MUST be async
+interface PageProps {
+  params: Promise<{ id: string }>
+}
 
-### Selector Pattern:
-
-```typescript
-const [featureName]State = (state: RootState) => state.[FeatureName]
-
-export const select[FeatureName] = [featureName]State
-export const select[Property] = (state: RootState) => [featureName]State(state).[property]
+const Page = async ({ params }: PageProps) => {
+  const { id } = await params
+  return <ViewComponent id={id} />
+}
 ```
 
 ---
 
 ## Quick Reference Table
 
-| Task                                     | Prompt to Use |
-| ---------------------------------------- | ------------- |
-| Create brand new feature                 | Prompt 1      |
-| Add single action to existing feature    | Prompt 2      |
-| Add multiple actions to existing feature | Prompt 3      |
-| Create feature with pagination           | Prompt 4      |
-| Improve error handling                   | Prompt 5      |
-| Add optimistic updates                   | Prompt 6      |
+| Task                                   | Prompt to Use |
+| -------------------------------------- | ------------- |
+| Create list page with table            | Prompt 1      |
+| Create details/view page               | Prompt 2      |
+| Add mutation (create/update/delete)    | Prompt 3      |
+| Create complete feature (list+details) | Prompt 4      |
+| Add nested dynamic routes              | Prompt 5      |
+| Add conditional banners/alerts         | Prompt 6      |
 
 ---
 
-## Example: Complete Flow for "Products" Feature
+## Common Use Cases and Workflows
 
-### Step 1: Create Feature (Prompt 1)
+### Workflow 1: Create Simple List-Only Feature
 
-````
+**Steps:**
+1. Use **Prompt 1** to create list page
+2. Done!
 
-Create a new feature called "products" with complete Redux store integration using the following details:
-
-**API Details:**
-
-- Endpoint: /admin/products
-- Method: GET
-- Response Structure:
-
-  ```typescript
-  interface FetchProductsResponse {
-    success: boolean
-    data: {
-      products: Product[]
-      total: number
-    }
-    message: string
-  }
-
-  interface Product {
-    product_id: string
-    name: string
-    description: string
-    price: number
-    stock: number
-    category_id: string
-    is_active: boolean
-    created_at: string
-    updated_at: string
-  }
-  ```
-
-````
+**Example:** Admin list page (view-only table)
 
 ---
 
-```
+### Workflow 2: Create Full CRUD Feature
 
-### Step 2: Add Create Product Action (Prompt 2)
+**Steps:**
+1. Use **Prompt 4** to create list + details pages
+2. Use **Prompt 3** for each mutation (create, update, delete)
+3. Use **Prompt 6** to add status banners if needed
 
-Add a new action to the existing "products" feature for creating a new product.
-
-**API Details:**
-
-- Endpoint: /admin/products
-- Method: POST
-- Payload Structure:
-
-```
+**Example:** Driver management (list, view details, approve/reject)
 
 ---
 
-### Step 3: Add Update and Delete Actions (Prompt 3)
+### Workflow 3: Add Feature to Existing Page
 
-```
+**Steps:**
+1. Use **Prompt 3** to add mutation endpoint
+2. Update view component to use the new mutation hook
+3. Add button/form to trigger the mutation
 
-Add the following actions to the existing "products" feature:
-
-**Action 1: Update Product**
-
-- Endpoint: /admin/products/:id
-- Method: PATCH
-
-**Action 2: Delete Product**
-
-- Endpoint: /admin/products/:id
-- Method: DELETE
-
-```
+**Example:** Adding "activate/deactivate" button to admin list
 
 ---
 
-## Notes
+## Important Notes and Best Practices
 
-1. Always read the existing `auth` feature files as reference before creating new features
-2. Use TypeScript interfaces for all data structures
-3. Follow the established patterns in the codebase
-4. Ensure proper error handling in all thunks
-5. Keep DTOs organized - generic types in `generic.ts`, feature-specific in feature files
-6. Always export new actions, thunks, and selectors from the feature's `index.ts`
-7. Use meaningful, descriptive names for all constants and interfaces
-8. Add JSDoc comments for complex logic
+### API Integration
+
+1. **RTK Query Only**: This project uses RTK Query for ALL API calls, no Redux Thunks
+2. **Base API Extension**: All API services extend `baseApi` using `injectEndpoints()`
+3. **Cache Management**: Always configure `providesTags` and `invalidatesTags` for proper cache invalidation
+4. **Error Handling**: RTK Query handles errors automatically, accessible via `isError` and `error` from hooks
+
+### TypeScript
+
+1. Use interfaces for all data structures
+2. Import enum types from `@src/shared/constants/enums`
+3. Reuse generic interfaces from `@src/dtos/generic.ts` where applicable
+4. Always type hook returns: `const { data, isLoading, error } = useGetAdminListQuery()`
+
+### Next.js 15+ Specific
+
+1. **Dynamic Routes MUST be async**: Any page using `params` or `searchParams` must be an async component
+2. **Await Params**: Always await params before accessing: `const { id } = await params`
+3. **Type Params as Promise**: `params: Promise<{ id: string }>` not `params: { id: string }`
+
+### Component Architecture
+
+1. **Separation**: Page components (in `app/`) are thin wrappers, logic goes in view components (in `views/`)
+2. **Client Directive**: View components that use hooks need `'use client'` at the top
+3. **Component Reusability**: Shared components in `src/shared/components/`, feature-specific in `src/views/[Feature]/`
+
+### Column Configuration
+
+1. Keep all table column configs in `src/shared/constants/columns.ts`
+2. Use `accessorkeys` for mapping to API field names
+3. Use `headerKeys` for display labels
+4. Configure badges and buttons for dynamic styling
+
+### File Organization
+
+1. **DTOs**: One file per feature in `src/dtos/`
+2. **API Services**: One file per feature in `src/store/services/`
+3. **Views**: Folder per feature in `src/views/`, subfolders for List/Details
+4. **Pages**: Follow Next.js App Router structure in `src/app/(layout)/`
+
+### Common Patterns
+
+1. **List Pages**: BreadCrumb + DatatablesHover with useMemo columns
+2. **Details Pages**: Multiple child components for different sections
+3. **Mutations**: Use mutation hooks with loading/error states for user feedback
+4. **Conditional UI**: Use BannerOne for status-based alerts with enum checks
+
+### Reference Implementations
+
+- **List Page**: `src/views/Admins/List/index.tsx` + `src/store/services/adminApi.ts`
+- **Details Page**: `src/views/Users/Drivers/DriverDetails/index.tsx` + `src/store/services/driverApi.ts`
+- **Enums**: `src/shared/constants/enums.ts`
+- **Columns**: `src/shared/constants/columns.ts`
+- **DTOs**: `src/dtos/admin.ts`, `src/dtos/driver.ts`
 
 ---
 
-**Last Updated:** 2026-01-04
+## Checklist for New Features
+
+When creating a new feature, ensure you've completed:
+
+- [ ] Created API service in `src/store/services/[featureName]Api.ts`
+- [ ] Defined DTOs in `src/dtos/[featureName].ts`
+- [ ] Added endpoint constants in `src/utils/url_helper.ts`
+- [ ] Added enums in `src/shared/constants/enums.ts` (if needed)
+- [ ] Added column configs in `src/shared/constants/columns.ts` (for lists)
+- [ ] Created view component(s) in `src/views/[FeatureName]/`
+- [ ] Created page component(s) in `src/app/(layout)/[route]/`
+- [ ] Tested loading, success, and error states
+- [ ] Verified cache invalidation works for mutations
+- [ ] Handled edge cases (empty data, invalid params)
+
+---
+
+**Last Updated:** 2026-01-05
+**Project:** ping-parent-admin
+**Architecture:** Next.js 15 + RTK Query + TypeScript
