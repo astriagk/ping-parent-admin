@@ -4,6 +4,7 @@ const AuthTags = {
   DRIVER: 'Driver',
   PARENT: 'Parent',
   SCHOOL: 'School',
+  PAYMENT: 'Payment',
 } as const
 
 const ApiMethods = {

@@ -58,7 +58,7 @@ const Overview = ({
               </div>
               <div>
                 <div className="flex flex-wrap items-center mt-5 gap-space">
-                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 w-36 shrink-0">
+                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 min-w-36 shrink-0">
                     <h4 className="mb-1">
                       {formatDate(driverDetails?.created_at)}
                     </h4>
@@ -66,23 +66,23 @@ const Overview = ({
                       Joined Date
                     </p>
                   </div>
-                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 w-36 shrink-0">
+                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 min-w-36 shrink-0">
                     <h4 className="mb-1">{driverDetails?.vehicle_capacity}</h4>
                     <p className="text-gray-500 dark:text-dark-500">Capacity</p>
                   </div>
-                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 w-36 shrink-0">
+                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 min-w-36 shrink-0">
                     <h4 className="mb-1">{driverDetails?.vehicle_type}</h4>
                     <p className="text-gray-500 dark:text-dark-500">
                       Vehicle Type
                     </p>
                   </div>
-                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 w-36 shrink-0">
+                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 min-w-36 shrink-0">
                     <h4 className="mb-1">{driverDetails?.vehicle_number}</h4>
                     <p className="text-gray-500 dark:text-dark-500">
                       Vehicle No.
                     </p>
                   </div>
-                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 w-36 shrink-0">
+                  <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 min-w-36 shrink-0">
                     <h4 className="mb-1">{driverDetails?.total_trips}</h4>
                     <p className="text-gray-500 dark:text-dark-500">
                       Total Trips

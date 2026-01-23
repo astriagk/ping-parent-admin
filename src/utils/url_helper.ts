@@ -10,3 +10,10 @@ export const NEXT_PUBLIC_DRIVER_DETAILS_API = '/admin/drivers'
 // SCHOOL MANAGEMENT APIS
 export const NEXT_PUBLIC_SCHOOLS_LIST_API = '/schools'
 export const NEXT_PUBLIC_SCHOOL_DETAILS_API = '/schools/admin'
+
+// PAYMENT APIS
+export const NEXT_PUBLIC_RAZORPAY_CONFIG_API = '/razorpay/config'
+export const NEXT_PUBLIC_RAZORPAY_ORDERS_API = '/razorpay/orders'
+export const NEXT_PUBLIC_RAZORPAY_VERIFY_API = '/razorpay/verify'
+export const NEXT_PUBLIC_PAYMENTS_LIST_API = '/payments'
+export const NEXT_PUBLIC_PAYMENT_DETAILS_API = '/payments'

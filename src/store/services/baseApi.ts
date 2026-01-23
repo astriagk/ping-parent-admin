@@ -21,6 +21,7 @@ export const baseApi = createApi({
     AuthTags.DRIVER,
     AuthTags.PARENT,
     AuthTags.SCHOOL,
+    AuthTags.PAYMENT,
   ],
   endpoints: () => ({}),
 })
