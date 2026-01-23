@@ -61,7 +61,7 @@ const SchoolsList = () => {
         header: headerKeys.actions,
         cell: ({ row }: { row: { original: SchoolListItem } }) => {
           return (
-            <div className="flex gap-2">
+            <div className="flex justify-end gap-2">
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() => handleEditSchool(row.original)}>

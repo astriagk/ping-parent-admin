@@ -41,19 +41,17 @@ const Overview = ({
                   <p>
                     <i className="ltr:mr-1 rtl:ml-1 ri-briefcase-line"></i>
                     <span className="text-gray-500 dark:text-dark-500">
-                      {driverDetails?.user &&
-                        driverDetails.user.user_type &&
+                      {driverDetails?.user?.user_type &&
                         UserRolesType[
-                          driverDetails.user
-                            .user_type as keyof typeof UserRolesType
+                          driverDetails.user?.user_type as keyof typeof UserRolesType
                         ]}
                     </span>
                   </p>
                   <p>
                     <i className="ltr:mr-1 rtl:ml-1 ri-map-pin-2-line"></i>
                     <span className="text-gray-500 dark:text-dark-500">
-                      {driverDetails?.addresses.city},{' '}
-                      {driverDetails?.addresses.state}
+                      {driverDetails?.addresses?.city},{' '}
+                      {driverDetails?.addresses?.state}
                     </span>
                   </p>
                 </div>
@@ -138,19 +136,26 @@ const Overview = ({
                     Full Address
                   </p>
                   <h6>{formatAddress(driverDetails?.addresses)}</h6>
+
+                  <div className="mt-1 text-xs text-gray-500">
+                    <span>Latitude: {driverDetails?.addresses?.latitude}</span>
+                    <span className="ml-2">
+                      Longitude: {driverDetails?.addresses?.longitude}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="col-span-12 lg:col-span-6 xl:col-span-3">
                 <p className="mb-1 text-gray-500 dark:text-dark-500">
                   Phone Number
                 </p>
-                <h6>{driverDetails?.user.phone_number}</h6>
+                <h6>{driverDetails?.user?.phone_number}</h6>
               </div>
               <div className="col-span-12 lg:col-span-6 xl:col-span-3">
                 <p className="mb-1 text-gray-500 dark:text-dark-500">
                   Driving License
                 </p>
-                <h6>{driverDetails?.documents.driving_license_number}</h6>
+                <h6>{driverDetails?.documents?.driving_license_number}</h6>
               </div>
             </div>
           </div>

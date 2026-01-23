@@ -14,6 +14,7 @@ import { useAppSelector } from '@src/store/hooks'
 import { useLoginMutation } from '@src/store/services/authApi'
 import { Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { setAuthTokens } from '@src/utils/auth'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -23,7 +24,7 @@ export default function LoginPage() {
   const [login, { isLoading }] = useLoginMutation()
 
   const { isAuthenticated: reduxAuthenticated } = useAppSelector(
-    (state) => state.Auth
+    (state) => state.Auth || { isAuthenticated: false }
   )
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function LoginPage() {
         email: email.trim(),
         password: password.trim(),
       }).unwrap()
+      setAuthTokens(result.data.access_token, result.data.refresh_token)
       toast.success(result.message || MESSAGES.AUTH.SUCCESS.LOGIN_SUCCESS)
       router.push(paths.ADMINS.LIST)
     } catch (err: any) {

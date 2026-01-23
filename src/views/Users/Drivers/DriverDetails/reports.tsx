@@ -64,6 +64,10 @@ const Reports = ({
         accessorKey: 'name',
       },
       {
+        header: 'Number',
+        accessorKey: 'number',
+      },
+      {
         header: 'Action',
         accessorKey: 'action',
         cell: (value: { row: { original: any } }) => (
@@ -148,7 +152,7 @@ const Reports = ({
               columns={columns || []}
               data={reportData}
               divClass="overflow-x-auto table-box"
-              tableClass="table flush odd-striped whitespace-nowrap"
+              tableClass="table flush even-striped whitespace-nowrap"
               isHeader={false}
             />
           </div>

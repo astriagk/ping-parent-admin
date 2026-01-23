@@ -64,7 +64,7 @@ const DriversList = () => {
           const { label, className } =
             buttonsKeys[mapKey] || buttonsKeys.undefined
           return (
-            <div className="flex gap-2">
+            <div className="flex justify-end gap-2">
               <button
                 className={`btn btn-sm min-w-[100px] ${className}`}
                 onClick={() => console.log(row.original)}>
