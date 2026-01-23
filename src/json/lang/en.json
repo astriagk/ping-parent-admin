@@ -1,4 +1,10 @@
 {
   "pe-admins": "Admins",
-  "pe-list": "List"
+  "pe-list": "List",
+  "pe-users": "Users",
+  "pe-drivers": "Drivers",
+  "pe-driver-details": "Driver Details",
+  "pe-parents": "Parents",
+  "pe-students": "Students",
+  "pe-schools": "Schools"
 }

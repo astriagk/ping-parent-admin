@@ -1,6 +1,9 @@
 const AuthTags = {
   AUTH: 'Auth',
   ADMIN: 'Admin',
+  DRIVER: 'Driver',
+  PARENT: 'Parent',
+  SCHOOL: 'School',
 } as const
 
 const ApiMethods = {
@@ -11,10 +14,20 @@ const ApiMethods = {
   PATCH: 'PATCH',
 } as const
 
-type UserRolesType = {
-  SUPERADMIN: 'superadmin'
-  ADMIN: 'admin'
-  MODERATOR: 'moderator'
+enum UserRoles {
+  SUPERADMIN = 'superadmin',
+  ADMIN = 'admin',
+  MODERATOR = 'moderator',
+  DRIVER = 'driver',
+  PARENT = 'parent',
+}
+
+const UserRolesType = {
+  superadmin: 'Super Admin',
+  admin: 'Admin',
+  moderator: 'Moderator',
+  driver: 'Driver',
+  parent: 'Parent',
 }
 
 enum AssignmentStatus {
@@ -25,4 +38,31 @@ enum AssignmentStatus {
   REJECTED = 'rejected',
 }
 
-export { AuthTags, ApiMethods, type UserRolesType, AssignmentStatus }
+enum ApprovalStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+const ApprovalStatusType = {
+  pending: 'Pending',
+  approved: 'Approved',
+  rejected: 'Rejected',
+}
+
+enum ModelModes {
+  ADD = 'add',
+  EDIT = 'edit',
+  VIEW = 'view',
+}
+
+export {
+  AuthTags,
+  ApiMethods,
+  UserRoles,
+  UserRolesType,
+  AssignmentStatus,
+  ApprovalStatus,
+  ApprovalStatusType,
+  ModelModes,
+}

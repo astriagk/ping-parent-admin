@@ -27,6 +27,7 @@ const BasicTable = <TData extends object>({
           thtrClass="bg-gray-100 dark:bg-dark-850 dt-orderable-asc dt-orderable-desc dt-ordering-desc"
           classStyle="100%"
           isSearch={true}
+          lastTrClass="text-end"
         />
       </div>
     </>

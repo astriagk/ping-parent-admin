@@ -15,6 +15,12 @@ export const baseApi = createApi({
       return headers
     },
   }),
-  tagTypes: [AuthTags.AUTH, AuthTags.ADMIN],
+  tagTypes: [
+    AuthTags.AUTH,
+    AuthTags.ADMIN,
+    AuthTags.DRIVER,
+    AuthTags.PARENT,
+    AuthTags.SCHOOL,
+  ],
   endpoints: () => ({}),
 })

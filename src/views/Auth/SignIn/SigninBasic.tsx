@@ -10,20 +10,21 @@ import whiteLogo from '@assets/images/logo-white.png'
 import LogoMain from '@assets/images/main-logo.png'
 import { paths } from '@src/shared/common/DynamicTitle'
 import { MESSAGES } from '@src/shared/constants/messages'
-import { clearError, loginAdmin } from '@src/store/features/auth'
-import { useAppDispatch, useAppSelector } from '@src/store/hooks'
+import { useAppSelector } from '@src/store/hooks'
+import { useLoginMutation } from '@src/store/services/authApi'
 import { Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { setAuthTokens } from '@src/utils/auth'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
-  const dispatch = useAppDispatch()
+  const [login, { isLoading }] = useLoginMutation()
 
-  const { isLoading, isAuthenticated: reduxAuthenticated } = useAppSelector(
-    (state) => state.Auth
+  const { isAuthenticated: reduxAuthenticated } = useAppSelector(
+    (state) => state.Auth || { isAuthenticated: false }
   )
 
   useEffect(() => {
@@ -31,12 +32,6 @@ export default function LoginPage() {
       router.push(paths.ADMINS.LIST)
     }
   }, [reduxAuthenticated, router])
-
-  useEffect(() => {
-    return () => {
-      dispatch(clearError())
-    }
-  }, [dispatch])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,13 +42,11 @@ export default function LoginPage() {
     }
 
     try {
-      const result = await dispatch(
-        loginAdmin({
-          email: email.trim(),
-          password: password.trim(),
-        })
-      ).unwrap()
-
+      const result = await login({
+        email: email.trim(),
+        password: password.trim(),
+      }).unwrap()
+      setAuthTokens(result.data.access_token, result.data.refresh_token)
       toast.success(result.message || MESSAGES.AUTH.SUCCESS.LOGIN_SUCCESS)
       router.push(paths.ADMINS.LIST)
     } catch (err: any) {

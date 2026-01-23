@@ -136,11 +136,22 @@ const Sidebar = ({
     return icons[icon]
   }
 
+  // Function to match menu items with current route
+  // Supports both exact matches and parent path matching
+  const isPathMatch = (menuPath: string, currentPath: string): boolean => {
+    if (!menuPath || menuPath === '#') return false
+    // Exact match
+    if (menuPath === currentPath) return true
+    // Parent path match (e.g., /users/drivers matches /users/drivers/list)
+    if (currentPath.startsWith(menuPath + '/')) return true
+    return false
+  }
+
   const isActive = (menuItem: MegaMenu | MainMenu | SubMenu): boolean => {
-    if (menuItem.link === router) return true
+    if (isPathMatch(menuItem.link || '', router)) return true
     if (!menuItem.children) return false
     return menuItem.children.some((child) => {
-      if (child.link === router) return true
+      if (isPathMatch(child.link || '', router)) return true
       if (child.children && child.children.length > 0) return isActive(child)
       return false
     })
@@ -412,8 +423,10 @@ const Sidebar = ({
                                                               : '#'
                                                           }
                                                           className={`${
-                                                            router ===
-                                                            subChild.link
+                                                            isPathMatch(
+                                                              subChild.link || '',
+                                                              router
+                                                            )
                                                               ? 'active'
                                                               : ''
                                                           }`}>
@@ -429,7 +442,10 @@ const Sidebar = ({
                                             <Link
                                               href={child.link || '#'}
                                               className={` content ${
-                                                router === child.link
+                                                isPathMatch(
+                                                  child.link || '',
+                                                  router
+                                                )
                                                   ? 'active'
                                                   : ''
                                               }`}>

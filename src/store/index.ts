@@ -1,13 +1,11 @@
 import { AnyAction, combineReducers, configureStore } from '@reduxjs/toolkit'
 import { HYDRATE } from 'next-redux-wrapper'
 
-import { authReducer } from './features/auth'
 import { layoutReducer } from './features/layout'
 import { baseApi } from './services'
 
 const rootReducer = combineReducers({
   Layout: layoutReducer,
-  Auth: authReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 })
 

@@ -39,6 +39,7 @@ export interface SubMenu {
   title: string
   lang: string
   link: string
+  parentPath?: string
   dropdownPosition?: null
   children: SubMenu[] // If submenus can be nested, otherwise use `children: []`
 }
