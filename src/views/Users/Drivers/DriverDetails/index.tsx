@@ -7,12 +7,14 @@ import { Info } from 'lucide-react'
 
 import Overview from './Overview'
 import Reports from './reports'
+import BreadCrumb from '@src/shared/common/BreadCrumb'
 
 const DriversDetails = ({ id }: { id: string }) => {
   const { data, isLoading, error } = useGetDriverDetailsQuery(id)
 
   return (
     <div>
+      <BreadCrumb title="Driver Details" subTitle="Drivers" />
       <BannerOne
         title="Rejected Documents"
         description="Documents as beeen rejected !"
