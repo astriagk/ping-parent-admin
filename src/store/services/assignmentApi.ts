@@ -7,6 +7,7 @@ import {
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
 import {
   NEXT_PUBLIC_DRIVER_STUDENT_ASSIGNMENTS_API,
+  NEXT_PUBLIC_DRIVER_STUDENT_MY_ASSIGNMENTS_API,
   NEXT_PUBLIC_SCHOOL_ASSIGNMENTS_API,
 } from '@utils/url_helper'
 
@@ -77,6 +78,37 @@ export const assignmentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [AuthTags.ASSIGNMENT],
     }),
+    getParentRequestedAssignments: builder.query<
+      DriverStudentAssignmentListResponse,
+      void
+    >({
+      query: () => ({
+        url: NEXT_PUBLIC_DRIVER_STUDENT_MY_ASSIGNMENTS_API,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.ASSIGNMENT],
+    }),
+    deleteDriverStudentAssignment: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (id) => ({
+        url: `/driver-student-assignments/${id}`,
+        method: ApiMethods.DELETE,
+      }),
+      invalidatesTags: [AuthTags.ASSIGNMENT],
+    }),
+    createSchoolAssignment: builder.mutation<
+      { success: boolean; message: string },
+      { schoolId: string; driver_id: string }
+    >({
+      query: ({ schoolId, driver_id }) => ({
+        url: `${NEXT_PUBLIC_SCHOOL_ASSIGNMENTS_API}/${schoolId}/create`,
+        method: ApiMethods.POST,
+        body: { driver_id },
+      }),
+      invalidatesTags: [AuthTags.ASSIGNMENT],
+    }),
   }),
 })
 
@@ -87,4 +119,7 @@ export const {
   useUpdateDriverStudentAssignmentMutation,
   useApproveSchoolAssignmentMutation,
   useRejectSchoolAssignmentMutation,
+  useGetParentRequestedAssignmentsQuery,
+  useDeleteDriverStudentAssignmentMutation,
+  useCreateSchoolAssignmentMutation,
 } = assignmentApi

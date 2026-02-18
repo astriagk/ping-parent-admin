@@ -8,7 +8,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
 NProgress.configure({
-  showSpinner: true,
+  showSpinner: false,
   speed: 200,
   minimum: 0.1,
   easing: 'ease',
@@ -19,10 +19,12 @@ export default function ProgressBar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  // Stop the bar whenever the route finishes changing
   useEffect(() => {
     NProgress.done()
   }, [pathname, searchParams])
 
+  // Handle <a> tag clicks (sidebar links, etc.)
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement
@@ -45,6 +47,20 @@ export default function ProgressBar() {
 
     return () => {
       document.removeEventListener('click', handleClick)
+    }
+  }, [])
+
+  // Handle programmatic navigation via router.push() by patching history.pushState
+  useEffect(() => {
+    const originalPushState = history.pushState.bind(history)
+
+    history.pushState = (...args: Parameters<typeof history.pushState>) => {
+      NProgress.start()
+      return originalPushState(...args)
+    }
+
+    return () => {
+      history.pushState = originalPushState
     }
   }, [])
 

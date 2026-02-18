@@ -4,6 +4,7 @@ import {
   GenerateCodesRequest,
   ParentSubscriptionListResponse,
   RedemptionCodeListResponse,
+  SchoolSubscription,
   SchoolSubscriptionListResponse,
   SubscriptionPlanListResponse,
 } from '@src/dtos/subscription'
@@ -115,6 +116,57 @@ export const subscriptionApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
     }),
+    getActiveSchoolSubscription: builder.query<
+      { success: boolean; data: SchoolSubscription; message: string },
+      string
+    >({
+      query: (schoolId) => ({
+        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/school/${schoolId}/active`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.SUBSCRIPTION],
+    }),
+    updateSchoolSubscription: builder.mutation<
+      { success: boolean; message: string },
+      { subscriptionId: string } & Partial<CreateSchoolSubscriptionRequest>
+    >({
+      query: ({ subscriptionId, ...body }) => ({
+        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}`,
+        method: ApiMethods.PATCH,
+        body,
+      }),
+      invalidatesTags: [AuthTags.SUBSCRIPTION],
+    }),
+    renewSchoolSubscription: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (subscriptionId) => ({
+        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/renew`,
+        method: ApiMethods.POST,
+      }),
+      invalidatesTags: [AuthTags.SUBSCRIPTION],
+    }),
+    cancelSchoolSubscription: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
+      query: (subscriptionId) => ({
+        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/cancel`,
+        method: ApiMethods.POST,
+      }),
+      invalidatesTags: [AuthTags.SUBSCRIPTION],
+    }),
+    getExpiredSchoolSubscriptions: builder.query<
+      SchoolSubscriptionListResponse,
+      void
+    >({
+      query: () => ({
+        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/expired/list`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.SUBSCRIPTION],
+    }),
   }),
 })
 
@@ -129,4 +181,9 @@ export const {
   useCreateSchoolSubscriptionMutation,
   useGetRedemptionCodesQuery,
   useGenerateRedemptionCodesMutation,
+  useGetActiveSchoolSubscriptionQuery,
+  useUpdateSchoolSubscriptionMutation,
+  useRenewSchoolSubscriptionMutation,
+  useCancelSchoolSubscriptionMutation,
+  useGetExpiredSchoolSubscriptionsQuery,
 } = subscriptionApi

@@ -1,6 +1,6 @@
 import { TripDetailsResponse, TripFilters, TripListResponse } from '@src/dtos/trip'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
-import { NEXT_PUBLIC_TRIPS_API } from '@utils/url_helper'
+import { NEXT_PUBLIC_TRIPS_API, NEXT_PUBLIC_TRIP_TRACKING_API } from '@utils/url_helper'
 
 import { baseApi } from './baseApi'
 
@@ -29,7 +29,43 @@ export const tripApi = baseApi.injectEndpoints({
       }),
       providesTags: [AuthTags.TRIP],
     }),
+    getTripTracking: builder.query<
+      { success: boolean; data: Array<{ lat: number; lng: number; timestamp: string }>; message: string },
+      string
+    >({
+      query: (tripId) => ({
+        url: `${NEXT_PUBLIC_TRIP_TRACKING_API}/${tripId}/tracking`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.TRIP],
+    }),
+    getTripCurrentPosition: builder.query<
+      { success: boolean; data: { lat: number; lng: number; timestamp: string }; message: string },
+      string
+    >({
+      query: (tripId) => ({
+        url: `${NEXT_PUBLIC_TRIP_TRACKING_API}/${tripId}/current-position`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.TRIP],
+    }),
+    getTripTrackingDetails: builder.query<
+      { success: boolean; data: { route: unknown; waypoints: unknown[] }; message: string },
+      string
+    >({
+      query: (tripId) => ({
+        url: `${NEXT_PUBLIC_TRIP_TRACKING_API}/${tripId}/details`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.TRIP],
+    }),
   }),
 })
 
-export const { useGetTripListQuery, useGetTripDetailsQuery } = tripApi
+export const {
+  useGetTripListQuery,
+  useGetTripDetailsQuery,
+  useGetTripTrackingQuery,
+  useGetTripCurrentPositionQuery,
+  useGetTripTrackingDetailsQuery,
+} = tripApi

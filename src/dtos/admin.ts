@@ -54,3 +54,25 @@ export interface AdminListResponse {
   data: AdminListItem[]
   message: string
 }
+
+export interface AdminDetailsResponse {
+  success: boolean
+  data: AdminListItem
+  message: string
+}
+
+export interface CreateAdminRequest {
+  username: string
+  email: string
+  phone_number?: string
+  password: string
+  admin_role: string
+}
+
+export interface UpdateAdminRequest {
+  admin_id: string
+  username?: string
+  email?: string
+  phone_number?: string
+  admin_role?: string
+}

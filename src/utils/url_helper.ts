@@ -47,3 +47,10 @@ export const NEXT_PUBLIC_NOTIFICATIONS_API = '/notifications'
 
 // RATINGS & REVIEWS APIS
 export const NEXT_PUBLIC_RATINGS_REVIEWS_API = '/ratings-reviews'
+
+// REFUND APIS
+export const NEXT_PUBLIC_RAZORPAY_REFUNDS_API = '/razorpay/refunds'
+
+// DRIVER-STUDENT MY ASSIGNMENTS
+export const NEXT_PUBLIC_DRIVER_STUDENT_MY_ASSIGNMENTS_API =
+  '/driver-student-assignments/admin/my-assignments'

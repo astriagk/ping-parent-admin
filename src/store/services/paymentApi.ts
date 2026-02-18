@@ -9,10 +9,11 @@ import {
 } from '@src/dtos/payment'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
 import {
-  NEXT_PUBLIC_PAYMENTS_LIST_API,
+  NEXT_PUBLIC_ALL_PAYMENTS_API,
   NEXT_PUBLIC_PAYMENT_DETAILS_API,
   NEXT_PUBLIC_RAZORPAY_CONFIG_API,
   NEXT_PUBLIC_RAZORPAY_ORDERS_API,
+  NEXT_PUBLIC_RAZORPAY_REFUNDS_API,
   NEXT_PUBLIC_RAZORPAY_VERIFY_API,
 } from '@utils/url_helper'
 
@@ -40,7 +41,7 @@ export const paymentApi = baseApi.injectEndpoints({
           queryParams.set('status', params.status)
         }
         return {
-          url: `${NEXT_PUBLIC_PAYMENTS_LIST_API}?${queryParams.toString()}`,
+          url: `${NEXT_PUBLIC_ALL_PAYMENTS_API}?${queryParams.toString()}`,
           method: ApiMethods.GET,
         }
       },
@@ -81,6 +82,19 @@ export const paymentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [AuthTags.PAYMENT],
     }),
+
+    // Process refund
+    processRefund: builder.mutation<
+      { success: boolean; message: string },
+      { payment_id: string; amount?: number; reason?: string }
+    >({
+      query: (body) => ({
+        url: NEXT_PUBLIC_RAZORPAY_REFUNDS_API,
+        method: ApiMethods.POST,
+        body,
+      }),
+      invalidatesTags: [AuthTags.PAYMENT],
+    }),
   }),
 })
 
@@ -93,4 +107,5 @@ export const {
   useLazyGetPaymentDetailsQuery,
   useCreatePaymentOrderMutation,
   useVerifyPaymentMutation,
+  useProcessRefundMutation,
 } = paymentApi

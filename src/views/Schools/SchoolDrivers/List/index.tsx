@@ -1,13 +1,21 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
+
+import { useRouter } from 'next/navigation'
 
 import { SchoolDriverItem } from '@src/dtos/schoolAdmin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
-import { useGetSchoolDriversQuery } from '@src/store/services/schoolAdminApi'
+import {
+  useAssignDriverToSchoolMutation,
+  useGetSchoolDriversQuery,
+  useRemoveDriverFromSchoolMutation,
+} from '@src/store/services/schoolAdminApi'
+import { CirclePlus } from 'lucide-react'
 
 const ApprovalBadge = ({ status }: { status: string }) => {
   const map: Record<string, { label: string; className: string }> = {
@@ -15,27 +23,87 @@ const ApprovalBadge = ({ status }: { status: string }) => {
     pending: { label: 'Pending', className: 'badge-yellow' },
     rejected: { label: 'Rejected', className: 'badge-red' },
   }
-  const { label, className } = map[status] || {
-    label: status,
-    className: 'badge-gray',
-  }
+  const { label, className } = map[status] || { label: status, className: 'badge-gray' }
   return (
-    <span className={`badge inline-flex items-center gap-1 ${className}`}>
-      {label}
-    </span>
+    <span className={`badge inline-flex items-center gap-1 ${className}`}>{label}</span>
+  )
+}
+
+const AssignDriverModal = ({
+  open,
+  schoolId,
+  onClose,
+}: {
+  open: boolean
+  schoolId: string
+  onClose: () => void
+}) => {
+  const { data: driversData } = useGetDriverListQuery()
+  const [assignDriver, { isLoading }] = useAssignDriverToSchoolMutation()
+  const [selectedDriverId, setSelectedDriverId] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedDriverId) return
+    await assignDriver({ school_id: schoolId, driver_id: selectedDriverId }).unwrap()
+    setSelectedDriverId('')
+    onClose()
+  }
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white dark:bg-dark-900 rounded-lg shadow-xl w-full max-w-md p-6">
+        <h5 className="text-lg font-semibold mb-4">Assign Driver to School</h5>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="form-label">Select Driver</label>
+            <select
+              className="form-select"
+              value={selectedDriverId}
+              onChange={(e) => setSelectedDriverId(e.target.value)}
+              required>
+              <option value="">-- Select a driver --</option>
+              {driversData?.data?.map((d: any) => (
+                <option key={d.driver_id ?? d._id} value={d.driver_id ?? d._id}>
+                  {d.name ?? d.username} ({d.email})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="btn btn-light btn-sm" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
+              Assign
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   )
 }
 
 const SchoolDriversList = () => {
+  const router = useRouter()
   const { data: schoolsData } = useGetSchoolsListQuery()
   const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>('')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [removeDriver] = useRemoveDriverFromSchoolMutation()
 
-  const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
 
   const { data: schoolDriversData } = useGetSchoolDriversQuery(firstSchoolId, {
     skip: !firstSchoolId,
   })
+
+  const handleRemove = (driverId: string) => {
+    if (window.confirm('Remove this driver from the school?')) {
+      removeDriver(driverId)
+    }
+  }
 
   const columns = useMemo(
     () => [
@@ -57,23 +125,26 @@ const SchoolDriversList = () => {
       {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
-        cell: ({ row }: { row: { original: SchoolDriverItem } }) => (
-          <div className="flex justify-end gap-2">
-            <button
-              className="btn btn-red btn-sm"
-              onClick={() => console.log('Remove', row.original)}>
-              Remove
-            </button>
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => console.log('View', row.original)}>
-              View
-            </button>
-          </div>
-        ),
+        cell: ({ row }: { row: { original: SchoolDriverItem } }) => {
+          const driverId = row.original.driver_id ?? (row.original as any)._id
+          return (
+            <div className="flex justify-end gap-2">
+              <button
+                className="btn btn-red btn-sm"
+                onClick={() => handleRemove(driverId)}>
+                Remove
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => router.push(`/users/drivers/details/${driverId}`)}>
+                View
+              </button>
+            </div>
+          )
+        },
       },
     ],
-    []
+    [router]
   )
 
   return (
@@ -81,8 +152,8 @@ const SchoolDriversList = () => {
       <BreadCrumb title="School Drivers" subTitle="Schools" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
-          <div className="card-header">
-            <div className="flex flex-wrap items-center gap-4">
+          <div className="card-header flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
               <label className="font-medium text-sm">Select School:</label>
               <select
                 className="form-select w-64"
@@ -95,6 +166,13 @@ const SchoolDriversList = () => {
                 ))}
               </select>
             </div>
+            <button
+              className="btn btn-primary shrink-0"
+              disabled={!firstSchoolId}
+              onClick={() => setModalOpen(true)}>
+              <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
+              Assign Driver
+            </button>
           </div>
           <div className="pt-4 card-body">
             <DatatablesHover
@@ -104,6 +182,11 @@ const SchoolDriversList = () => {
           </div>
         </div>
       </div>
+      <AssignDriverModal
+        open={modalOpen}
+        schoolId={firstSchoolId}
+        onClose={() => setModalOpen(false)}
+      />
     </React.Fragment>
   )
 }

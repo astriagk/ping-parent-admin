@@ -8,9 +8,11 @@ import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import {
+  useGenerateRedemptionCodesMutation,
   useGetRedemptionCodesQuery,
   useGetSchoolSubscriptionsQuery,
 } from '@src/store/services/subscriptionApi'
+import { Key } from 'lucide-react'
 
 const codeBadge: Record<string, { label: string; className: string }> = {
   available: { label: 'Available', className: 'badge-green' },
@@ -21,24 +23,35 @@ const RedemptionCodesList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
   const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string>('')
+  const [generateCount, setGenerateCount] = useState<number>(1)
+  const [generating, setGenerating] = useState(false)
 
-  const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+  const [generateCodes, { isLoading: isGenerating }] = useGenerateRedemptionCodesMutation()
 
-  const { data: subscriptionsData } = useGetSchoolSubscriptionsQuery(
-    firstSchoolId,
-    { skip: !firstSchoolId }
-  )
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+
+  const { data: subscriptionsData } = useGetSchoolSubscriptionsQuery(firstSchoolId, {
+    skip: !firstSchoolId,
+  })
 
   const firstSubscriptionId =
-    selectedSubscriptionId ||
-    subscriptionsData?.data?.[0]?.subscription_id ||
-    ''
+    selectedSubscriptionId || subscriptionsData?.data?.[0]?.subscription_id || ''
 
-  const { data: codesData } = useGetRedemptionCodesQuery(
-    firstSubscriptionId,
-    { skip: !firstSubscriptionId }
-  )
+  const { data: codesData } = useGetRedemptionCodesQuery(firstSubscriptionId, {
+    skip: !firstSubscriptionId,
+  })
+
+  const handleGenerate = async () => {
+    if (!firstSubscriptionId) return
+    if (window.confirm(`Generate ${generateCount} redemption code(s)?`)) {
+      setGenerating(true)
+      try {
+        await generateCodes({ subscriptionId: firstSubscriptionId, count: generateCount }).unwrap()
+      } finally {
+        setGenerating(false)
+      }
+    }
+  }
 
   const columns = useMemo(
     () => [
@@ -65,8 +78,7 @@ const RedemptionCodesList = () => {
             className: 'badge-gray',
           }
           return (
-            <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
+            <span className={`badge inline-flex items-center gap-1 ${className}`}>
               {label}
             </span>
           )
@@ -96,43 +108,60 @@ const RedemptionCodesList = () => {
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
           <div className="card-header">
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label className="font-medium text-sm">School:</label>
-                <select
-                  className="form-select w-48"
-                  value={selectedSchoolId}
-                  onChange={(e) => {
-                    setSelectedSchoolId(e.target.value)
-                    setSelectedSubscriptionId('')
-                  }}>
-                  {schoolsData?.data?.map((school) => (
-                    <option key={school.school_id} value={school.school_id}>
-                      {school.school_name}
-                    </option>
-                  ))}
-                </select>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="font-medium text-sm">School:</label>
+                  <select
+                    className="form-select w-48"
+                    value={selectedSchoolId}
+                    onChange={(e) => {
+                      setSelectedSchoolId(e.target.value)
+                      setSelectedSubscriptionId('')
+                    }}>
+                    {schoolsData?.data?.map((school) => (
+                      <option key={school.school_id} value={school.school_id}>
+                        {school.school_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="font-medium text-sm">Subscription:</label>
+                  <select
+                    className="form-select w-48"
+                    value={selectedSubscriptionId}
+                    onChange={(e) => setSelectedSubscriptionId(e.target.value)}>
+                    {subscriptionsData?.data?.map((sub) => (
+                      <option key={sub.subscription_id} value={sub.subscription_id}>
+                        {sub.plan_name} — {sub.status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <label className="font-medium text-sm">Subscription:</label>
-                <select
-                  className="form-select w-48"
-                  value={selectedSubscriptionId}
-                  onChange={(e) => setSelectedSubscriptionId(e.target.value)}>
-                  {subscriptionsData?.data?.map((sub) => (
-                    <option key={sub.subscription_id} value={sub.subscription_id}>
-                      {sub.plan_name} — {sub.status}
-                    </option>
-                  ))}
-                </select>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  className="form-input w-20 text-center"
+                  value={generateCount}
+                  onChange={(e) => setGenerateCount(Math.max(1, Number(e.target.value)))}
+                  disabled={!firstSubscriptionId}
+                />
+                <button
+                  className="btn btn-primary shrink-0"
+                  disabled={!firstSubscriptionId || isGenerating || generating}
+                  onClick={handleGenerate}>
+                  <Key className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
+                  Generate Codes
+                </button>
               </div>
             </div>
           </div>
           <div className="pt-4 card-body">
-            <DatatablesHover
-              columns={columns}
-              data={codesData?.data || []}
-            />
+            <DatatablesHover columns={columns} data={codesData?.data || []} />
           </div>
         </div>
       </div>
