@@ -25,6 +25,7 @@ const ParentsList = () => {
         header: headerKeys.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
+      { accessorKey: accessorkeys.name, header: headerKeys.username },
       { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
       {
         accessorKey: accessorkeys.userType,

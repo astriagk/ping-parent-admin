@@ -41,6 +41,7 @@ const Topbar: React.FC<TopBarProps> = ({
       flatpickrRef.current.flatpickr.open()
     }
   }, [isOpen])
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -60,6 +61,7 @@ const Topbar: React.FC<TopBarProps> = ({
   const handleChangeLayoutMode = (value: LAYOUT_MODE_TYPES) => {
     dispatch(changeLayoutMode(value))
   }
+
   return (
     <React.Fragment>
       <div

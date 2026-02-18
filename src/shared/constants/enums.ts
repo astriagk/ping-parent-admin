@@ -5,6 +5,14 @@ const AuthTags = {
   PARENT: 'Parent',
   SCHOOL: 'School',
   PAYMENT: 'Payment',
+  STUDENT: 'Student',
+  TRIP: 'Trip',
+  ASSIGNMENT: 'Assignment',
+  SUBSCRIPTION: 'Subscription',
+  ROLE: 'Role',
+  AUDIT_LOG: 'AuditLog',
+  NOTIFICATION: 'Notification',
+  RATING: 'Rating',
 } as const
 
 const ApiMethods = {

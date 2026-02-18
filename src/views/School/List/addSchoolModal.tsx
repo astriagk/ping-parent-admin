@@ -132,7 +132,7 @@ const AddSchoolModal: React.FC<AddSchoolModalProps> = ({
       onClose={handleHide}
       title={getModalTitle()}
       position="modal-center"
-      size="modal-lg"
+      size="modal-2xl"
       content={(onClose) => {
         return (
           <form onSubmit={handleSubmit((data) => onSubmit(data, onClose))}>
