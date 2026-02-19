@@ -1,17 +1,34 @@
+import { PlanType } from '@src/shared/constants/enums'
+
 // Subscription Plans
+export interface SubscriptionPlanFeature {
+  key: string
+  label: string
+  enabled: boolean
+}
+
 export interface SubscriptionPlan {
   _id: string
   plan_id: string
-  name: string
-  description: string
-  badge?: 'BEST_VALUE' | 'POPULAR' | 'RECOMMENDED' | 'LIMITED_OFFER'
-  plan_type: 'MONTHLY' | 'QUARTERLY' | 'YEARLY'
-  pricing_model: 'FLAT' | 'PER_KID' | 'BASE_PLUS_PER_KID'
-  base_price: number
+  plan_name: string
+  plan_type: PlanType
+  price: number
+  currency: string
+  pricing_model: 'flat' | 'per_kid' | 'base_plus_per_kid'
   per_kid_price?: number
-  max_kids?: number
-  features: string[]
+  kids: {
+    min: number
+    max: number
+  }
+  features: SubscriptionPlanFeature[]
   is_active: boolean
+  discounts?: {
+    same_trip?: {
+      percentage: number
+      min_kids: number
+      label: string
+    }
+  }
   created_at: string
   updated_at: string
 }
@@ -23,15 +40,17 @@ export interface SubscriptionPlanListResponse {
 }
 
 export interface CreateSubscriptionPlanRequest {
-  name: string
-  description: string
-  badge?: string
+  plan_name: string
   plan_type: string
+  price: number
+  currency?: string
   pricing_model: string
-  base_price: number
   per_kid_price?: number
-  max_kids?: number
-  features: string[]
+  kids: {
+    min: number
+    max: number
+  }
+  features: SubscriptionPlanFeature[]
 }
 
 // Parent Subscriptions

@@ -1,3 +1,5 @@
+import { TripStatus } from '@src/shared/constants/enums'
+
 export interface Trip {
   _id: string
   trip_id: string
@@ -5,8 +7,9 @@ export interface Trip {
   driver_name: string
   school_id: string
   school_name: string
-  status: 'pending' | 'ongoing' | 'completed' | 'cancelled'
+  trip_status: TripStatus
   trip_type: 'pickup' | 'drop'
+  total_distance: number
   trip_date: string
   students_count: number
   start_time?: string

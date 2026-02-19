@@ -8,13 +8,14 @@ import { SchoolDriverItem } from '@src/dtos/schoolAdmin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import { UserRoles } from '@src/shared/constants/enums'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
-import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import {
   useAssignDriverToSchoolMutation,
   useGetSchoolDriversQuery,
   useRemoveDriverFromSchoolMutation,
 } from '@src/store/services/schoolAdminApi'
+import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { CirclePlus } from 'lucide-react'
 
 const ApprovalBadge = ({ status }: { status: string }) => {
@@ -23,9 +24,14 @@ const ApprovalBadge = ({ status }: { status: string }) => {
     pending: { label: 'Pending', className: 'badge-yellow' },
     rejected: { label: 'Rejected', className: 'badge-red' },
   }
-  const { label, className } = map[status] || { label: status, className: 'badge-gray' }
+  const { label, className } = map[status] || {
+    label: status,
+    className: 'badge-gray',
+  }
   return (
-    <span className={`badge inline-flex items-center gap-1 ${className}`}>{label}</span>
+    <span className={`badge inline-flex items-center gap-1 ${className}`}>
+      {label}
+    </span>
   )
 }
 
@@ -38,14 +44,19 @@ const AssignDriverModal = ({
   schoolId: string
   onClose: () => void
 }) => {
-  const { data: driversData } = useGetDriverListQuery()
+  const { data: driversData } = useGetDriverListQuery({
+    user_type: UserRoles.DRIVER,
+  })
   const [assignDriver, { isLoading }] = useAssignDriverToSchoolMutation()
   const [selectedDriverId, setSelectedDriverId] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedDriverId) return
-    await assignDriver({ school_id: schoolId, driver_id: selectedDriverId }).unwrap()
+    await assignDriver({
+      school_id: schoolId,
+      driver_id: selectedDriverId,
+    }).unwrap()
     setSelectedDriverId('')
     onClose()
   }
@@ -73,10 +84,16 @@ const AssignDriverModal = ({
             </select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" className="btn btn-light btn-sm" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-light btn-sm"
+              onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
+            <button
+              type="submit"
+              className="btn btn-primary btn-sm"
+              disabled={isLoading}>
               Assign
             </button>
           </div>
@@ -93,7 +110,8 @@ const SchoolDriversList = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [removeDriver] = useRemoveDriverFromSchoolMutation()
 
-  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+  const firstSchoolId =
+    selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
 
   const { data: schoolDriversData } = useGetSchoolDriversQuery(firstSchoolId, {
     skip: !firstSchoolId,
@@ -136,7 +154,9 @@ const SchoolDriversList = () => {
               </button>
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => router.push(`/users/drivers/details/${driverId}`)}>
+                onClick={() =>
+                  router.push(`/users/drivers/details/${driverId}`)
+                }>
                 View
               </button>
             </div>

@@ -1,3 +1,5 @@
+import { AssignmentStatus } from '@src/shared/constants/enums'
+
 export interface DriverStudentAssignment {
   _id: string
   assignment_id: string
@@ -7,7 +9,7 @@ export interface DriverStudentAssignment {
   student_name: string
   school_id: string
   school_name: string
-  status: 'active' | 'inactive' | 'pending' | 'parent_requested' | 'rejected'
+  assignment_status: AssignmentStatus
   created_at: string
   updated_at: string
 }
@@ -25,7 +27,7 @@ export interface SchoolAssignment {
   school_name: string
   driver_id: string
   driver_name: string
-  status: 'pending' | 'approved' | 'rejected' | 'active'
+  status: AssignmentStatus
   created_at: string
   updated_at: string
 }

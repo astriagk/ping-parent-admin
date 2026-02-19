@@ -38,6 +38,37 @@ export const MESSAGES = {
       DELETING_ADMIN: 'Deleting admin...',
     },
   },
+  SUBSCRIPTION: {
+    SUCCESS: {
+      PLAN_CREATED: 'Plan created successfully.',
+      PLAN_UPDATED: 'Plan updated successfully.',
+      PLAN_ACTIVATED: 'Plan activated successfully.',
+      PLAN_DEACTIVATED: 'Plan deactivated successfully.',
+    },
+    ERROR: {
+      CREATE_FAILED: 'Failed to create plan. Please try again.',
+      UPDATE_FAILED: 'Failed to update plan. Please try again.',
+      ACTIVATE_FAILED: 'Failed to activate plan. Please try again.',
+      DEACTIVATE_FAILED: 'Failed to deactivate plan. Please try again.',
+    },
+    LOADING: {
+      CREATING_PLAN: 'Creating plan...',
+      UPDATING_PLAN: 'Updating plan...',
+    },
+  },
+  PAYMENT: {
+    SUCCESS: {
+      REFUND_PROCESSED: 'Refund processed successfully.',
+    },
+    ERROR: {
+      FETCH_FAILED: 'Failed to fetch payments. Please try again.',
+      REFUND_FAILED: 'Failed to process refund. Please try again.',
+    },
+    LOADING: {
+      FETCHING_PAYMENTS: 'Fetching payments...',
+      PROCESSING_REFUND: 'Processing refund...',
+    },
+  },
   COMMON: {
     ERROR: {
       NO_AUTH_TOKEN: 'No authentication token found. Please log in.',

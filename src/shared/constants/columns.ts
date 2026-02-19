@@ -29,14 +29,17 @@ const accessorkeys = {
   grade: 'grade',
   parentName: 'parent_name',
   // Trip
-  driverName: 'driver_name',
+  tripId: 'trip_id',
   tripType: 'trip_type',
-  tripStatus: 'status',
+  tripStatus: 'trip_status',
   tripDate: 'trip_date',
-  studentsCount: 'students_count',
+  totalDistance: 'total_distance',
   // Assignment
-  assignmentStatus: 'status',
-  studentName: 'student_name',
+  assignmentStatus: 'assignment_status',
+  studentId: 'student_id',
+  driverUniqueId: 'driver_unique_id',
+  assignmentId: 'assignment_id',
+  driverName: 'driver_name',
   // Subscription
   planName: 'plan_name',
   planType: 'plan_type',
@@ -46,6 +49,8 @@ const accessorkeys = {
   subscriptionStatus: 'status',
   pricingModel: 'pricing_model',
   basePrice: 'base_price',
+  price: 'price',
+  kids: 'kids',
   // Redemption Codes
   code: 'code',
   codeStatus: 'status',
@@ -64,14 +69,19 @@ const accessorkeys = {
   rating: 'rating',
   review: 'review',
   // Payment
+  paymentId: 'payment_id',
+  paymentType: 'payment_type',
   paymentMethod: 'payment_method',
-  paymentStatus: 'status',
+  paymentStatus: 'payment_status',
+  transactionId: 'transaction_id',
+  paymentDate: 'payment_date',
   currency: 'currency',
 }
 
 const headerKeys = {
   id: 'ID',
   username: 'Name',
+  Name: 'Name',
   email: 'Email',
   phoneNumber: 'Phone Number',
   contactNumber: 'Contact Number',
@@ -87,14 +97,17 @@ const headerKeys = {
   grade: 'Grade',
   parentName: 'Parent',
   // Trip
-  driverName: 'Driver',
+  tripId: 'Trip ID',
   tripType: 'Type',
   tripStatus: 'Status',
   tripDate: 'Date',
-  studentsCount: 'Students',
+  totalDistance: 'Total Distance',
   // Assignment
   assignmentStatus: 'Status',
-  studentName: 'Student',
+  studentId: 'Student',
+  driverName: 'Driver',
+  assignmentId: 'Assignment ID',
+  driverUniqueId: 'Driver Unique ID',
   // Subscription
   planName: 'Plan',
   planType: 'Plan Type',
@@ -104,6 +117,8 @@ const headerKeys = {
   subscriptionStatus: 'Status',
   pricingModel: 'Pricing Model',
   basePrice: 'Base Price',
+  price: 'Price',
+  kids: 'Kids',
   // Redemption Codes
   code: 'Code',
   codeStatus: 'Status',
@@ -122,8 +137,12 @@ const headerKeys = {
   rating: 'Rating',
   review: 'Review',
   // Payment
+  paymentId: 'Payment ID',
+  paymentType: 'Type',
   paymentMethod: 'Method',
   paymentStatus: 'Status',
+  transactionId: 'Transaction ID',
+  paymentDate: 'Payment Date',
   currency: 'Currency',
 }
 

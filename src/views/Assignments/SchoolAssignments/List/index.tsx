@@ -15,6 +15,7 @@ import {
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { CirclePlus } from 'lucide-react'
+import Select from 'react-select'
 
 const statusBadge: Record<string, { label: string; className: string }> = {
   approved: { label: 'Approved', className: 'badge-green' },
@@ -67,10 +68,16 @@ const CreateSchoolAssignmentModal = ({
             </select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" className="btn btn-light btn-sm" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-light btn-sm"
+              onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
+            <button
+              type="submit"
+              className="btn btn-primary btn-sm"
+              disabled={isLoading}>
               Create
             </button>
           </div>
@@ -83,17 +90,34 @@ const CreateSchoolAssignmentModal = ({
 const SchoolAssignmentsList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
   const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>('')
+  // Map schools to react-select options
+  const schoolOptions = (schoolsData?.data || []).map((school: any) => ({
+    value: school.school_id,
+    label: school.school_name,
+  }))
+  // Find the selected option object
+  const selectedSchoolOption =
+    schoolOptions.find((opt) => opt.value === selectedSchoolId) || null
+  // Handler for react-select
+  const handleSelectSchool = (option: any) => {
+    setSelectedSchoolId(option ? option.value : '')
+  }
   const [modalOpen, setModalOpen] = useState(false)
   const [approveAssignment] = useApproveSchoolAssignmentMutation()
   const [rejectAssignment] = useRejectSchoolAssignmentMutation()
 
-  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+  const firstSchoolId =
+    selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
 
-  const { data: assignmentsData } = useGetSchoolAssignmentsQuery(firstSchoolId, {
-    skip: !firstSchoolId,
-  })
+  const { data: assignmentsData } = useGetSchoolAssignmentsQuery(
+    firstSchoolId,
+    {
+      skip: !firstSchoolId,
+    }
+  )
 
-  const handleApprove = (assignmentId: string) => approveAssignment(assignmentId)
+  const handleApprove = (assignmentId: string) =>
+    approveAssignment(assignmentId)
 
   const handleReject = (assignmentId: string) => {
     const reason = window.prompt('Rejection reason (optional):') ?? ''
@@ -118,7 +142,8 @@ const SchoolAssignmentsList = () => {
             className: 'badge-gray',
           }
           return (
-            <span className={`badge inline-flex items-center gap-1 ${className}`}>
+            <span
+              className={`badge inline-flex items-center gap-1 ${className}`}>
               {label}
             </span>
           )
@@ -166,17 +191,16 @@ const SchoolAssignmentsList = () => {
         <div className="col-span-12 card">
           <div className="card-header flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <label className="font-medium text-sm">Select School:</label>
-              <select
-                className="form-select w-64"
-                value={selectedSchoolId}
-                onChange={(e) => setSelectedSchoolId(e.target.value)}>
-                {schoolsData?.data?.map((school) => (
-                  <option key={school.school_id} value={school.school_id}>
-                    {school.school_name}
-                  </option>
-                ))}
-              </select>
+              <div style={{ width: 300 }}>
+                <Select
+                  classNamePrefix="select"
+                  options={schoolOptions}
+                  value={selectedSchoolOption}
+                  onChange={handleSelectSchool}
+                  placeholder="Select school"
+                  isClearable={true}
+                />
+              </div>
             </div>
             <button
               className="btn btn-primary shrink-0"
@@ -187,7 +211,10 @@ const SchoolAssignmentsList = () => {
             </button>
           </div>
           <div className="pt-4 card-body">
-            <DatatablesHover columns={columns} data={assignmentsData?.data || []} />
+            <DatatablesHover
+              columns={columns}
+              data={assignmentsData?.data || []}
+            />
           </div>
         </div>
       </div>

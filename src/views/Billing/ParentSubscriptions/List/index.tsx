@@ -30,11 +30,10 @@ const ParentSubscriptionsList = () => {
         accessorKey: accessorkeys.subscriptionStatus,
         header: headerKeys.subscriptionStatus,
         cell: ({ row }: { row: { original: ParentSubscription } }) => {
-          const { label, className } =
-            statusBadge[row.original.status] || {
-              label: row.original.status,
-              className: 'badge-gray',
-            }
+          const { label, className } = statusBadge[row.original.status] || {
+            label: row.original.status,
+            className: 'badge-gray',
+          }
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${className}`}>

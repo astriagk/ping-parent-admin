@@ -206,8 +206,8 @@ const AddSchoolModal: React.FC<AddSchoolModalProps> = ({
                   <option value="">
                     {selectedState ? 'Select city' : 'Select state first'}
                   </option>
-                  {availableCities.map((city) => (
-                    <option key={city} value={city}>
+                  {availableCities.map((city, idx) => (
+                    <option key={city + '-' + idx} value={city}>
                       {city}
                     </option>
                   ))}

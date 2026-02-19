@@ -66,7 +66,7 @@ const CreateSubscriptionModal = ({
                 ?.filter((p) => p.is_active)
                 .map((p) => (
                   <option key={p.plan_id ?? p._id} value={p.plan_id ?? p._id}>
-                    {p.name} — {p.plan_type} (₹{p.base_price})
+                    {p.plan_name} — {p.plan_type} (₹{p.price})
                   </option>
                 ))}
             </select>

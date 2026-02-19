@@ -63,6 +63,87 @@ enum ModelModes {
   ADD = 'add',
   EDIT = 'edit',
   VIEW = 'view',
+  CREATE = 'create',
+}
+
+enum TripStatus {
+  SCHEDULED = 'scheduled',
+  STARTED = 'started',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+}
+
+enum PlanType {
+  MONTHLY = 'monthly',
+  QUARTERLY = 'quarterly',
+  YEARLY = 'yearly',
+}
+
+enum PricingModel {
+  FLAT = 'flat',
+  PER_KID = 'per_kid',
+  BASE_PLUS_PER_KID = 'base_plus_per_kid',
+}
+
+const PlanTypeLabel: Record<PlanType, string> = {
+  [PlanType.MONTHLY]: 'Monthly',
+  [PlanType.QUARTERLY]: 'Quarterly',
+  [PlanType.YEARLY]: 'Yearly',
+}
+
+const PricingModelLabel: Record<PricingModel, string> = {
+  [PricingModel.FLAT]: 'Flat',
+  [PricingModel.PER_KID]: 'Per Kid',
+  [PricingModel.BASE_PLUS_PER_KID]: 'Base + Per Kid',
+}
+
+const PlanTypeBadge: Record<PlanType, string> = {
+  [PlanType.MONTHLY]: 'badge-blue',
+  [PlanType.QUARTERLY]: 'badge-purple',
+  [PlanType.YEARLY]: 'badge-green',
+}
+
+enum PaymentStatus {
+  PENDING = 'pending',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  REFUNDED = 'refunded',
+}
+
+const PaymentStatusLabel: Record<PaymentStatus, string> = {
+  [PaymentStatus.PENDING]: 'Pending',
+  [PaymentStatus.COMPLETED]: 'Completed',
+  [PaymentStatus.FAILED]: 'Failed',
+  [PaymentStatus.REFUNDED]: 'Refunded',
+}
+
+const PaymentStatusBadge: Record<PaymentStatus, string> = {
+  [PaymentStatus.PENDING]: 'badge-yellow',
+  [PaymentStatus.COMPLETED]: 'badge-green',
+  [PaymentStatus.FAILED]: 'badge-red',
+  [PaymentStatus.REFUNDED]: 'badge-blue',
+}
+
+const PaymentMethodLabel: Record<string, string> = {
+  netbanking: 'Net Banking',
+  upi: 'UPI',
+  card: 'Card',
+  wallet: 'Wallet',
+}
+
+enum PaymentType {
+  SUBSCRIPTION = 'subscription',
+  RENEWAL = 'renewal',
+  REFUND = 'refund',
+  ONE_TIME = 'one_time',
+}
+
+const PaymentTypeLabel: Record<PaymentType, string> = {
+  [PaymentType.SUBSCRIPTION]: 'Subscription',
+  [PaymentType.RENEWAL]: 'Renewal',
+  [PaymentType.REFUND]: 'Refund',
+  [PaymentType.ONE_TIME]: 'One Time',
 }
 
 export {
@@ -74,4 +155,16 @@ export {
   ApprovalStatus,
   ApprovalStatusType,
   ModelModes,
+  TripStatus,
+  PlanType,
+  PricingModel,
+  PlanTypeLabel,
+  PricingModelLabel,
+  PlanTypeBadge,
+  PaymentStatus,
+  PaymentStatusLabel,
+  PaymentStatusBadge,
+  PaymentMethodLabel,
+  PaymentType,
+  PaymentTypeLabel,
 }

@@ -18,7 +18,7 @@ export const NEXT_PUBLIC_RAZORPAY_CONFIG_API = '/razorpay/config'
 export const NEXT_PUBLIC_RAZORPAY_ORDERS_API = '/razorpay/orders'
 export const NEXT_PUBLIC_RAZORPAY_VERIFY_API = '/razorpay/verify'
 export const NEXT_PUBLIC_PAYMENTS_LIST_API = '/payments'
-export const NEXT_PUBLIC_PAYMENT_DETAILS_API = '/payments'
+export const NEXT_PUBLIC_PAYMENT_DETAILS_API = '/payments/admin/payment'
 export const NEXT_PUBLIC_ALL_PAYMENTS_API = '/payments/admin/all-payments'
 
 // TRIP APIS

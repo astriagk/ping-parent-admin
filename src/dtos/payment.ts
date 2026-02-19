@@ -1,14 +1,32 @@
+import { PaymentStatus } from '@src/shared/constants/enums'
+
 // Payment List Response
-export interface Payment {
-  _id: string
-  user_id: string
-  subscription_id: string
+export interface PaymentGatewayResponse {
+  razorpay_payment_id: string
+  razorpay_order_id: string
   amount: number
   currency: string
-  status: 'pending' | 'completed' | 'failed'
-  razorpay_order_id?: string
-  razorpay_payment_id?: string
-  razorpay_signature?: string
+  method: string
+  vpa: string | null
+  email: string
+  contact: string
+  fee: number
+  tax: number
+}
+
+export interface Payment {
+  _id: string
+  payment_id: string
+  parent_id: string
+  payment_type: string
+  amount: number
+  currency: string
+  payment_method: string
+  payment_status: PaymentStatus
+  transaction_id: string
+  gateway_response: PaymentGatewayResponse
+  subscription_id: string
+  payment_date: string
   created_at: string
   updated_at: string
 }
@@ -22,17 +40,17 @@ export interface PaymentListResponse {
 // Payment Details Response
 export interface PaymentDetails {
   _id: string
-  user_id: string
-  subscription_id: string
+  payment_id: string
+  parent_id: string
+  payment_type: string
   amount: number
   currency: string
-  status: 'pending' | 'completed' | 'failed'
-  razorpay_order_id: string
-  razorpay_payment_id: string
-  razorpay_signature: string
-  subscription_name: string
   payment_method: string
-  transaction_date: string
+  payment_status: PaymentStatus
+  transaction_id: string
+  gateway_response: PaymentGatewayResponse
+  subscription_id: string
+  payment_date: string
   created_at: string
   updated_at: string
 }

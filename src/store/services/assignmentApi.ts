@@ -25,10 +25,7 @@ export const assignmentApi = baseApi.injectEndpoints({
       }),
       providesTags: [AuthTags.ASSIGNMENT],
     }),
-    getSchoolAssignments: builder.query<
-      SchoolAssignmentListResponse,
-      string
-    >({
+    getSchoolAssignments: builder.query<SchoolAssignmentListResponse, string>({
       query: (schoolId) => ({
         url: `${NEXT_PUBLIC_SCHOOL_ASSIGNMENTS_API}/${schoolId}`,
         method: ApiMethods.GET,
@@ -51,7 +48,7 @@ export const assignmentApi = baseApi.injectEndpoints({
       UpdateAssignmentRequest
     >({
       query: ({ id, ...body }) => ({
-        url: `/driver-student-assignments/${id}`,
+        url: `/driver-student-assignments/${id}/deactivate`,
         method: ApiMethods.PUT,
         body,
       }),

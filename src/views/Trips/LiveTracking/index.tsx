@@ -19,8 +19,10 @@ const LiveTracking = () => {
         header: headerKeys.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.driverName, header: headerKeys.driverName },
-      { accessorKey: accessorkeys.schoolName, header: headerKeys.schoolName },
+      {
+        accessorKey: accessorkeys.tripId,
+        header: headerKeys.tripId,
+      },
       {
         accessorKey: accessorkeys.tripType,
         header: headerKeys.tripType,
@@ -29,16 +31,20 @@ const LiveTracking = () => {
         ),
       },
       {
-        accessorKey: accessorkeys.studentsCount,
-        header: headerKeys.studentsCount,
-      },
-      {
         accessorKey: 'start_time',
         header: 'Started At',
         cell: ({ row }: { row: { original: Trip } }) =>
           row.original.start_time
             ? new Date(row.original.start_time).toLocaleTimeString()
             : '-',
+      },
+      {
+        accessorKey: accessorkeys.totalDistance,
+        header: headerKeys.totalDistance,
+        cell: ({ row }: { row: { original: Trip } }) => {
+          const value = row.original.total_distance
+          return value != null ? `${value} KM` : '-'
+        },
       },
       {
         accessorKey: accessorkeys.actions,
@@ -76,10 +82,7 @@ const LiveTracking = () => {
         </div>
         <div className="col-span-12 card">
           <div className="card-body">
-            <DatatablesHover
-              columns={columns}
-              data={tripsData?.data || []}
-            />
+            <DatatablesHover columns={columns} data={tripsData?.data || []} />
           </div>
         </div>
       </div>

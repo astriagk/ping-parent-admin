@@ -6,6 +6,8 @@ import { DriverStudentAssignment } from '@src/dtos/assignment'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import { AssignmentStatus } from '@src/shared/constants/enums'
+import { MESSAGES } from '@src/shared/constants/messages'
 import {
   useCreateDriverStudentAssignmentMutation,
   useDeleteDriverStudentAssignmentMutation,
@@ -16,13 +18,20 @@ import {
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import { useGetStudentListQuery } from '@src/store/services/studentApi'
 import { CirclePlus } from 'lucide-react'
+import { toast } from 'react-toastify'
 
-const assignmentStatusBadge: Record<string, { label: string; className: string }> = {
-  active: { label: 'Active', className: 'badge-green' },
-  inactive: { label: 'Inactive', className: 'badge-yellow' },
-  pending: { label: 'Pending', className: 'badge-blue' },
-  parent_requested: { label: 'Parent Requested', className: 'badge-purple' },
-  rejected: { label: 'Rejected', className: 'badge-red' },
+const assignmentStatusBadge: Record<
+  AssignmentStatus,
+  { label: string; className: string }
+> = {
+  [AssignmentStatus.ACTIVE]: { label: 'Active', className: 'badge-green' },
+  [AssignmentStatus.INACTIVE]: { label: 'Inactive', className: 'badge-yellow' },
+  [AssignmentStatus.PENDING]: { label: 'Pending', className: 'badge-blue' },
+  [AssignmentStatus.PARENT_REQUESTED]: {
+    label: 'Parent Requested',
+    className: 'badge-purple',
+  },
+  [AssignmentStatus.REJECTED]: { label: 'Rejected', className: 'badge-red' },
 }
 
 const CreateAssignmentModal = ({
@@ -34,7 +43,8 @@ const CreateAssignmentModal = ({
 }) => {
   const { data: driversData } = useGetDriverListQuery()
   const { data: studentsData } = useGetStudentListQuery()
-  const [createAssignment, { isLoading }] = useCreateDriverStudentAssignmentMutation()
+  const [createAssignment, { isLoading }] =
+    useCreateDriverStudentAssignmentMutation()
   const [form, setForm] = useState({ driver_id: '', student_id: '' })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,17 +85,25 @@ const CreateAssignmentModal = ({
               required>
               <option value="">-- Select Student --</option>
               {studentsData?.data?.map((s: any) => (
-                <option key={s.student_id ?? s._id} value={s.student_id ?? s._id}>
+                <option
+                  key={s.student_id ?? s._id}
+                  value={s.student_id ?? s._id}>
                   {s.name}
                 </option>
               ))}
             </select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" className="btn btn-light btn-sm" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-light btn-sm"
+              onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
+            <button
+              type="submit"
+              className="btn btn-primary btn-sm"
+              disabled={isLoading}>
               Create
             </button>
           </div>
@@ -99,27 +117,82 @@ const DriverStudentAssignmentsList = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'requested'>('all')
   const [modalOpen, setModalOpen] = useState(false)
 
-  const { data: allData } = useGetDriverStudentAssignmentsQuery()
-  const { data: requestedData } = useGetParentRequestedAssignmentsQuery()
+  const { data: allData, refetch: refetchAll } =
+    useGetDriverStudentAssignmentsQuery()
+  const { data: requestedData, refetch: refetchRequested } =
+    useGetParentRequestedAssignmentsQuery()
   const [updateAssignment] = useUpdateDriverStudentAssignmentMutation()
   const [deleteAssignment] = useDeleteDriverStudentAssignmentMutation()
 
-  const tableData = activeTab === 'all' ? allData?.data ?? [] : requestedData?.data ?? []
+  const tableData =
+    activeTab === 'all' ? (allData?.data ?? []) : (requestedData?.data ?? [])
 
-  const handleApprove = (id: string) =>
-    updateAssignment({ id, status: 'approved' })
+  React.useEffect(() => {
+    if (activeTab === 'all') {
+      refetchAll()
+    } else {
+      refetchRequested()
+    }
+  }, [activeTab, refetchAll, refetchRequested])
 
-  const handleReject = (id: string) => {
-    const reason = window.prompt('Rejection reason (optional):') ?? ''
-    updateAssignment({ id, status: 'rejected', rejection_reason: reason })
+  console.log(allData)
+
+  const handleApprove = async (id: string) => {
+    try {
+      await updateAssignment({ id, status: AssignmentStatus.ACTIVE }).unwrap()
+      toast.success(MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
+    } catch (error: any) {
+      toast.error(
+        error?.data?.error ||
+          error?.message ||
+          MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+      )
+    }
   }
 
-  const handleDeactivate = (id: string) =>
-    updateAssignment({ id, status: 'inactive' })
+  const handleReject = async (id: string) => {
+    toast.info('Please enter a rejection reason (optional)')
+    const reason = window.prompt('Rejection reason (optional):') ?? ''
+    try {
+      await updateAssignment({
+        id,
+        status: AssignmentStatus.REJECTED,
+        rejection_reason: reason,
+      }).unwrap()
+      toast.success(MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
+    } catch (error: any) {
+      toast.error(
+        error?.data?.error ||
+          error?.message ||
+          MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+      )
+    }
+  }
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Delete this assignment? This cannot be undone.')) {
-      deleteAssignment(id)
+  const handleDeactivate = async (id: string) => {
+    try {
+      await updateAssignment({ id, status: AssignmentStatus.INACTIVE }).unwrap()
+      toast.success(MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
+    } catch (error: any) {
+      toast.error(
+        error?.data?.error ||
+          error?.message ||
+          MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+      )
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    toast.info('Deleting assignment...')
+    try {
+      await deleteAssignment(id).unwrap()
+      toast.success(MESSAGES.ADMIN.SUCCESS.ADMIN_DELETED)
+    } catch (error: any) {
+      toast.error(
+        error?.data?.error ||
+          error?.message ||
+          MESSAGES.ADMIN.ERROR.DELETE_FAILED
+      )
     }
   }
 
@@ -130,20 +203,28 @@ const DriverStudentAssignmentsList = () => {
         header: headerKeys.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.driverName, header: headerKeys.driverName },
-      { accessorKey: accessorkeys.studentName, header: headerKeys.studentName },
-      { accessorKey: accessorkeys.schoolName, header: headerKeys.schoolName },
+      {
+        accessorKey: accessorkeys.assignmentId,
+        header: headerKeys.assignmentId,
+      },
+      {
+        accessorKey: accessorkeys.driverUniqueId,
+        header: headerKeys.driverUniqueId,
+      },
+      { accessorKey: accessorkeys.studentId, header: headerKeys.studentId },
       {
         accessorKey: accessorkeys.assignmentStatus,
         header: headerKeys.assignmentStatus,
         cell: ({ row }: { row: { original: DriverStudentAssignment } }) => {
-          const { label, className } =
-            assignmentStatusBadge[row.original.status] || {
-              label: row.original.status,
-              className: 'badge-gray',
-            }
+          const { label, className } = assignmentStatusBadge[
+            row.original.assignment_status
+          ] || {
+            label: row.original.assignment_status,
+            className: 'badge-gray',
+          }
           return (
-            <span className={`badge inline-flex items-center gap-1 ${className}`}>
+            <span
+              className={`badge inline-flex items-center gap-1 ${className}`}>
               {label}
             </span>
           )
@@ -159,11 +240,12 @@ const DriverStudentAssignmentsList = () => {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
         cell: ({ row }: { row: { original: DriverStudentAssignment } }) => {
-          const { status, assignment_id, _id } = row.original
-          const id = assignment_id ?? _id
+          const { assignment_status, _id } = row.original
+          const id = _id
           return (
             <div className="flex justify-end flex-wrap gap-2">
-              {(status === 'pending' || status === 'parent_requested') && (
+              {(assignment_status === AssignmentStatus.PENDING ||
+                assignment_status === AssignmentStatus.PARENT_REQUESTED) && (
                 <>
                   <button
                     className="btn btn-green btn-sm"
@@ -177,7 +259,7 @@ const DriverStudentAssignmentsList = () => {
                   </button>
                 </>
               )}
-              {status === 'active' && (
+              {assignment_status === AssignmentStatus.ACTIVE && (
                 <button
                   className="btn btn-orange btn-sm"
                   onClick={() => handleDeactivate(id)}>
@@ -227,7 +309,10 @@ const DriverStudentAssignmentsList = () => {
           </div>
         </div>
       </div>
-      <CreateAssignmentModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <CreateAssignmentModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </React.Fragment>
   )
 }

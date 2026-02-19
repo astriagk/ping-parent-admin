@@ -4,25 +4,29 @@ import React, { useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+import { Payment } from '@src/dtos/payment'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  PaymentMethodLabel,
+  PaymentStatus,
+  PaymentStatusBadge,
+  PaymentStatusLabel,
+} from '@src/shared/constants/enums'
 import { useGetPaymentListQuery } from '@src/store/services/paymentApi'
-
-const statusBadge: Record<string, { label: string; className: string }> = {
-  success: { label: 'Success', className: 'badge-green' },
-  failed: { label: 'Failed', className: 'badge-red' },
-  pending: { label: 'Pending', className: 'badge-yellow' },
-  refunded: { label: 'Refunded', className: 'badge-blue' },
-}
 
 const PaymentList = () => {
   const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<string>('')
 
-  const { data: paymentsData, isLoading } = useGetPaymentListQuery(
-    statusFilter ? { status: statusFilter } : undefined
-  )
+  const { data: paymentsData, isLoading } = useGetPaymentListQuery()
+
+  const filteredData = useMemo(() => {
+    const all = paymentsData?.data ?? []
+    if (!statusFilter) return all
+    return all.filter((p) => p.payment_status === statusFilter)
+  }, [paymentsData, statusFilter])
 
   const columns = useMemo(
     () => [
@@ -32,58 +36,58 @@ const PaymentList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: 'parent_name',
-        header: 'Parent',
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.parent_name || '—',
+        accessorKey: accessorkeys.paymentId,
+        header: headerKeys.paymentId,
       },
       {
         accessorKey: accessorkeys.amount,
         header: headerKeys.amount,
-        cell: ({ row }: { row: { original: any } }) =>
+        cell: ({ row }: { row: { original: Payment } }) =>
           `₹${(row.original.amount ?? 0).toLocaleString()}`,
       },
       {
         accessorKey: accessorkeys.paymentMethod,
         header: headerKeys.paymentMethod,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.payment_method || '—',
+        cell: ({ row }: { row: { original: Payment } }) =>
+          PaymentMethodLabel[row.original.payment_method] ??
+          row.original.payment_method,
       },
       {
         accessorKey: accessorkeys.paymentStatus,
         header: headerKeys.paymentStatus,
-        cell: ({ row }: { row: { original: any } }) => {
-          const status = row.original.status ?? ''
-          const { label, className } = statusBadge[status] || {
-            label: status,
-            className: 'badge-gray',
-          }
+        cell: ({ row }: { row: { original: Payment } }) => {
+          const status = row.original.payment_status as PaymentStatus
+          const label = PaymentStatusLabel[status] ?? status
+          const className = PaymentStatusBadge[status] ?? 'badge-gray'
           return (
-            <span className={`badge inline-flex items-center gap-1 ${className}`}>
+            <span
+              className={`badge inline-flex items-center gap-1 ${className}`}>
               {label}
             </span>
           )
         },
       },
       {
-        accessorKey: 'created_at',
-        header: 'Date',
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.created_at
-            ? new Date(row.original.created_at).toLocaleDateString()
+        accessorKey: accessorkeys.paymentDate,
+        header: headerKeys.paymentDate,
+        cell: ({ row }: { row: { original: Payment } }) =>
+          row.original.payment_date
+            ? new Date(row.original.payment_date).toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              })
             : '—',
       },
       {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
-        cell: ({ row }: { row: { original: any } }) => (
+        cell: ({ row }: { row: { original: Payment } }) => (
           <div className="flex justify-end gap-2">
             <button
               className="btn btn-primary btn-sm"
               onClick={() =>
-                router.push(
-                  `/payments/details/${row.original.payment_id ?? row.original._id}`
-                )
+                router.push(`/payments/details/${row.original._id}`)
               }>
               View
             </button>
@@ -107,10 +111,11 @@ const PaymentList = () => {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}>
                 <option value="">All</option>
-                <option value="success">Success</option>
-                <option value="failed">Failed</option>
-                <option value="pending">Pending</option>
-                <option value="refunded">Refunded</option>
+                {Object.values(PaymentStatus).map((s) => (
+                  <option key={s} value={s}>
+                    {PaymentStatusLabel[s]}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -118,7 +123,10 @@ const PaymentList = () => {
             {isLoading ? (
               <p className="text-sm text-gray-500">Loading payments…</p>
             ) : (
-              <DatatablesHover columns={columns} data={paymentsData?.data || []} />
+              <DatatablesHover
+                columns={columns}
+                data={filteredData}
+              />
             )}
           </div>
         </div>

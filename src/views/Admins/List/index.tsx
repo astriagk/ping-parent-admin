@@ -6,6 +6,12 @@ import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
 import {
+  ModelModes,
+  UserRoles,
+  UserRolesType,
+} from '@src/shared/constants/enums'
+import { MESSAGES } from '@src/shared/constants/messages'
+import {
   useActivateAdminMutation,
   useCreateAdminMutation,
   useDeactivateAdminMutation,
@@ -13,14 +19,15 @@ import {
   useUpdateAdminMutation,
 } from '@src/store/services/adminApi'
 import { CirclePlus } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 interface AdminModalState {
   open: boolean
-  mode: 'create' | 'edit' | 'view'
+  mode: ModelModes
   data: any | null
 }
 
-const ROLES = ['admin', 'superadmin']
+const ROLES = [UserRoles.ADMIN, UserRoles.SUPERADMIN]
 
 const AdminModal = ({
   state,
@@ -50,22 +57,30 @@ const AdminModal = ({
     })
   }, [state.data])
 
-  const isReadOnly = state.mode === 'view'
+  const isReadOnly = state.mode === ModelModes.VIEW
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (state.mode === 'create') {
-      await createAdmin(form).unwrap()
-    } else if (state.mode === 'edit' && state.data) {
-      await updateAdmin({
-        admin_id: state.data.admin_id,
-        username: form.username,
-        email: form.email,
-        phone_number: form.phone_number,
-        admin_role: form.admin_role,
-      }).unwrap()
+    try {
+      let result
+      if (state.mode === ModelModes.CREATE) {
+        result = await createAdmin(form).unwrap()
+      } else if (state.mode === ModelModes.EDIT && state.data) {
+        result = await updateAdmin({
+          admin_id: state.data.admin_id,
+          username: form.username,
+          email: form.email,
+          phone_number: form.phone_number,
+          admin_role: form.admin_role,
+        }).unwrap()
+      }
+      toast.success(result?.message || 'Success!')
+      onClose()
+    } catch (error: any) {
+      const errorMsg =
+        error?.data?.error || error?.message || 'An error occurred.'
+      toast.error(errorMsg)
     }
-    onClose()
   }
 
   if (!state.open) return null
@@ -108,10 +123,12 @@ const AdminModal = ({
               className="form-input"
               value={form.phone_number}
               readOnly={isReadOnly}
-              onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, phone_number: e.target.value })
+              }
             />
           </div>
-          {state.mode === 'create' && (
+          {state.mode === ModelModes.CREATE && (
             <div>
               <label className="form-label">Password</label>
               <input
@@ -129,16 +146,21 @@ const AdminModal = ({
               className="form-select"
               value={form.admin_role}
               disabled={isReadOnly}
-              onChange={(e) => setForm({ ...form, admin_role: e.target.value })}>
+              onChange={(e) =>
+                setForm({ ...form, admin_role: e.target.value })
+              }>
               {ROLES.map((r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {UserRolesType[r as keyof typeof UserRolesType] || r}
                 </option>
               ))}
             </select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" className="btn btn-light btn-sm" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-light btn-sm"
+              onClick={onClose}>
               {isReadOnly ? 'Close' : 'Cancel'}
             </button>
             {!isReadOnly && (
@@ -146,7 +168,7 @@ const AdminModal = ({
                 type="submit"
                 className="btn btn-primary btn-sm"
                 disabled={creating || updating}>
-                {state.mode === 'create' ? 'Create' : 'Save'}
+                {state.mode === ModelModes.CREATE ? 'Create' : 'Save'}
               </button>
             )}
           </div>
@@ -160,12 +182,20 @@ const AdminsList = () => {
   const { data: adminListData } = useGetAdminListQuery()
   const [activateAdmin] = useActivateAdminMutation()
   const [deactivateAdmin] = useDeactivateAdminMutation()
-  const [modal, setModal] = useState<AdminModalState>({ open: false, mode: 'create', data: null })
+  const [modal, setModal] = useState<AdminModalState>({
+    open: false,
+    mode: ModelModes.CREATE,
+    data: null,
+  })
 
-  const openCreate = () => setModal({ open: true, mode: 'create', data: null })
-  const openEdit = (row: any) => setModal({ open: true, mode: 'edit', data: row })
-  const openView = (row: any) => setModal({ open: true, mode: 'view', data: row })
-  const closeModal = () => setModal({ open: false, mode: 'create', data: null })
+  const openCreate = () =>
+    setModal({ open: true, mode: ModelModes.CREATE, data: null })
+  const openEdit = (row: any) =>
+    setModal({ open: true, mode: ModelModes.EDIT, data: row })
+  const openView = (row: any) =>
+    setModal({ open: true, mode: ModelModes.VIEW, data: row })
+  const closeModal = () =>
+    setModal({ open: false, mode: ModelModes.CREATE, data: null })
 
   const columns = useMemo(
     () => [
@@ -177,7 +207,15 @@ const AdminsList = () => {
       { accessorKey: accessorkeys.username, header: headerKeys.username },
       { accessorKey: accessorkeys.email, header: headerKeys.email },
       { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
-      { accessorKey: accessorkeys.adminRole, header: headerKeys.adminRole },
+      {
+        accessorKey: accessorkeys.adminRole,
+        header: headerKeys.adminRole,
+        cell: ({ row }: { row: { original: any } }) => {
+          const role = row.original[accessorkeys.adminRole]
+          // Only show if role exists in UserRolesType, else fallback to raw value
+          return UserRolesType[role as keyof typeof UserRolesType] || role
+        },
+      },
       {
         accessorKey: accessorkeys.isActive,
         header: headerKeys.isActive,
@@ -185,7 +223,8 @@ const AdminsList = () => {
           const mapKey = String(row.original.is_active) as keyof typeof badges
           const { label, className } = badges[mapKey] || badges.undefined
           return (
-            <span className={`badge inline-flex items-center gap-1 ${className}`}>
+            <span
+              className={`badge inline-flex items-center gap-1 ${className}`}>
               {label}
             </span>
           )
@@ -196,18 +235,49 @@ const AdminsList = () => {
         header: headerKeys.actions,
         cell: ({ row }: { row: { original: any } }) => {
           const { is_active, admin_id } = row.original
+
+          const handleActivate = async () => {
+            try {
+              const result = await activateAdmin(admin_id).unwrap()
+              toast.success(
+                result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED
+              )
+            } catch (error: any) {
+              const errorMsg =
+                error?.data?.error ||
+                error?.message ||
+                MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+              toast.error(errorMsg)
+            }
+          }
+
+          const handleDeactivate = async () => {
+            try {
+              const result = await deactivateAdmin(admin_id).unwrap()
+              toast.success(
+                result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED
+              )
+            } catch (error: any) {
+              const errorMsg =
+                error?.data?.error ||
+                error?.message ||
+                MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+              toast.error(errorMsg)
+            }
+          }
+
           return (
             <div className="flex justify-end gap-2">
               {is_active ? (
                 <button
                   className="btn btn-orange btn-sm"
-                  onClick={() => deactivateAdmin(admin_id)}>
+                  onClick={handleDeactivate}>
                   Deactivate
                 </button>
               ) : (
                 <button
                   className="btn btn-green btn-sm"
-                  onClick={() => activateAdmin(admin_id)}>
+                  onClick={handleActivate}>
                   Activate
                 </button>
               )}
@@ -241,7 +311,10 @@ const AdminsList = () => {
             </button>
           </div>
           <div className="card-body">
-            <DatatablesHover columns={columns} data={adminListData?.data || []} />
+            <DatatablesHover
+              columns={columns}
+              data={adminListData?.data || []}
+            />
           </div>
         </div>
       </div>
