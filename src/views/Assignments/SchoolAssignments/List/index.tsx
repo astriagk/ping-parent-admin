@@ -61,7 +61,7 @@ const CreateSchoolAssignmentModal = ({
               required>
               <option value="">-- Select Driver --</option>
               {driversData?.data?.map((d: any) => (
-                <option key={d.driver_id ?? d._id} value={d.driver_id ?? d._id}>
+                <option key={d._id} value={d._id}>
                   {d.name ?? d.username}
                 </option>
               ))}
@@ -92,7 +92,7 @@ const SchoolAssignmentsList = () => {
   const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>('')
   // Map schools to react-select options
   const schoolOptions = (schoolsData?.data || []).map((school: any) => ({
-    value: school.school_id,
+    value: school._id,
     label: school.school_name,
   }))
   // Find the selected option object
@@ -107,7 +107,7 @@ const SchoolAssignmentsList = () => {
   const [rejectAssignment] = useRejectSchoolAssignmentMutation()
 
   const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+    selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
   const { data: assignmentsData } = useGetSchoolAssignmentsQuery(
     firstSchoolId,
@@ -159,7 +159,7 @@ const SchoolAssignmentsList = () => {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
         cell: ({ row }: { row: { original: SchoolAssignment } }) => {
-          const id = row.original.assignment_id ?? row.original._id
+          const id = row.original._id
           return (
             <div className="flex justify-end gap-2">
               {row.original.status === 'pending' && (

@@ -1,6 +1,5 @@
 export interface Student {
   _id: string
-  student_id: string
   name: string
   grade: string
   parent_id: string

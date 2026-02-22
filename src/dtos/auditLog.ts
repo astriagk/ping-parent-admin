@@ -1,6 +1,5 @@
 export interface AuditLog {
   _id: string
-  log_id: string
   user_id: string
   user_name: string
   user_role: string

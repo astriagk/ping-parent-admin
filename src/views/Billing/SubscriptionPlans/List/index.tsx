@@ -4,6 +4,8 @@ import React, { useMemo, useState } from 'react'
 
 import { SubscriptionPlan } from '@src/dtos/subscription'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
+import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
+import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
 import {
   ModelModes,
   PlanTypeBadge,
@@ -12,8 +14,6 @@ import {
   PricingModelLabel,
 } from '@src/shared/constants/enums'
 import { MESSAGES } from '@src/shared/constants/messages'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
 import {
   useActivateSubscriptionPlanMutation,
   useDeactivateSubscriptionPlanMutation,
@@ -46,7 +46,7 @@ const SubscriptionPlansList = () => {
   }
 
   const handleToggle = async (plan: SubscriptionPlan) => {
-    const id = plan.plan_id ?? plan._id
+    const id = plan._id
     try {
       if (plan.is_active) {
         await deactivatePlan(id).unwrap()

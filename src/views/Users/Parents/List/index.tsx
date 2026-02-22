@@ -65,7 +65,7 @@ const ParentsList = () => {
         className: 'text-right',
         cell: ({ row }: { row: { original: any } }) => {
           const { is_active } = row.original
-          const id = row.original.user_id ?? row.original._id
+          const id = row.original._id
           return (
             <div className="flex justify-end gap-2">
               {is_active ? (

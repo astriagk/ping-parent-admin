@@ -43,8 +43,8 @@ export const adminApi = baseApi.injectEndpoints({
       { success: boolean; message: string },
       UpdateAdminRequest
     >({
-      query: ({ admin_id, ...body }) => ({
-        url: `${NEXT_PUBLIC_ADMIN_LIST_API}/by-admin-id/${admin_id}`,
+      query: ({ _id, ...body }) => ({
+        url: `${NEXT_PUBLIC_ADMIN_LIST_API}/by-admin-id/${_id}`,
         method: ApiMethods.PUT,
         body,
       }),

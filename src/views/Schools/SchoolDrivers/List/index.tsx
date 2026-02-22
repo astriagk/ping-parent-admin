@@ -17,6 +17,7 @@ import {
 } from '@src/store/services/schoolAdminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { CirclePlus } from 'lucide-react'
+import Select from 'react-select'
 
 const ApprovalBadge = ({ status }: { status: string }) => {
   const map: Record<string, { label: string; className: string }> = {
@@ -70,18 +71,31 @@ const AssignDriverModal = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="form-label">Select Driver</label>
-            <select
-              className="form-select"
-              value={selectedDriverId}
-              onChange={(e) => setSelectedDriverId(e.target.value)}
-              required>
-              <option value="">-- Select a driver --</option>
-              {driversData?.data?.map((d: any) => (
-                <option key={d.driver_id ?? d._id} value={d.driver_id ?? d._id}>
-                  {d.name ?? d.username} ({d.email})
-                </option>
-              ))}
-            </select>
+            <div className="min-w-[260px]">
+              {(() => {
+                const driverOptions = (driversData?.data || []).map(
+                  (d: any) => ({
+                    value: d._id,
+                    label: `${d.name ?? d.username} (${d.email})`,
+                  })
+                )
+                const selectedOption =
+                  driverOptions.find((opt) => opt.value === selectedDriverId) ||
+                  null
+                return (
+                  <Select
+                    classNamePrefix="select"
+                    options={driverOptions}
+                    value={selectedOption}
+                    onChange={(option: any) =>
+                      setSelectedDriverId(option ? option.value : '')
+                    }
+                    placeholder="Select driver"
+                    isClearable={true}
+                  />
+                )
+              })()}
+            </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button
@@ -106,12 +120,15 @@ const AssignDriverModal = ({
 const SchoolDriversList = () => {
   const router = useRouter()
   const { data: schoolsData } = useGetSchoolsListQuery()
-  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>('')
+  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>(() => {
+    const first = schoolsData?.data?.[0]?._id
+    return first || ''
+  })
   const [modalOpen, setModalOpen] = useState(false)
   const [removeDriver] = useRemoveDriverFromSchoolMutation()
 
   const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+    selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
   const { data: schoolDriversData } = useGetSchoolDriversQuery(firstSchoolId, {
     skip: !firstSchoolId,
@@ -144,7 +161,7 @@ const SchoolDriversList = () => {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
         cell: ({ row }: { row: { original: SchoolDriverItem } }) => {
-          const driverId = row.original.driver_id ?? (row.original as any)._id
+          const driverId = row.original.driver_id
           return (
             <div className="flex justify-end gap-2">
               <button
@@ -174,17 +191,32 @@ const SchoolDriversList = () => {
         <div className="col-span-12 card">
           <div className="card-header flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <label className="font-medium text-sm">Select School:</label>
-              <select
-                className="form-select w-64"
-                value={selectedSchoolId}
-                onChange={(e) => setSelectedSchoolId(e.target.value)}>
-                {schoolsData?.data?.map((school) => (
-                  <option key={school.school_id} value={school.school_id}>
-                    {school.school_name}
-                  </option>
-                ))}
-              </select>
+              <div className="w-full min-w-[260px]">
+                {(() => {
+                  const schoolOptions = (schoolsData?.data || []).map(
+                    (school: any) => ({
+                      value: school._id,
+                      label: school.school_name,
+                    })
+                  )
+                  const selectedOption =
+                    schoolOptions.find(
+                      (opt) => opt.value === selectedSchoolId
+                    ) || null
+                  return (
+                    <Select
+                      classNamePrefix="select"
+                      options={schoolOptions}
+                      value={selectedOption}
+                      onChange={(option: any) =>
+                        setSelectedSchoolId(option ? option.value : '')
+                      }
+                      placeholder="Select school"
+                      isClearable={true}
+                    />
+                  )
+                })()}
+              </div>
             </div>
             <button
               className="btn btn-primary shrink-0"

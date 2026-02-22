@@ -16,7 +16,6 @@ export interface PaymentGatewayResponse {
 
 export interface Payment {
   _id: string
-  payment_id: string
   parent_id: string
   payment_type: string
   amount: number
@@ -40,7 +39,6 @@ export interface PaymentListResponse {
 // Payment Details Response
 export interface PaymentDetails {
   _id: string
-  payment_id: string
   parent_id: string
   payment_type: string
   amount: number
@@ -115,7 +113,7 @@ export interface VerifyPaymentRequest {
 export interface VerifyPaymentResponse {
   success: boolean
   data: {
-    payment_id: string
+    _id: string
     order_id: string
     status: string
     verified: boolean

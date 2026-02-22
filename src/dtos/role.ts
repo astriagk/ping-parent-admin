@@ -1,6 +1,5 @@
 export interface Role {
   _id: string
-  role_id: string
   name: string
   description: string
   permissions: string[]

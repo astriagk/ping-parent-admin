@@ -9,7 +9,6 @@ export interface SubscriptionPlanFeature {
 
 export interface SubscriptionPlan {
   _id: string
-  plan_id: string
   plan_name: string
   plan_type: PlanType
   price: number
@@ -56,7 +55,6 @@ export interface CreateSubscriptionPlanRequest {
 // Parent Subscriptions
 export interface ParentSubscription {
   _id: string
-  subscription_id: string
   parent_id: string
   parent_name: string
   plan_id: string
@@ -79,7 +77,6 @@ export interface ParentSubscriptionListResponse {
 // School Subscriptions
 export interface SchoolSubscription {
   _id: string
-  subscription_id: string
   school_id: string
   school_name: string
   plan_id: string

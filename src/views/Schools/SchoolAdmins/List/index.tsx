@@ -14,6 +14,7 @@ import {
 } from '@src/store/services/schoolAdminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { CirclePlus } from 'lucide-react'
+import Select from 'react-select'
 import { toast } from 'react-toastify'
 
 const RegisterSchoolAdminModal = ({
@@ -108,12 +109,16 @@ const RegisterSchoolAdminModal = ({
 
 const SchoolAdminsList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
-  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>('')
+  const { data: schoolsList } = useGetSchoolsListQuery()
+  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>(() => {
+    const first = schoolsList?.data?.[0]?._id
+    return first || ''
+  })
   const [modalOpen, setModalOpen] = useState(false)
   const [deactivateAdmin] = useDeactivateSchoolAdminMutation()
 
   const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+    selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
   const { data: schoolAdminsData } = useGetSchoolAdminsQuery(firstSchoolId, {
     skip: !firstSchoolId,
@@ -163,7 +168,7 @@ const SchoolAdminsList = () => {
           <div className="flex justify-end gap-2">
             <button
               className="btn btn-orange btn-sm"
-              onClick={() => handleDeactivate(row.original.admin_id)}>
+              onClick={() => handleDeactivate(row.original._id)}>
               Deactivate
             </button>
           </div>
@@ -180,17 +185,28 @@ const SchoolAdminsList = () => {
         <div className="col-span-12 card">
           <div className="card-header flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <label className="font-medium text-sm">Select School:</label>
-              <select
-                className="form-select w-64"
-                value={selectedSchoolId}
-                onChange={(e) => setSelectedSchoolId(e.target.value)}>
-                {schoolsData?.data?.map((school) => (
-                  <option key={school.school_id} value={school.school_id}>
-                    {school.school_name}
-                  </option>
-                ))}
-              </select>
+              <div id="sortingByClass" className="w-full min-w-[260px]">
+                <Select
+                  classNamePrefix="select"
+                  options={(schoolsData?.data || []).map((school: any) => ({
+                    value: school._id,
+                    label: school.school_name,
+                  }))}
+                  value={
+                    (schoolsData?.data || [])
+                      .map((school: any) => ({
+                        value: school._id,
+                        label: school.school_name,
+                      }))
+                      .find((opt) => opt.value === selectedSchoolId) || null
+                  }
+                  onChange={(option: any) =>
+                    setSelectedSchoolId(option ? option.value : '')
+                  }
+                  placeholder="Select school"
+                  isClearable={true}
+                />
+              </div>
             </div>
             <button
               className="btn btn-primary shrink-0"

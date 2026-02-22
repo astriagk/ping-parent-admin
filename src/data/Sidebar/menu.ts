@@ -85,6 +85,7 @@ const menu: MegaMenu[] = [
     title: 'Admin Management',
     lang: 'pe-admins',
     children: [],
+    allowedRoles: ['superadmin', 'admin'],
   },
   {
     title: 'Admins',
@@ -92,6 +93,7 @@ const menu: MegaMenu[] = [
     icon: 'shield-user',
     link: '#',
     separator: false,
+    allowedRoles: ['superadmin', 'admin'],
     children: [
       {
         title: 'List',
@@ -268,6 +270,7 @@ const menu: MegaMenu[] = [
     icon: 'shield',
     link: '#',
     separator: false,
+    allowedRoles: ['superadmin', 'admin'],
     children: [
       {
         title: 'List',
@@ -300,6 +303,7 @@ const menu: MegaMenu[] = [
     icon: 'file-text',
     link: '#',
     separator: false,
+    allowedRoles: ['superadmin', 'admin'],
     children: [
       {
         title: 'List',

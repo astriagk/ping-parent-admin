@@ -2,7 +2,10 @@
 
 import React, { useEffect } from 'react'
 
-import { SubscriptionPlan, SubscriptionPlanFeature } from '@src/dtos/subscription'
+import {
+  SubscriptionPlan,
+  SubscriptionPlanFeature,
+} from '@src/dtos/subscription'
 import {
   ModelModes,
   PlanType,
@@ -92,7 +95,9 @@ const PlanModal: React.FC<PlanModalProps> = ({
         per_kid_price: planData.per_kid_price ?? 0,
         kids_min: planData.kids.min,
         kids_max: planData.kids.max,
-        features: planData.features.length ? planData.features : [defaultFeature()],
+        features: planData.features.length
+          ? planData.features
+          : [defaultFeature()],
       })
     } else if (!planData) {
       reset(defaultValues)
@@ -100,20 +105,29 @@ const PlanModal: React.FC<PlanModalProps> = ({
   }, [planData, isEditMode, reset])
 
   const onSubmit = async (data: PlanFormValues, onClose: () => void) => {
-    const payload = {
+    let payload: any = {
       plan_name: data.plan_name,
       plan_type: data.plan_type,
       pricing_model: data.pricing_model,
       price: Number(data.price),
-      per_kid_price: Number(data.per_kid_price) || undefined,
+      currency: 'INR',
       kids: { min: Number(data.kids_min), max: Number(data.kids_max) },
       features: data.features.filter((f) => f.key || f.label),
+      priority: 1,
+      is_active: true,
+    }
+
+    if (
+      data.pricing_model === 'per_kid' ||
+      data.pricing_model === 'base_plus_per_kid'
+    ) {
+      payload.per_kid_price = String(data.per_kid_price)
     }
 
     try {
       if (isEditMode && planData) {
         const response = await updatePlan({
-          id: planData.plan_id ?? planData._id,
+          id: planData._id,
           ...payload,
         }).unwrap()
         if (response.success) {

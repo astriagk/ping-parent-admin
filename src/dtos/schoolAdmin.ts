@@ -1,6 +1,5 @@
 export interface SchoolAdmin {
   _id: string
-  admin_id: string
   school_id: string
   school_name: string
   name: string

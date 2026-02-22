@@ -1,6 +1,5 @@
 export interface Rating {
   _id: string
-  rating_id: string
   driver_id: string
   driver_name: string
   parent_id: string

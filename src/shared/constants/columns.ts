@@ -29,7 +29,7 @@ const accessorkeys = {
   grade: 'grade',
   parentName: 'parent_name',
   // Trip
-  tripId: 'trip_id',
+  tripId: '_id',
   tripType: 'trip_type',
   tripStatus: 'trip_status',
   tripDate: 'trip_date',
@@ -38,7 +38,7 @@ const accessorkeys = {
   assignmentStatus: 'assignment_status',
   studentId: 'student_id',
   driverUniqueId: 'driver_unique_id',
-  assignmentId: 'assignment_id',
+  assignmentId: '_id',
   driverName: 'driver_name',
   // Subscription
   planName: 'plan_name',
@@ -69,7 +69,7 @@ const accessorkeys = {
   rating: 'rating',
   review: 'review',
   // Payment
-  paymentId: 'payment_id',
+  paymentId: '_id',
   paymentType: 'payment_type',
   paymentMethod: 'payment_method',
   paymentStatus: 'payment_status',

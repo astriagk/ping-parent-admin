@@ -5,6 +5,7 @@ import {
 } from '@src/dtos/schoolAdmin'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
 import {
+  NEXT_PUBLIC_ADMIN_LIST_API,
   NEXT_PUBLIC_SCHOOL_ADMIN_API,
   NEXT_PUBLIC_SCHOOL_DRIVER_API,
 } from '@utils/url_helper'
@@ -15,7 +16,7 @@ export const schoolAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getSchoolAdmins: builder.query<SchoolAdminListResponse, string>({
       query: (schoolId) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_ADMIN_API}/${schoolId}`,
+        url: `${NEXT_PUBLIC_ADMIN_LIST_API}/school-admins/${schoolId}`,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.SCHOOL],
@@ -25,7 +26,7 @@ export const schoolAdminApi = baseApi.injectEndpoints({
       RegisterSchoolAdminRequest
     >({
       query: (body) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_ADMIN_API}/register`,
+        url: `${NEXT_PUBLIC_ADMIN_LIST_API}`,
         method: ApiMethods.POST,
         body,
       }),

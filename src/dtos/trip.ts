@@ -2,7 +2,6 @@ import { TripStatus } from '@src/shared/constants/enums'
 
 export interface Trip {
   _id: string
-  trip_id: string
   driver_id: string
   driver_name: string
   school_id: string

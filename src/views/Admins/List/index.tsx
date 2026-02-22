@@ -67,7 +67,7 @@ const AdminModal = ({
         result = await createAdmin(form).unwrap()
       } else if (state.mode === ModelModes.EDIT && state.data) {
         result = await updateAdmin({
-          admin_id: state.data.admin_id,
+          _id: state.data._id,
           username: form.username,
           email: form.email,
           phone_number: form.phone_number,
@@ -234,11 +234,11 @@ const AdminsList = () => {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
         cell: ({ row }: { row: { original: any } }) => {
-          const { is_active, admin_id } = row.original
+          const { is_active, _id } = row.original
 
           const handleActivate = async () => {
             try {
-              const result = await activateAdmin(admin_id).unwrap()
+              const result = await activateAdmin(_id).unwrap()
               toast.success(
                 result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED
               )
@@ -253,7 +253,7 @@ const AdminsList = () => {
 
           const handleDeactivate = async () => {
             try {
-              const result = await deactivateAdmin(admin_id).unwrap()
+              const result = await deactivateAdmin(_id).unwrap()
               toast.success(
                 result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED
               )

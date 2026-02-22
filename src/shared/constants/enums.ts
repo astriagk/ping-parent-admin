@@ -27,6 +27,7 @@ enum UserRoles {
   SUPERADMIN = 'superadmin',
   ADMIN = 'admin',
   MODERATOR = 'moderator',
+  SCHOOL_ADMIN = 'school_admin',
   DRIVER = 'driver',
   PARENT = 'parent',
 }
@@ -35,6 +36,7 @@ const UserRolesType = {
   superadmin: 'Super Admin',
   admin: 'Admin',
   moderator: 'Moderator',
+  school_admin: 'School Admin',
   driver: 'Driver',
   parent: 'Parent',
 }

@@ -2,7 +2,6 @@ import { AssignmentStatus } from '@src/shared/constants/enums'
 
 export interface DriverStudentAssignment {
   _id: string
-  assignment_id: string
   driver_id: string
   driver_name: string
   student_id: string
@@ -22,7 +21,6 @@ export interface DriverStudentAssignmentListResponse {
 
 export interface SchoolAssignment {
   _id: string
-  assignment_id: string
   school_id: string
   school_name: string
   driver_id: string

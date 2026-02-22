@@ -65,7 +65,7 @@ const CreateSubscriptionModal = ({
               {plansData?.data
                 ?.filter((p) => p.is_active)
                 .map((p) => (
-                  <option key={p.plan_id ?? p._id} value={p.plan_id ?? p._id}>
+                  <option key={p._id} value={p._id}>
                     {p.plan_name} — {p.plan_type} (₹{p.price})
                   </option>
                 ))}
@@ -150,7 +150,7 @@ const SchoolSubscriptionsList = () => {
   const [cancelSubscription] = useCancelSchoolSubscriptionMutation()
   const [renewSubscription] = useRenewSchoolSubscriptionMutation()
 
-  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
   const { data: subscriptionsData } = useGetSchoolSubscriptionsQuery(firstSchoolId, {
     skip: !firstSchoolId,
@@ -215,7 +215,7 @@ const SchoolSubscriptionsList = () => {
         header: headerKeys.actions,
         cell: ({ row }: { row: { original: SchoolSubscription } }) => {
           const sub = row.original
-          const id = sub.subscription_id ?? sub._id
+          const id = sub._id
           return (
             <div className="flex justify-end flex-wrap gap-2">
               <button
@@ -259,7 +259,7 @@ const SchoolSubscriptionsList = () => {
                   value={selectedSchoolId}
                   onChange={(e) => setSelectedSchoolId(e.target.value)}>
                   {schoolsData?.data?.map((school) => (
-                    <option key={school.school_id} value={school.school_id}>
+                    <option key={school._id} value={school._id}>
                       {school.school_name}
                     </option>
                   ))}

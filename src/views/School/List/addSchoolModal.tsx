@@ -93,7 +93,7 @@ const AddSchoolModal: React.FC<AddSchoolModalProps> = ({
     try {
       if (isEditMode && schoolData) {
         const response = await updateSchool({
-          schoolId: schoolData.school_id,
+          schoolId: schoolData._id,
           payload: data,
         }).unwrap()
         if (response.success) {
