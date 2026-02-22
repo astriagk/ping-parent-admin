@@ -1,7 +1,7 @@
 import React from 'react'
 
-import FourZeroFour from '@src/components/common/FourZeroFour'
 import { NextPageWithLayout } from '@src/dtos'
+import FourZeroFour from '@src/shared/common/FourZeroFour'
 
 const PageNotFoundError: NextPageWithLayout = () => {
   return (

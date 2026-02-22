@@ -2,7 +2,7 @@ import { FC, ReactElement } from 'react'
 
 import { StaticImageData } from 'next/image'
 
-import { LAYOUT_LANGUAGES } from '@src/components/constants/layout'
+import { LAYOUT_LANGUAGES } from '@src/shared/constants/layout'
 
 // Define the type for pages that use a custom layout
 export type NextPageWithLayout = FC & {
@@ -25,6 +25,7 @@ export interface MegaMenu {
   dropdownPosition?: null
   children?: MainMenu[]
   megaMenu?: boolean
+  allowedRoles?: string[]
 }
 
 export interface MainMenu {
@@ -39,6 +40,7 @@ export interface SubMenu {
   title: string
   lang: string
   link: string
+  parentPath?: string
   dropdownPosition?: null
   children: SubMenu[] // If submenus can be nested, otherwise use `children: []`
 }

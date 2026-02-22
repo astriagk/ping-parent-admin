@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -8,55 +8,50 @@ import { useRouter } from 'next/navigation'
 
 import whiteLogo from '@assets/images/logo-white.png'
 import LogoMain from '@assets/images/main-logo.png'
-import Google from '@assets/images/others/google.png'
+import { paths } from '@src/shared/common/DynamicTitle'
+import { MESSAGES } from '@src/shared/constants/messages'
+import { useAppSelector } from '@src/store/hooks'
+import { useLoginMutation } from '@src/store/services/authApi'
 import { Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { setAuthTokens } from '@src/utils/auth'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
+  const [login, { isLoading }] = useLoginMutation()
 
-  // Handle form submission
+  const { isAuthenticated: reduxAuthenticated } = useAppSelector(
+    (state) => state.Auth || { isAuthenticated: false }
+  )
+
+  useEffect(() => {
+    if (reduxAuthenticated) {
+      router.push(paths.ADMINS.LIST)
+    }
+  }, [reduxAuthenticated, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!email || !password || !email.trim() || !password.trim()) {
-      toast.error('Email and password are required.')
+      toast.error(MESSAGES.AUTH.VALIDATION.EMAIL_PASSWORD_REQUIRED)
       return
     }
 
-    // Authentication removed - redirect directly to dashboard
-    toast.success('Login successful!')
-    router.push('/dashboards/ecommerce')
-    setEmail('')
-    setPassword('')
-  }
-
-  const handleAdminLogin = async () => {
-    const adminEmail = 'admin@example.com'
-    const adminPassword = 'admin@123'
-
-    setEmail(adminEmail)
-    setPassword(adminPassword)
-
-    // Authentication removed - redirect directly to dashboard
-    toast.success('Admin login successful!')
-    router.push('/dashboards/ecommerce')
-  }
-
-  // handle user login
-  const handleUserLogin = async () => {
-    const userEmail = 'user@example.com'
-    const userPassword = 'user@123'
-
-    setEmail(userEmail)
-    setPassword(userPassword)
-
-    // Authentication removed - redirect directly to dashboard
-    toast.success('User login successful!')
-    router.push('/dashboards/ecommerce')
+    try {
+      const result = await login({
+        email: email.trim(),
+        password: password.trim(),
+      }).unwrap()
+      setAuthTokens(result.data.access_token, result.data.refresh_token)
+      toast.success(result.message || MESSAGES.AUTH.SUCCESS.LOGIN_SUCCESS)
+      router.push(paths.ADMINS.LIST)
+    } catch (err: any) {
+      toast.error(err || MESSAGES.AUTH.ERROR.LOGIN_FAILED)
+    }
   }
 
   return (
@@ -83,17 +78,10 @@ export default function LoginPage() {
                   />
                 </Link>
               </div>
-              <h4 className="mb-2 font-bold leading-relaxed text-center text-transparent drop-shadow-lg ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-primary-500 vie-purple-500 to-pink-500 bg-clip-text">
+              <h4 className="mb-6 font-bold leading-relaxed text-center text-transparent drop-shadow-lg ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-primary-500 vie-purple-500 to-pink-500 bg-clip-text">
                 Welcome Back, Sofia!
               </h4>
-              <p className="mb-5 text-center text-gray-500 dark:text-dark-500">
-                Don&apos;t have an account?{' '}
-                <Link
-                  href="/auth/signup-basic"
-                  className="font-medium link link-primary">
-                  Sign Up
-                </Link>
-              </p>
+
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-12 gap-5 mb-5 items-center">
                   <div className="col-span-12">
@@ -104,7 +92,7 @@ export default function LoginPage() {
                       type="text"
                       id="emailOrUsername"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)} // Update state on change
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full form-input"
                       placeholder="Enter your email or username"
                     />
@@ -115,16 +103,16 @@ export default function LoginPage() {
                     </label>
                     <div className="relative">
                       <input
-                        type={showPassword ? 'text' : 'password'} // Use state to show/hide password
+                        type={showPassword ? 'text' : 'password'}
                         id="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)} // Update state on change
+                        onChange={(e) => setPassword(e.target.value)}
                         className="w-full ltr:pr-8 rtl:pl-8 form-input"
                         placeholder="Enter your password"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPassword((prev) => !prev)} // Toggle password visibility
+                        onClick={() => setShowPassword((prev) => !prev)}
                         className="absolute inset-y-0 flex items-center text-gray-500 ltr:right-3 rtl:left-3 focus:outline-hidden dark:text-dark-500">
                         {showPassword ? (
                           <Eye className="size-5" />
@@ -156,73 +144,15 @@ export default function LoginPage() {
                     </div>
                   </div>
                   <div className="col-span-12">
-                    <button type="submit" className="w-full btn btn-primary">
-                      Sign In
+                    <button
+                      type="submit"
+                      className="w-full btn btn-primary"
+                      disabled={isLoading}>
+                      {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                   </div>
                 </div>
               </form>
-
-              <div className="relative my-5 text-center text-gray-500 dark:text-dark-500 before:absolute before:border-gray-200 dark:before:border-dark-800 before:border-dashed before:w-full ltr:before:left-0 rtl:before:right-0 before:top-2.5 before:border-b">
-                <p className="relative inline-block px-2 bg-white dark:bg-dark-900">
-                  OR
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="w-full border-gray-200 btn hover:bg-gray-50 dark:border-dark-800 dark:hover:bg-dark-850 hover:text-primary-500">
-                  <Image
-                    src={Google}
-                    alt=""
-                    className="inline-block h-4 ltr:mr-1 rtl:ml-1"
-                    width={16}
-                    height={16}
-                  />{' '}
-                  Sign In Via Google
-                </button>
-                <button
-                  type="button"
-                  className="w-full border-gray-200 btn hover:bg-gray-50 dark:border-dark-800 dark:hover:bg-dark-850 hover:text-primary-500">
-                  <i className="ri-facebook-fill text-[20px] inline-block ltr:mr-1 rtl:ml-1 size-4 text-primary-500"></i>{' '}
-                  Sign In Via Facebook
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 mt-5">
-                <div className="grow">
-                  <h6 className="mb-1">Admin</h6>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Email: admin@example.com
-                  </p>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Password: admin@123
-                  </p>
-                </div>
-                <button
-                  className="shrink-0 btn btn-sub-gray"
-                  onClick={handleAdminLogin}>
-                  Login
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 mt-3">
-                <div className="grow">
-                  <h6 className="mb-1">Users</h6>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Email: user@example.com
-                  </p>
-                  <p className="text-gray-500 dark:text-dark-500">
-                    Password: user@123
-                  </p>
-                </div>
-                <button
-                  className="shrink-0 btn btn-sub-gray"
-                  onClick={handleUserLogin}>
-                  Login
-                </button>
-              </div>
             </div>
           </div>
         </div>

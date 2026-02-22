@@ -1,25 +1,25 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
 
-import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/components/constants/layout'
 import { menu } from '@src/data/Sidebar/menu'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
-import { changeSettingModalOpen } from '@src/slices/layout/reducer'
-import { changeHTMLAttribute, setNewThemeData } from '@src/slices/layout/utils'
-import { AppDispatch, RootState } from '@src/slices/reducer'
-import { changeSidebarSize } from '@src/slices/thunk'
-import { useDispatch, useSelector } from 'react-redux'
+import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/shared/constants/layout'
+import {
+  changeHTMLAttribute,
+  changeSettingModalOpen,
+  changeSidebarSize,
+  setNewThemeData,
+} from '@src/store/features/layout'
+import { useAppDispatch, useAppSelector } from '@src/store/hooks'
+import { useVerifyTokenQuery } from '@src/store/services/authApi'
 
 import Footer from './Footer'
+import Sidebar from './Sidebar'
 import Topbar from './Topbar'
-
-const SidebarComponent = dynamic(() => import('./Sidebar'), {
-  ssr: false, // Disable SSR for this component
-})
 
 export default function Layout({
   breadcrumbTitle,
@@ -41,10 +41,29 @@ export default function Layout({
     layoutSidebarColor,
     layoutDataColor,
     layoutDirection,
-  } = useSelector((state: RootState) => state.Layout)
-  const dispatch = useDispatch<AppDispatch>()
+  } = useAppSelector((state) => state.Layout)
+  const dispatch = useAppDispatch()
+  const { data: authData } = useVerifyTokenQuery()
+  const userRole = authData?.data?.role ?? ''
+
+  const roleFilteredMenu = useMemo(
+    () =>
+      menu.filter(
+        (item) =>
+          !item.allowedRoles?.length || item.allowedRoles.includes(userRole)
+      ),
+    [userRole]
+  )
+
   const [searchSidebar, setSearchSidebar] = useState<MegaMenu[]>(menu)
   const [searchValue, setSearchValue] = useState<string>('')
+
+  useEffect(() => {
+    if (!searchValue) {
+      setSearchSidebar(roleFilteredMenu)
+    }
+  }, [roleFilteredMenu, searchValue])
+
   const handleThemeSidebarSize = useCallback(() => {
     if (layoutType !== 'horizontal') {
       // Toggle between BIG and SMALL sidebar
@@ -75,6 +94,7 @@ export default function Layout({
       handleThemeSidebarSize()
     }
   }
+
   useEffect(() => {
     const handleResize = () => {
       // Update the sidebar state based on the window width
@@ -110,69 +130,49 @@ export default function Layout({
     setSearchValue(value)
 
     if (value.trim() !== '') {
-      const filteredMenu: MegaMenu[] = menu.filter((megaItem: MegaMenu) => {
-        // Filter the first level: MegaMenu
-        const isMegaMenuMatch =
-          megaItem.title.toLowerCase().includes(value.toLowerCase()) ||
-          megaItem.lang.toLowerCase().includes(value.toLowerCase())
+      const filteredMenu: MegaMenu[] = roleFilteredMenu.filter(
+        (megaItem: MegaMenu) => {
+          // Filter the first level: MegaMenu
+          const isMegaMenuMatch =
+            megaItem.title.toLowerCase().includes(value.toLowerCase()) ||
+            megaItem.lang.toLowerCase().includes(value.toLowerCase())
 
-        // Filter the second level: MainMenu (children of MegaMenu)
-        const filteredMainMenu = megaItem.children?.filter(
-          (mainItem: MainMenu) => {
-            const isMainMenuMatch =
-              mainItem.title.toLowerCase().includes(value.toLowerCase()) ||
-              mainItem.lang.toLowerCase().includes(value.toLowerCase())
+          // Filter the second level: MainMenu (children of MegaMenu)
+          const filteredMainMenu = megaItem.children?.filter(
+            (mainItem: MainMenu) => {
+              const isMainMenuMatch =
+                mainItem.title.toLowerCase().includes(value.toLowerCase()) ||
+                mainItem.lang.toLowerCase().includes(value.toLowerCase())
 
-            // Filter the third level: SubMenu (children of MainMenu)
-            const filteredSubMenu = mainItem.children?.filter(
-              (subItem: SubMenu) => {
-                return (
-                  subItem.title.toLowerCase().includes(value.toLowerCase()) ||
-                  subItem.lang.toLowerCase().includes(value.toLowerCase())
-                )
-              }
-            )
-            // If SubMenu matches or MainMenu matches, return the filtered item
-            return (
-              isMainMenuMatch || (filteredSubMenu && filteredSubMenu.length > 0)
-            )
-          }
-        )
-        // Return MegaMenu item if it matches or has any matching MainMenu children
-        return (
-          isMegaMenuMatch || (filteredMainMenu && filteredMainMenu.length > 0)
-        )
-      })
+              // Filter the third level: SubMenu (children of MainMenu)
+              const filteredSubMenu = mainItem.children?.filter(
+                (subItem: SubMenu) => {
+                  return (
+                    subItem.title.toLowerCase().includes(value.toLowerCase()) ||
+                    subItem.lang.toLowerCase().includes(value.toLowerCase())
+                  )
+                }
+              )
+              // If SubMenu matches or MainMenu matches, return the filtered item
+              return (
+                isMainMenuMatch ||
+                (filteredSubMenu && filteredSubMenu.length > 0)
+              )
+            }
+          )
+          // Return MegaMenu item if it matches or has any matching MainMenu children
+          return (
+            isMegaMenuMatch ||
+            (filteredMainMenu && filteredMainMenu.length > 0)
+          )
+        }
+      )
 
       setSearchSidebar(filteredMenu)
     } else {
-      setSearchSidebar(menu)
+      setSearchSidebar(roleFilteredMenu)
     }
   }
-
-  // useEffect(() => {
-  //   let timer: NodeJS.Timeout
-
-  //   if (typeof window !== 'undefined') {
-  //     // Check if page was refreshed by checking sessionStorage
-  //     const isPageRefreshed = sessionStorage.getItem('isRefreshed')
-  //     console.log(isPageRefreshed)
-  //     if (!isPageRefreshed) {
-  //       sessionStorage.setItem('isRefreshed', 'true')
-  //     } else {
-  //       if (window.innerWidth >= 768) {
-  //         timer = setTimeout(() => {
-  //           dispatch(changeSettingModalOpen(true))
-  //         }, 500) // Delay to show modal after a short timeout
-  //       }
-  //     }
-  //   }
-  //   // Cleanup the timeout if the component is unmounted or the effect is cleaned up
-  //   return () => {
-  //     clearTimeout(timer)
-  //     sessionStorage.removeItem('isRefreshed')
-  //   }
-  // }, [dispatch])
 
   const sidebarColors =
     (typeof document !== 'undefined' &&
@@ -255,7 +255,7 @@ export default function Layout({
       />
 
       {/* sidebar */}
-      <SidebarComponent
+      <Sidebar
         searchSidebar={searchSidebar}
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
