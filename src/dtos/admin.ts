@@ -16,7 +16,7 @@ export interface LoginResponse {
 }
 
 export interface Admin {
-  admin_id: string
+  _id: string
   username: string
   email: string
   phone_number: string
@@ -38,7 +38,7 @@ export interface VerifyTokenResponse {
 
 // Admin Entity for List
 export interface AdminListItem {
-  admin_id: string
+  _id: string
   username: string
   email: string
   phone_number: string
@@ -53,4 +53,26 @@ export interface AdminListResponse {
   success: boolean
   data: AdminListItem[]
   message: string
+}
+
+export interface AdminDetailsResponse {
+  success: boolean
+  data: AdminListItem
+  message: string
+}
+
+export interface CreateAdminRequest {
+  username: string
+  email: string
+  phone_number?: string
+  password: string
+  admin_role: string
+}
+
+export interface UpdateAdminRequest {
+  _id: string
+  username?: string
+  email?: string
+  phone_number?: string
+  admin_role?: string
 }

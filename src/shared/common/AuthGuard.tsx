@@ -1,15 +1,26 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+
 import { useVerifyTokenQuery } from '@src/store/services/authApi'
 
 import { MESSAGES } from '../constants/messages'
+import { paths } from './DynamicTitle'
 
 interface AuthGuardProps {
   children: React.ReactNode
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
+  const router = useRouter()
   const { data, error, isLoading } = useVerifyTokenQuery()
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('access_token')
+    if (!token) {
+      router.push(`${paths.AUTH.SIGNIN_BASIC}`)
+    }
+  }
 
   if (isLoading) {
     return (

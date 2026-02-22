@@ -83,18 +83,21 @@ const SchoolsList = () => {
   return (
     <React.Fragment>
       <BreadCrumb title="Schools List" subTitle="Schools" />
-      <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-10 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left mb-4">
-        <button
-          className="btn btn-primary shrink-0"
-          data-modal-target="parentsCreateModal"
-          onClick={handleAddSchool}>
-          <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
-          Add School
-        </button>
-      </div>
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
-          <div className="card-body">
+          <div className="card-header">
+            <div className="flex flex-wrap justify-end gap-5">
+              <button
+                className="btn btn-primary shrink-0"
+                data-modal-target="parentsCreateModal"
+                onClick={handleAddSchool}>
+                <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
+                Add School
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-4 card-body">
             <DatatablesHover
               columns={columns}
               data={schoolsListData?.data || []}

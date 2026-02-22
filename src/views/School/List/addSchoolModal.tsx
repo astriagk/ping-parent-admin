@@ -93,7 +93,7 @@ const AddSchoolModal: React.FC<AddSchoolModalProps> = ({
     try {
       if (isEditMode && schoolData) {
         const response = await updateSchool({
-          schoolId: schoolData.school_id,
+          schoolId: schoolData._id,
           payload: data,
         }).unwrap()
         if (response.success) {
@@ -132,7 +132,7 @@ const AddSchoolModal: React.FC<AddSchoolModalProps> = ({
       onClose={handleHide}
       title={getModalTitle()}
       position="modal-center"
-      size="modal-lg"
+      size="modal-2xl"
       content={(onClose) => {
         return (
           <form onSubmit={handleSubmit((data) => onSubmit(data, onClose))}>
@@ -206,8 +206,8 @@ const AddSchoolModal: React.FC<AddSchoolModalProps> = ({
                   <option value="">
                     {selectedState ? 'Select city' : 'Select state first'}
                   </option>
-                  {availableCities.map((city) => (
-                    <option key={city} value={city}>
+                  {availableCities.map((city, idx) => (
+                    <option key={city + '-' + idx} value={city}>
                       {city}
                     </option>
                   ))}

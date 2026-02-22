@@ -20,14 +20,14 @@ const BasicTable = <TData extends object>({
         <TableContainer
           columns={columns}
           data={data}
-          divClass="overflow-x-auto"
-          tableClass="display group hovered table whitespace-nowrap dtr-inline"
-          PaginationClassName="pagination-container"
           isPagination={true}
-          thtrClass="bg-gray-100 dark:bg-dark-850 dt-orderable-asc dt-orderable-desc dt-ordering-desc"
           classStyle="100%"
           isSearch={true}
           lastTrClass="text-end"
+          thClass="!font-medium cursor-pointer"
+          divClass="overflow-x-auto table-box whitespace-nowrap"
+          tableClass="table flush"
+          thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
         />
       </div>
     </>

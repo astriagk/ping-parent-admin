@@ -1,6 +1,5 @@
 export interface SchoolListItem {
   _id: string
-  school_id: string
   school_name: string
   address: string
   city: string

@@ -22,6 +22,7 @@ import {
 import { useAppSelector } from '@src/store/hooks'
 import {
   AlignStartVertical,
+  Bell,
   BellDot,
   BookOpen,
   Box,
@@ -30,6 +31,8 @@ import {
   ChartScatter,
   ChevronDown,
   Clipboard,
+  ClipboardList,
+  CreditCard,
   Dna,
   Feather,
   FileText,
@@ -43,6 +46,7 @@ import {
   LogOut,
   Mail,
   Map,
+  MapPin,
   MessagesSquare,
   Monitor,
   PencilRuler,
@@ -51,7 +55,9 @@ import {
   School,
   Settings,
   Shapes,
+  Shield,
   ShoppingBag,
+  Star,
   Table2,
   TextQuote,
   TrendingDown,
@@ -132,6 +138,15 @@ const Sidebar = ({
       'life-buoy': <LifeBuoy className={className} />,
       'file-textt': <FileText className={className} />,
       feather: <Feather className={className} />,
+      'layout-dashboard': <Gauge className={className} />, // closest match
+      'shield-user': <Shield className={className} />, // closest match
+      'map-pin': <MapPin className={className} />, // closest match
+      'clipboard-list': <ClipboardList className={className} />, // closest match
+      'credit-card': <CreditCard className={className} />, // closest match
+      shield: <Shield className={className} />,
+      star: <Star className={className} />,
+      bell: <Bell className={className} />,
+      settings: <Settings className={className} />,
     }
     return icons[icon]
   }
@@ -424,7 +439,8 @@ const Sidebar = ({
                                                           }
                                                           className={`${
                                                             isPathMatch(
-                                                              subChild.link || '',
+                                                              subChild.link ||
+                                                                '',
                                                               router
                                                             )
                                                               ? 'active'

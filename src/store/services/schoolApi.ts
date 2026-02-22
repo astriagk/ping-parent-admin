@@ -1,8 +1,8 @@
 import {
   CreateSchoolPayload,
   CreateSchoolResponse,
-  SchoolListResponse,
   SchoolDetailsResponse,
+  SchoolListResponse,
   UpdateSchoolPayload,
   UpdateSchoolResponse,
 } from '@src/dtos/school'
@@ -20,7 +20,8 @@ export const schoolApi = baseApi.injectEndpoints({
       query: () => {
         const queryParams = new URLSearchParams()
         return {
-          url: `${NEXT_PUBLIC_SCHOOLS_LIST_API}?${queryParams.toString()}`,
+          url: `${NEXT_PUBLIC_SCHOOLS_LIST_API}`,
+          // ?${queryParams.toString()}`,
           method: ApiMethods.GET,
         }
       },

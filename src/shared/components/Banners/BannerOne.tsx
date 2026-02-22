@@ -18,7 +18,7 @@ const BannerOne = ({
   title,
   description,
   icon,
-  color = 'primary',
+  color = 'red',
   show = true,
 }: CustomerSupportProps) => {
   const [isOpen, setIsOpen] = useState(false)

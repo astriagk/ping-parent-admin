@@ -25,6 +25,7 @@ export interface MegaMenu {
   dropdownPosition?: null
   children?: MainMenu[]
   megaMenu?: boolean
+  allowedRoles?: string[]
 }
 
 export interface MainMenu {

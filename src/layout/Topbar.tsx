@@ -4,11 +4,14 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import whiteLogo from '@assets/images/logo-white.png'
 import logo from '@assets/images/main-logo.png'
+import { paths } from '@src/shared/common/DynamicTitle'
 import LanguageDropdown from '@src/shared/common/LanguageDropdown'
 import { LAYOUT_MODE_TYPES, SIDEBAR_COLOR } from '@src/shared/constants/layout'
+import Button from '@src/shared/custom/buttons/button'
 import {
   changeLayoutMode,
   changeSidebarColor,
@@ -35,12 +38,14 @@ const Topbar: React.FC<TopBarProps> = ({
   const [scrolled, setScrolled] = useState(false)
   const flatpickrRef = useRef<Flatpickr | null>(null)
   const [isOpen] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     if (isOpen && flatpickrRef.current) {
       flatpickrRef.current.flatpickr.open()
     }
   }, [isOpen])
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -60,6 +65,13 @@ const Topbar: React.FC<TopBarProps> = ({
   const handleChangeLayoutMode = (value: LAYOUT_MODE_TYPES) => {
     dispatch(changeLayoutMode(value))
   }
+
+  // logout handler
+  const handleLogout = () => {
+    localStorage.clear()
+    router.push(`${paths.AUTH.SIGNIN_BASIC}`)
+  }
+
   return (
     <React.Fragment>
       <div
@@ -139,6 +151,14 @@ const Topbar: React.FC<TopBarProps> = ({
                 )}
               </button>
               <LanguageDropdown />
+              {/* Logout Button */}
+              <button
+                type="button"
+                id="closebutton"
+                className="btn btn-gray"
+                onClick={handleLogout}>
+                Logout
+              </button>
             </div>
           </div>
         </div>
