@@ -24,7 +24,7 @@ export const tripApi = baseApi.injectEndpoints({
     }),
     getTripDetails: builder.query<TripDetailsResponse, string>({
       query: (id) => ({
-        url: `/trips/${id}`,
+        url: `${NEXT_PUBLIC_TRIPS_API}/${id}`,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.TRIP],

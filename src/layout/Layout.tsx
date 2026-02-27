@@ -48,10 +48,12 @@ export default function Layout({
 
   const roleFilteredMenu = useMemo(
     () =>
-      menu.filter(
-        (item) =>
-          !item.allowedRoles?.length || item.allowedRoles.includes(userRole)
-      ),
+      menu
+        .filter(
+          (item) =>
+            !item.allowedRoles?.length || item.allowedRoles.includes(userRole)
+        )
+        .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0)),
     [userRole]
   )
 

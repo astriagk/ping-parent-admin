@@ -2,6 +2,8 @@
 
 import React, { useMemo } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import { Trip } from '@src/dtos/trip'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
@@ -18,6 +20,7 @@ const statusBadge: Record<TripStatus, { label: string; className: string }> = {
 }
 
 const TripsList = () => {
+  const router = useRouter()
   const { data: tripsData } = useGetTripListQuery()
 
   const columns = useMemo(
@@ -42,7 +45,6 @@ const TripsList = () => {
         accessorKey: accessorkeys.tripStatus,
         header: headerKeys.tripStatus,
         cell: ({ row }: { row: { original: Trip } }) => {
-          console.log(row.original)
           const status = row.original.trip_status as TripStatus
           const { label, className } = statusBadge[status] || {
             label: status,
@@ -79,7 +81,7 @@ const TripsList = () => {
           <div className="flex justify-end gap-2">
             <button
               className="btn btn-primary btn-sm"
-              onClick={() => console.log('View', row.original)}>
+              onClick={() => router.push(`/trips/details/${row.original._id}`)}>
               View
             </button>
           </div>
@@ -88,8 +90,6 @@ const TripsList = () => {
     ],
     []
   )
-
-  console.log(tripsData)
 
   return (
     <React.Fragment>

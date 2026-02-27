@@ -2,6 +2,8 @@
 
 import React, { useMemo, useState } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import { SchoolListItem } from '@src/dtos/school'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
@@ -13,6 +15,7 @@ import { CirclePlus } from 'lucide-react'
 import AddSchoolModal from './addSchoolModal'
 
 const SchoolsList = () => {
+  const router = useRouter()
   const { data: schoolsListData, isLoading } = useGetSchoolsListQuery()
   const [addSchoolModalOpen, setAddSchoolModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<ModelModes>(ModelModes.ADD)
@@ -69,8 +72,8 @@ const SchoolsList = () => {
               </button>
               <button
                 className="btn btn-gray btn-sm"
-                onClick={() => handleViewSchool(row.original)}>
-                View
+                onClick={() => router.push(`/schools/details/${row.original._id}`)}>
+                Details
               </button>
             </div>
           )

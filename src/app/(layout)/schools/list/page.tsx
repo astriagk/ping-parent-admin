@@ -1,7 +1,12 @@
+import RoleGuard from '@src/shared/common/RoleGuard'
 import SchoolsList from '@src/views/School/List'
 
 const SchoolsListPage = () => {
-  return <SchoolsList />
+  return (
+    <RoleGuard allowedRoles={['superadmin', 'admin']}>
+      <SchoolsList />
+    </RoleGuard>
+  )
 }
 
 export default SchoolsListPage
