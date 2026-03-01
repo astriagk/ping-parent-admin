@@ -1,5 +1,6 @@
 'use client'
 
+import BreadCrumb from '@src/shared/common/BreadCrumb'
 import BannerOne from '@src/shared/components/Banners/BannerOne'
 import { ApprovalStatus } from '@src/shared/constants/enums'
 import { useGetDriverDetailsQuery } from '@src/store/services/driverApi'
@@ -7,7 +8,6 @@ import { Info } from 'lucide-react'
 
 import Overview from './Overview'
 import Reports from './reports'
-import BreadCrumb from '@src/shared/common/BreadCrumb'
 
 const DriversDetails = ({ id }: { id: string }) => {
   const { data, isLoading, error } = useGetDriverDetailsQuery(id)
@@ -27,7 +27,13 @@ const DriversDetails = ({ id }: { id: string }) => {
         isLoading={isLoading}
         error={error}
       />
-      <Reports driverDocuments={data?.data?.documents} id={id} />
+      <Reports
+        driverDocuments={data?.data?.documents}
+        id={id}
+        approvalStatus={
+          data?.data?.approval_status as ApprovalStatus | undefined
+        }
+      />
     </div>
   )
 }

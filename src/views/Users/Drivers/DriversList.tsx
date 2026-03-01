@@ -34,13 +34,8 @@ const DriversList = () => {
       { accessorKey: accessorkeys.name, header: headerKeys.username },
       { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
       {
-        accessorKey: accessorkeys.userType,
-        header: headerKeys.userType,
-        cell: ({ row }: { row: { original: any } }) => {
-          const userType = row.original.user_type
-          const userTypeLabels: Record<string, string> = UserRolesType
-          return userTypeLabels[userType] || userType
-        },
+        accessorKey: accessorkeys.email,
+        header: headerKeys.email,
       },
       {
         accessorKey: accessorkeys.isActive,

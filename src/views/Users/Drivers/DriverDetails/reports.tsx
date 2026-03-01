@@ -15,9 +15,11 @@ import ViewModal from './viewModal'
 const Reports = ({
   id,
   driverDocuments,
+  approvalStatus,
 }: {
   id: string
   driverDocuments?: DriverDocuments
+  approvalStatus?: ApprovalStatus
 }) => {
   const [reportData, setReportData] = useState<any[]>([])
   const [show, setShow] = useState<boolean>(false)
@@ -134,11 +136,13 @@ const Reports = ({
       <div className="col-span-12 overflow-hidden xl:col-span-6 xl:row-span-2 card">
         <div className="flex items-center gap-3 card-header">
           <h6 className="card-title grow">Documents</h6>
-          <button
-            className="btn btn-primary btn-md"
-            onClick={() => handleApprovalStatus(ApprovalStatus.APPROVED)}>
-            Approve
-          </button>
+          {approvalStatus === ApprovalStatus.PENDING && (
+            <button
+              className="btn btn-primary btn-md"
+              onClick={() => handleApprovalStatus(ApprovalStatus.APPROVED)}>
+              Approve
+            </button>
+          )}
           <button
             data-modal-target="rejectModal"
             className="btn btn-red btn-md"

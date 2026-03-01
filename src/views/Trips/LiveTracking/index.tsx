@@ -10,7 +10,17 @@ import { useGetTripListQuery } from '@src/store/services/tripApi'
 import { MapPin } from 'lucide-react'
 
 const LiveTracking = () => {
-  const { data: tripsData } = useGetTripListQuery({ status: 'ongoing' })
+  const { data: tripsData } = useGetTripListQuery()
+
+  // only include trips with status started or in_progress for live tracking
+  const activeTrips = useMemo(() => {
+    return (
+      tripsData?.data?.filter(
+        (t: Trip) =>
+          t.trip_status === 'started' || t.trip_status === 'in_progress'
+      ) || []
+    )
+  }, [tripsData])
 
   const columns = useMemo(
     () => [
@@ -74,7 +84,7 @@ const LiveTracking = () => {
               <div className="flex items-center gap-2">
                 <span className="inline-block size-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-sm font-medium">
-                  {tripsData?.data?.length || 0} active trips
+                  {activeTrips.length} active trips
                 </span>
               </div>
             </div>
@@ -82,7 +92,7 @@ const LiveTracking = () => {
         </div>
         <div className="col-span-12 card">
           <div className="card-body">
-            <DatatablesHover columns={columns} data={tripsData?.data || []} />
+            <DatatablesHover columns={columns} data={activeTrips} />
           </div>
         </div>
       </div>

@@ -135,8 +135,6 @@ const DriverStudentAssignmentsList = () => {
     }
   }, [activeTab, refetchAll, refetchRequested])
 
-  console.log(allData)
-
   const handleApprove = async (id: string) => {
     try {
       await updateAssignment({ id, status: AssignmentStatus.ACTIVE }).unwrap()

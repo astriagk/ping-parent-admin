@@ -40,11 +40,8 @@ const ParentsList = () => {
       { accessorKey: accessorkeys.name, header: headerKeys.username },
       { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
       {
-        accessorKey: accessorkeys.userType,
-        header: headerKeys.userType,
-        cell: ({ row }: { row: { original: any } }) =>
-          (UserRolesType as Record<string, string>)[row.original.user_type] ||
-          row.original.user_type,
+        accessorKey: accessorkeys.email,
+        header: headerKeys.email,
       },
       {
         accessorKey: accessorkeys.isActive,

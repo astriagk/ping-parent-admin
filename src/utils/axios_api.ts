@@ -1,3 +1,4 @@
+import { STORAGE_KEYS } from '@src/shared/constants/enums'
 import axios, { AxiosInstance } from 'axios'
 import NProgress from 'nprogress'
 
@@ -12,7 +13,7 @@ api.interceptors.request.use(
 
     // Add Authorization header if token exists
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('access_token')
+      const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }

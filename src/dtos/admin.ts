@@ -1,4 +1,4 @@
-import { UserRolesType } from '@src/shared/constants/enums'
+import { UserRoles } from '@src/shared/constants/enums'
 
 export interface LoginPayload {
   email: string
@@ -20,7 +20,7 @@ export interface Admin {
   username: string
   email: string
   phone_number: string
-  admin_role: UserRolesType
+  admin_role: UserRoles
   is_active: boolean
   created_at: string
   updated_at: string
@@ -31,7 +31,7 @@ export interface VerifyTokenResponse {
   success: boolean
   data: {
     adminId: string
-    role: UserRolesType
+    role: UserRoles
     tokenValid: boolean
   }
 }
@@ -42,7 +42,7 @@ export interface AdminListItem {
   username: string
   email: string
   phone_number: string
-  admin_role: UserRolesType
+  admin_role: UserRoles
   is_active: boolean
   created_at: string
   updated_at: string
@@ -67,6 +67,7 @@ export interface CreateAdminRequest {
   phone_number?: string
   password: string
   admin_role: string
+  school_id?: string
 }
 
 export interface UpdateAdminRequest {

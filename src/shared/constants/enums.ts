@@ -148,6 +148,12 @@ const PaymentTypeLabel: Record<PaymentType, string> = {
   [PaymentType.ONE_TIME]: 'One Time',
 }
 
+const STORAGE_KEYS = {
+  ACCESS_TOKEN: 'access_token',
+  REFRESH_TOKEN: 'refresh_token',
+  ADMIN: 'admin',
+}
+
 export {
   AuthTags,
   ApiMethods,
@@ -169,4 +175,5 @@ export {
   PaymentMethodLabel,
   PaymentType,
   PaymentTypeLabel,
+  STORAGE_KEYS,
 }

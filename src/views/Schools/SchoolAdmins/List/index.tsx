@@ -2,16 +2,18 @@
 
 import React, { useMemo, useState } from 'react'
 
-import { SchoolAdmin } from '@src/dtos/schoolAdmin'
+import { AdminListItem } from '@src/dtos/admin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
+import { UserRoles } from '@src/shared/constants/enums'
 import { MESSAGES } from '@src/shared/constants/messages'
 import {
-  useDeactivateSchoolAdminMutation,
-  useGetSchoolAdminsQuery,
-  useRegisterSchoolAdminMutation,
-} from '@src/store/services/schoolAdminApi'
+  useCreateAdminMutation,
+  useDeactivateAdminMutation,
+  useGetAdminListQuery,
+} from '@src/store/services/adminApi'
+import { useDeactivateSchoolAdminMutation } from '@src/store/services/schoolAdminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { CirclePlus } from 'lucide-react'
 import Select from 'react-select'
@@ -26,18 +28,25 @@ const RegisterSchoolAdminModal = ({
   schoolId: string
   onClose: () => void
 }) => {
-  const [registerAdmin, { isLoading }] = useRegisterSchoolAdminMutation()
+  const [registerAdmin, { isLoading }] = useCreateAdminMutation()
   const [form, setForm] = useState({
-    name: '',
+    username: '',
     email: '',
     phone_number: '',
     password: '',
+    admin_role: UserRoles.SCHOOL_ADMIN,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     await registerAdmin({ school_id: schoolId, ...form }).unwrap()
-    setForm({ name: '', email: '', phone_number: '', password: '' })
+    setForm({
+      username: '',
+      email: '',
+      phone_number: '',
+      password: '',
+      admin_role: UserRoles.SCHOOL_ADMIN,
+    })
     onClose()
   }
 
@@ -52,8 +61,8 @@ const RegisterSchoolAdminModal = ({
             <label className="form-label">Name</label>
             <input
               className="form-input"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
               required
             />
           </div>
@@ -115,14 +124,20 @@ const SchoolAdminsList = () => {
     return first || ''
   })
   const [modalOpen, setModalOpen] = useState(false)
-  const [deactivateAdmin] = useDeactivateSchoolAdminMutation()
+  const [deactivateAdmin] = useDeactivateAdminMutation()
 
-  const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?._id || ''
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
-  const { data: schoolAdminsData } = useGetSchoolAdminsQuery(firstSchoolId, {
-    skip: !firstSchoolId,
-  })
+  const { data: schoolAdminsData } = useGetAdminListQuery()
+
+  const schoolAdmins = useMemo(() => {
+    return (
+      schoolAdminsData?.data?.filter(
+        (sa: AdminListItem) =>
+          sa.is_active === true && sa.admin_role === UserRoles.SCHOOL_ADMIN
+      ) || []
+    )
+  }, [schoolAdminsData])
 
   const handleDeactivate = async (adminId: string) => {
     try {
@@ -144,13 +159,12 @@ const SchoolAdminsList = () => {
         header: headerKeys.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.name, header: headerKeys.Name },
       { accessorKey: accessorkeys.email, header: headerKeys.email },
       { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
       {
         accessorKey: accessorkeys.isActive,
         header: headerKeys.isActive,
-        cell: ({ row }: { row: { original: SchoolAdmin } }) => {
+        cell: ({ row }: { row: { original: AdminListItem } }) => {
           const mapKey = String(row.original.is_active) as keyof typeof badges
           const { label, className } = badges[mapKey] || badges.undefined
           return (
@@ -164,11 +178,13 @@ const SchoolAdminsList = () => {
       {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
-        cell: ({ row }: { row: { original: SchoolAdmin } }) => (
+        cell: ({ row }: { row: { original: AdminListItem } }) => (
           <div className="flex justify-end gap-2">
             <button
               className="btn btn-orange btn-sm"
-              onClick={() => handleDeactivate(row.original._id)}>
+              onClick={() => {
+                handleDeactivate(row.original._id)
+              }}>
               Deactivate
             </button>
           </div>
@@ -217,10 +233,7 @@ const SchoolAdminsList = () => {
             </button>
           </div>
           <div className="pt-4 card-body">
-            <DatatablesHover
-              columns={columns}
-              data={schoolAdminsData?.data || []}
-            />
+            <DatatablesHover columns={columns} data={schoolAdmins || []} />
           </div>
         </div>
       </div>

@@ -164,8 +164,7 @@ export default function Layout({
           )
           // Return MegaMenu item if it matches or has any matching MainMenu children
           return (
-            isMegaMenuMatch ||
-            (filteredMainMenu && filteredMainMenu.length > 0)
+            isMegaMenuMatch || (filteredMainMenu && filteredMainMenu.length > 0)
           )
         }
       )

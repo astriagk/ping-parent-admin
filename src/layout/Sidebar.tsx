@@ -6,12 +6,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import user17 from '@assets/images/avatar/user-17.png'
+import user77 from '@assets/images/avatar/user-77.png'
 import logoSmDark from '@assets/images/logo-sm-dark.png'
 import logoSm from '@assets/images/logo-sm-white.png'
 import logoWhite from '@assets/images/logo-white.png'
 import mainLogo from '@assets/images/main-logo.png'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
+import { STORAGE_KEYS, UserRolesType } from '@src/shared/constants/enums'
 import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/shared/constants/layout'
 import {
   Dropdown,
@@ -20,6 +21,7 @@ import {
   DropdownPosition,
 } from '@src/shared/custom/dropdown/dropdown'
 import { useAppSelector } from '@src/store/hooks'
+import LocalStorage from '@src/utils/LocalStorage'
 import {
   AlignStartVertical,
   Bell,
@@ -92,6 +94,9 @@ const Sidebar = ({
   const router = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const { layoutType, layoutSidebar } = useAppSelector((state) => state.Layout)
+  const user = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+    ? JSON.parse(LocalStorage.getItem(STORAGE_KEYS.ADMIN)!)
+    : null
 
   useEffect(() => {
     const handleScroll = () => {
@@ -256,7 +261,7 @@ const Sidebar = ({
                       dropdownClassName="dropdown w-full">
                       <DropdownButton colorClass="flex items-center w-full gap-2 p-4 text-left group-data-[sidebar=small]:px-0">
                         <Image
-                          src={user17}
+                          src={user77}
                           alt="user"
                           className="h-10 rounded-md shrink-0 group-data-[sidebar=small]:mx-auto"
                           width={40}
@@ -264,9 +269,13 @@ const Sidebar = ({
                         />
                         <div className="grow group-data-[sidebar=icon]:hidden group-data-[sidebar=small]:hidden overflow-hidden text-new-500">
                           <h6 className="font-medium truncate text-sidebar-text-active">
-                            Jason Statham
+                            {user?.username || 'User Name'}
                           </h6>
-                          <p className="text-menu-title text-14">ID: 150001</p>
+                          <p className="text-menu-title text-14">
+                            {UserRolesType[
+                              user?.admin_role as keyof typeof UserRolesType
+                            ] || 'Admin Role'}
+                          </p>
                         </div>
                         <div className="shrink-0 text-sidebar-text group-data-[sidebar=icon]:hidden group-data-[sidebar=small]:hidden group-data-[sidebar=medium]:hidden">
                           <ChevronDown className="size-4" />
@@ -275,7 +284,7 @@ const Sidebar = ({
                       <DropdownMenu menuClass="z-50 p-5 bg-white rounded-md shadow-lg !w-64 !left-3">
                         <div className="flex items-center gap-2">
                           <Image
-                            src={user17}
+                            src={user77}
                             alt="user"
                             className="rounded-full size-10"
                           />
@@ -283,7 +292,7 @@ const Sidebar = ({
                             <h6>Hello</h6>
                             <p>
                               <Link href="#!" className="link link-primary">
-                                hello@example.com
+                                {user?.email || 'Email Address'}
                               </Link>
                             </p>
                           </div>

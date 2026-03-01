@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 
 import { useVerifyTokenQuery } from '@src/store/services/authApi'
 
+import { STORAGE_KEYS } from '../constants/enums'
 import { MESSAGES } from '../constants/messages'
 import { paths } from './DynamicTitle'
 
@@ -16,7 +17,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const { data, error, isLoading } = useVerifyTokenQuery()
 
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
     if (!token) {
       router.push(`${paths.AUTH.SIGNIN_BASIC}`)
     }

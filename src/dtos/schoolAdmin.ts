@@ -1,29 +1,3 @@
-export interface SchoolAdmin {
-  _id: string
-  school_id: string
-  school_name: string
-  name: string
-  email: string
-  phone_number?: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface SchoolAdminListResponse {
-  success: boolean
-  data: SchoolAdmin[]
-  message: string
-}
-
-export interface RegisterSchoolAdminRequest {
-  school_id: string
-  name: string
-  email: string
-  phone_number?: string
-  password: string
-}
-
 export interface SchoolDriverItem {
   _id: string
   driver_id: string
