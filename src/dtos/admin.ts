@@ -21,6 +21,7 @@ export interface Admin {
   email: string
   phone_number: string
   admin_role: UserRoles
+  school_id?: string
   is_active: boolean
   created_at: string
   updated_at: string
@@ -32,6 +33,7 @@ export interface VerifyTokenResponse {
   data: {
     adminId: string
     role: UserRoles
+    school_id?: string
     tokenValid: boolean
   }
 }

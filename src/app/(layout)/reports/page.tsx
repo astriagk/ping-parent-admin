@@ -1,12 +1,7 @@
-import RoleGuard from '@src/shared/common/RoleGuard'
 import Reports from '@src/views/Reports'
 
 const ReportsPage = () => {
-  return (
-    <RoleGuard allowedRoles={['superadmin', 'admin']}>
-      <Reports />
-    </RoleGuard>
-  )
+  return <Reports />
 }
 
 export default ReportsPage

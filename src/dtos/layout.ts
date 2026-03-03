@@ -26,7 +26,6 @@ export interface MegaMenu {
   children?: MainMenu[]
   megaMenu?: boolean
   allowedRoles?: string[]
-  priority?: number
 }
 
 export interface MainMenu {

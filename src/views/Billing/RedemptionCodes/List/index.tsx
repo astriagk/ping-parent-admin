@@ -30,14 +30,10 @@ const RedemptionCodesList = () => {
   const [generateCodes, { isLoading: isGenerating }] =
     useGenerateRedemptionCodesMutation()
 
-  console.log(schoolsData)
-
   const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
   const { data: subscriptionsData } =
     useGetSchoolSubscriptionsQuery(firstSchoolId)
-
-  console.log(subscriptionsData)
 
   const firstSubscriptionId =
     selectedSubscriptionId || subscriptionsData?.data?.[0]?._id || ''

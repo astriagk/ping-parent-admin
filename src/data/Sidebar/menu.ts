@@ -6,7 +6,6 @@ const menu: MegaMenu[] = [
     title: 'Main',
     lang: 'pe-main',
     children: [],
-    priority: 10,
   },
   {
     title: 'Dashboard',
@@ -15,7 +14,6 @@ const menu: MegaMenu[] = [
     link: '/dashboard',
     separator: false,
     children: [],
-    priority: 20,
   },
   {
     separator: true,
@@ -23,7 +21,6 @@ const menu: MegaMenu[] = [
     lang: 'pe-admin-management',
     children: [],
     allowedRoles: ['superadmin', 'admin'],
-    priority: 300,
   },
   {
     title: 'Manage Admins',
@@ -33,7 +30,6 @@ const menu: MegaMenu[] = [
     separator: false,
     allowedRoles: ['superadmin'],
     children: [],
-    priority: 310,
   },
   {
     separator: true,
@@ -41,7 +37,6 @@ const menu: MegaMenu[] = [
     lang: 'pe-billing',
     children: [],
     allowedRoles: ['superadmin'],
-    priority: 500,
   },
   {
     title: 'Billing',
@@ -73,7 +68,6 @@ const menu: MegaMenu[] = [
         children: [],
       },
     ],
-    priority: 510,
   },
   {
     title: 'Payments',
@@ -83,7 +77,6 @@ const menu: MegaMenu[] = [
     separator: false,
     allowedRoles: ['superadmin'],
     children: [],
-    priority: 520,
   },
   {
     separator: true,
@@ -91,7 +84,6 @@ const menu: MegaMenu[] = [
     lang: 'pe-school-management',
     children: [],
     allowedRoles: ['superadmin', 'admin'],
-    priority: 400,
   },
   {
     title: 'Schools',
@@ -116,7 +108,6 @@ const menu: MegaMenu[] = [
       //   children: [],
       // },
     ],
-    priority: 410,
   },
   {
     separator: true,
@@ -124,7 +115,6 @@ const menu: MegaMenu[] = [
     lang: 'pe-user-management',
     children: [],
     allowedRoles: ['superadmin', 'admin'],
-    priority: 200,
   },
   {
     title: 'User Management',
@@ -165,14 +155,6 @@ const menu: MegaMenu[] = [
         ],
       },
     ],
-    priority: 210,
-  },
-  {
-    separator: true,
-    title: 'Operations',
-    lang: 'pe-operations',
-    children: [],
-    priority: 100,
   },
   {
     title: 'Trips & Tracking',
@@ -196,16 +178,31 @@ const menu: MegaMenu[] = [
         children: [],
       },
     ],
-    priority: 110,
   },
-  // // ── School Admin Section ───────────────────────────────────
+  {
+    title: 'Student Codes',
+    lang: 'pe-student-codes',
+    icon: 'qr-code',
+    link: '/billing/redemption-codes/list',
+    separator: false,
+    allowedRoles: ['school_admin'],
+    children: [],
+  },
+  {
+    title: 'Driver Assignments',
+    lang: 'pe-driver-assignments',
+    icon: 'bus',
+    link: '/assignments/driver-student/list',
+    separator: false,
+    allowedRoles: ['school_admin'],
+    children: [],
+  },
   // {
   //   separator: true,
   //   title: 'School',
   //   lang: 'pe-school-section',
   //   children: [],
   //   allowedRoles: ['school_admin'],
-  //   priority: 30,
   // },
   // {
   //   title: 'Subscription',
@@ -215,7 +212,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['school_admin'],
   //   children: [],
-  //   priority: 40,
   // },
   // {
   //   title: 'Student Codes',
@@ -225,7 +221,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['school_admin'],
   //   children: [],
-  //   priority: 50,
   // },
   // {
   //   title: 'Students',
@@ -235,17 +230,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['school_admin'],
   //   children: [],
-  //   priority: 60,
-  // },
-  // {
-  //   title: 'Driver Assignments',
-  //   lang: 'pe-driver-assignments',
-  //   icon: 'bus',
-  //   link: '/assignments/driver-student/list',
-  //   separator: false,
-  //   allowedRoles: ['school_admin'],
-  //   children: [],
-  //   priority: 70,
   // },
   // {
   //   title: 'Events',
@@ -270,7 +254,6 @@ const menu: MegaMenu[] = [
   //       children: [],
   //     },
   //   ],
-  //   priority: 80,
   // },
   // {
   //   title: 'Community Board',
@@ -280,7 +263,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['school_admin'],
   //   children: [],
-  //   priority: 90,
   // },
 
   // {
@@ -291,7 +273,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin', 'admin'],
   //   children: [],
-  //   priority: 320,
   // },
 
   // ── Billing (superadmin only) ─────────────────────────────
@@ -303,7 +284,6 @@ const menu: MegaMenu[] = [
   //   lang: 'pe-others',
   //   children: [],
   //   allowedRoles: ['superadmin', 'admin'],
-  //   priority: 600,
   // },
   // {
   //   title: 'Manage Ads',
@@ -313,7 +293,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin', 'admin'],
   //   children: [],
-  //   priority: 610,
   // },
   // {
   //   title: 'Support Tickets',
@@ -323,7 +302,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin', 'admin'],
   //   children: [],
-  //   priority: 620,
   // },
   // {
   //   title: 'Reports',
@@ -333,7 +311,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin', 'admin'],
   //   children: [],
-  //   priority: 630,
   // },
   // {
   //   title: 'Ratings & Reviews',
@@ -343,7 +320,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin', 'admin'],
   //   children: [],
-  //   priority: 640,
   // },
   // // ── Administration ────────────────────────────────────────
   // {
@@ -351,7 +327,6 @@ const menu: MegaMenu[] = [
   //   title: 'Administration',
   //   lang: 'pe-administration',
   //   children: [],
-  //   priority: 700,
   // },
   // {
   //   title: 'Roles & Permissions',
@@ -361,7 +336,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin'],
   //   children: [],
-  //   priority: 710,
   // },
   // {
   //   title: 'Audit Logs',
@@ -371,7 +345,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin'],
   //   children: [],
-  //   priority: 720,
   // },
   // {
   //   title: 'Notifications',
@@ -381,7 +354,6 @@ const menu: MegaMenu[] = [
   //   separator: false,
   //   allowedRoles: ['superadmin', 'school_admin'],
   //   children: [],
-  //   priority: 730,
   // },
   // {
   //   title: 'Settings',
@@ -390,7 +362,6 @@ const menu: MegaMenu[] = [
   //   link: '/settings',
   //   separator: false,
   //   children: [],
-  //   priority: 740,
   // },
 ]
 

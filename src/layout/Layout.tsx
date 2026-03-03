@@ -7,7 +7,9 @@ import Head from 'next/head'
 
 import { menu } from '@src/data/Sidebar/menu'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
+import { STORAGE_KEYS } from '@src/shared/constants/enums'
 import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/shared/constants/layout'
+import LocalStorage from '@src/utils/LocalStorage'
 import {
   changeHTMLAttribute,
   changeSettingModalOpen,
@@ -43,14 +45,27 @@ export default function Layout({
     layoutDirection,
   } = useAppSelector((state) => state.Layout)
   const dispatch = useAppDispatch()
-  const [searchSidebar, setSearchSidebar] = useState<MegaMenu[]>(menu)
   const [searchValue, setSearchValue] = useState<string>('')
+
+  const roleFilteredMenu = useMemo(() => {
+    const adminData = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+    const user = adminData ? JSON.parse(adminData) : null
+    const userRole = user?.admin_role
+
+    if (!userRole) return menu
+
+    return menu.filter(
+      (item) => !item.allowedRoles || item.allowedRoles.includes(userRole)
+    )
+  }, [])
+
+  const [searchSidebar, setSearchSidebar] = useState<MegaMenu[]>(roleFilteredMenu)
 
   useEffect(() => {
     if (!searchValue) {
-      setSearchSidebar(menu)
+      setSearchSidebar(roleFilteredMenu)
     }
-  }, [menu, searchValue])
+  }, [roleFilteredMenu, searchValue])
 
   const handleThemeSidebarSize = useCallback(() => {
     if (layoutType !== 'horizontal') {
@@ -118,7 +133,7 @@ export default function Layout({
     setSearchValue(value)
 
     if (value.trim() !== '') {
-      const filteredMenu: MegaMenu[] = menu.filter((megaItem: MegaMenu) => {
+      const filteredMenu: MegaMenu[] = roleFilteredMenu.filter((megaItem: MegaMenu) => {
         // Filter the first level: MegaMenu
         const isMegaMenuMatch =
           megaItem.title.toLowerCase().includes(value.toLowerCase()) ||
@@ -154,7 +169,7 @@ export default function Layout({
 
       setSearchSidebar(filteredMenu)
     } else {
-      setSearchSidebar(menu)
+      setSearchSidebar(roleFilteredMenu)
     }
   }
 

@@ -2,21 +2,29 @@
 
 import React, { useMemo, useState } from 'react'
 
-import { DriverStudentAssignment } from '@src/dtos/assignment'
+import {
+  DriverStudentAssignment,
+  SchoolAssignment,
+  SchoolAssignmentListResponse,
+} from '@src/dtos/assignment'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
-import { AssignmentStatus } from '@src/shared/constants/enums'
+import {
+  AssignmentStatus,
+  STORAGE_KEYS,
+  UserRoles,
+} from '@src/shared/constants/enums'
 import { MESSAGES } from '@src/shared/constants/messages'
 import {
   useCreateDriverStudentAssignmentMutation,
   useDeleteDriverStudentAssignmentMutation,
-  useGetDriverStudentAssignmentsQuery,
-  useGetParentRequestedAssignmentsQuery,
+  useGetSchoolAssignmentsQuery,
   useUpdateDriverStudentAssignmentMutation,
 } from '@src/store/services/assignmentApi'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import { useGetStudentListQuery } from '@src/store/services/studentApi'
+import LocalStorage from '@src/utils/LocalStorage'
 import { CirclePlus } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -41,7 +49,9 @@ const CreateAssignmentModal = ({
   open: boolean
   onClose: () => void
 }) => {
-  const { data: driversData } = useGetDriverListQuery()
+  const { data: driversData } = useGetDriverListQuery({
+    user_type: UserRoles.DRIVER,
+  })
   const { data: studentsData } = useGetStudentListQuery()
   const [createAssignment, { isLoading }] =
     useCreateDriverStudentAssignmentMutation()
@@ -114,26 +124,14 @@ const CreateAssignmentModal = ({
 }
 
 const DriverStudentAssignmentsList = () => {
-  const [activeTab, setActiveTab] = useState<'all' | 'requested'>('all')
+  const adminData = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+  const user = adminData ? JSON.parse(adminData) : null
+  const schoolId = user?.school_id
   const [modalOpen, setModalOpen] = useState(false)
 
-  const { data: allData, refetch: refetchAll } =
-    useGetDriverStudentAssignmentsQuery()
-  const { data: requestedData, refetch: refetchRequested } =
-    useGetParentRequestedAssignmentsQuery()
+  const { data: allData } = useGetSchoolAssignmentsQuery(schoolId)
   const [updateAssignment] = useUpdateDriverStudentAssignmentMutation()
   const [deleteAssignment] = useDeleteDriverStudentAssignmentMutation()
-
-  const tableData =
-    activeTab === 'all' ? (allData?.data ?? []) : (requestedData?.data ?? [])
-
-  React.useEffect(() => {
-    if (activeTab === 'all') {
-      refetchAll()
-    } else {
-      refetchRequested()
-    }
-  }, [activeTab, refetchAll, refetchRequested])
 
   const handleApprove = async (id: string) => {
     try {
@@ -213,11 +211,11 @@ const DriverStudentAssignmentsList = () => {
       {
         accessorKey: accessorkeys.assignmentStatus,
         header: headerKeys.assignmentStatus,
-        cell: ({ row }: { row: { original: DriverStudentAssignment } }) => {
+        cell: ({ row }: { row: { original: SchoolAssignment } }) => {
           const { label, className } = assignmentStatusBadge[
-            row.original.assignment_status
+            row.original.status
           ] || {
-            label: row.original.assignment_status,
+            label: row.original.status,
             className: 'badge-gray',
           }
           return (
@@ -231,19 +229,19 @@ const DriverStudentAssignmentsList = () => {
       {
         accessorKey: 'created_at',
         header: 'Created',
-        cell: ({ row }: { row: { original: DriverStudentAssignment } }) =>
+        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
           new Date(row.original.created_at).toLocaleDateString(),
       },
       {
         accessorKey: accessorkeys.actions,
         header: headerKeys.actions,
-        cell: ({ row }: { row: { original: DriverStudentAssignment } }) => {
-          const { assignment_status, _id } = row.original
+        cell: ({ row }: { row: { original: SchoolAssignment } }) => {
+          const { status, _id } = row.original
           const id = _id
           return (
             <div className="flex justify-end flex-wrap gap-2">
-              {(assignment_status === AssignmentStatus.PENDING ||
-                assignment_status === AssignmentStatus.PARENT_REQUESTED) && (
+              {(status === AssignmentStatus.PENDING ||
+                status === AssignmentStatus.PARENT_REQUESTED) && (
                 <>
                   <button
                     className="btn btn-green btn-sm"
@@ -257,7 +255,7 @@ const DriverStudentAssignmentsList = () => {
                   </button>
                 </>
               )}
-              {assignment_status === AssignmentStatus.ACTIVE && (
+              {status === AssignmentStatus.ACTIVE && (
                 <button
                   className="btn btn-orange btn-sm"
                   onClick={() => handleDeactivate(id)}>
@@ -283,18 +281,7 @@ const DriverStudentAssignmentsList = () => {
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
           <div className="card-header flex flex-wrap items-center justify-between gap-4">
-            <div className="flex gap-2">
-              <button
-                className={`btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-light'}`}
-                onClick={() => setActiveTab('all')}>
-                All Assignments
-              </button>
-              <button
-                className={`btn btn-sm ${activeTab === 'requested' ? 'btn-primary' : 'btn-light'}`}
-                onClick={() => setActiveTab('requested')}>
-                Parent-Requested
-              </button>
-            </div>
+            <div className="flex"></div>
             <button
               className="btn btn-primary shrink-0"
               onClick={() => setModalOpen(true)}>
@@ -303,7 +290,7 @@ const DriverStudentAssignmentsList = () => {
             </button>
           </div>
           <div className="pt-4 card-body">
-            <DatatablesHover columns={columns} data={tableData} />
+            <DatatablesHover columns={columns} data={allData?.data ?? []} />
           </div>
         </div>
       </div>
