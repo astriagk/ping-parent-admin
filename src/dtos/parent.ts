@@ -42,12 +42,16 @@ export interface ParentDetails {
   _id: string
   user_id: string
   name: string
-  phone_number: string
   email?: string
   user_type: string
   is_active: boolean
   created_at: string
   updated_at: string
+  user: {
+    phone_number: string
+    user_type: string
+    is_active: boolean
+  }
   students: ParentStudent[]
   subscriptions: ParentSubscription[]
   payments: ParentPayment[]

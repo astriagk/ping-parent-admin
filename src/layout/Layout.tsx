@@ -43,28 +43,14 @@ export default function Layout({
     layoutDirection,
   } = useAppSelector((state) => state.Layout)
   const dispatch = useAppDispatch()
-  const { data: authData } = useVerifyTokenQuery()
-  const userRole = authData?.data?.role ?? ''
-
-  const roleFilteredMenu = useMemo(
-    () =>
-      menu
-        .filter(
-          (item) =>
-            !item.allowedRoles?.length || item.allowedRoles.includes(userRole)
-        )
-        .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0)),
-    [userRole]
-  )
-
   const [searchSidebar, setSearchSidebar] = useState<MegaMenu[]>(menu)
   const [searchValue, setSearchValue] = useState<string>('')
 
   useEffect(() => {
     if (!searchValue) {
-      setSearchSidebar(roleFilteredMenu)
+      setSearchSidebar(menu)
     }
-  }, [roleFilteredMenu, searchValue])
+  }, [menu, searchValue])
 
   const handleThemeSidebarSize = useCallback(() => {
     if (layoutType !== 'horizontal') {
@@ -132,46 +118,43 @@ export default function Layout({
     setSearchValue(value)
 
     if (value.trim() !== '') {
-      const filteredMenu: MegaMenu[] = roleFilteredMenu.filter(
-        (megaItem: MegaMenu) => {
-          // Filter the first level: MegaMenu
-          const isMegaMenuMatch =
-            megaItem.title.toLowerCase().includes(value.toLowerCase()) ||
-            megaItem.lang.toLowerCase().includes(value.toLowerCase())
+      const filteredMenu: MegaMenu[] = menu.filter((megaItem: MegaMenu) => {
+        // Filter the first level: MegaMenu
+        const isMegaMenuMatch =
+          megaItem.title.toLowerCase().includes(value.toLowerCase()) ||
+          megaItem.lang.toLowerCase().includes(value.toLowerCase())
 
-          // Filter the second level: MainMenu (children of MegaMenu)
-          const filteredMainMenu = megaItem.children?.filter(
-            (mainItem: MainMenu) => {
-              const isMainMenuMatch =
-                mainItem.title.toLowerCase().includes(value.toLowerCase()) ||
-                mainItem.lang.toLowerCase().includes(value.toLowerCase())
+        // Filter the second level: MainMenu (children of MegaMenu)
+        const filteredMainMenu = megaItem.children?.filter(
+          (mainItem: MainMenu) => {
+            const isMainMenuMatch =
+              mainItem.title.toLowerCase().includes(value.toLowerCase()) ||
+              mainItem.lang.toLowerCase().includes(value.toLowerCase())
 
-              // Filter the third level: SubMenu (children of MainMenu)
-              const filteredSubMenu = mainItem.children?.filter(
-                (subItem: SubMenu) => {
-                  return (
-                    subItem.title.toLowerCase().includes(value.toLowerCase()) ||
-                    subItem.lang.toLowerCase().includes(value.toLowerCase())
-                  )
-                }
-              )
-              // If SubMenu matches or MainMenu matches, return the filtered item
-              return (
-                isMainMenuMatch ||
-                (filteredSubMenu && filteredSubMenu.length > 0)
-              )
-            }
-          )
-          // Return MegaMenu item if it matches or has any matching MainMenu children
-          return (
-            isMegaMenuMatch || (filteredMainMenu && filteredMainMenu.length > 0)
-          )
-        }
-      )
+            // Filter the third level: SubMenu (children of MainMenu)
+            const filteredSubMenu = mainItem.children?.filter(
+              (subItem: SubMenu) => {
+                return (
+                  subItem.title.toLowerCase().includes(value.toLowerCase()) ||
+                  subItem.lang.toLowerCase().includes(value.toLowerCase())
+                )
+              }
+            )
+            // If SubMenu matches or MainMenu matches, return the filtered item
+            return (
+              isMainMenuMatch || (filteredSubMenu && filteredSubMenu.length > 0)
+            )
+          }
+        )
+        // Return MegaMenu item if it matches or has any matching MainMenu children
+        return (
+          isMegaMenuMatch || (filteredMainMenu && filteredMainMenu.length > 0)
+        )
+      })
 
       setSearchSidebar(filteredMenu)
     } else {
-      setSearchSidebar(roleFilteredMenu)
+      setSearchSidebar(menu)
     }
   }
 

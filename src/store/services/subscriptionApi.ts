@@ -10,6 +10,7 @@ import {
 } from '@src/dtos/subscription'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
 import {
+  NEXT_ADMIN_SUBSCRIPTION_PLANS_API,
   NEXT_PUBLIC_PARENT_SUBSCRIPTIONS_API,
   NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API,
   NEXT_PUBLIC_SUBSCRIPTION_PLANS_API,
@@ -31,7 +32,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       CreateSubscriptionPlanRequest
     >({
       query: (body) => ({
-        url: NEXT_PUBLIC_SUBSCRIPTION_PLANS_API,
+        url: NEXT_ADMIN_SUBSCRIPTION_PLANS_API,
         method: ApiMethods.POST,
         body,
       }),
@@ -42,7 +43,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       { id: string } & Partial<CreateSubscriptionPlanRequest>
     >({
       query: ({ id, ...body }) => ({
-        url: `${NEXT_PUBLIC_SUBSCRIPTION_PLANS_API}/${id}`,
+        url: `${NEXT_ADMIN_SUBSCRIPTION_PLANS_API}/${id}`,
         method: ApiMethods.PUT,
         body,
       }),
@@ -53,7 +54,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (id) => ({
-        url: `${NEXT_PUBLIC_SUBSCRIPTION_PLANS_API}/${id}/activate`,
+        url: `${NEXT_ADMIN_SUBSCRIPTION_PLANS_API}/${id}/activate`,
         method: ApiMethods.PATCH,
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
@@ -63,7 +64,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (id) => ({
-        url: `${NEXT_PUBLIC_SUBSCRIPTION_PLANS_API}/${id}/deactivate`,
+        url: `${NEXT_ADMIN_SUBSCRIPTION_PLANS_API}/${id}/deactivate`,
         method: ApiMethods.PATCH,
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
@@ -109,10 +110,10 @@ export const subscriptionApi = baseApi.injectEndpoints({
       { success: boolean; message: string },
       GenerateCodesRequest
     >({
-      query: ({ subscriptionId, count }) => ({
+      query: ({ subscriptionId, studentIds }) => ({
         url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/generate-codes`,
         method: ApiMethods.POST,
-        body: { count },
+        body: { student_ids: studentIds },
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
     }),

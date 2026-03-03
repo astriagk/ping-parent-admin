@@ -42,6 +42,8 @@ const accessorkeys = {
   driverName: 'driver_name',
   // Subscription
   planName: 'plan_name',
+  plan_id: 'plan_id',
+  parent_id: 'parent_id',
   planType: 'plan_type',
   amount: 'amount',
   startDate: 'start_date',
@@ -51,6 +53,9 @@ const accessorkeys = {
   basePrice: 'base_price',
   price: 'price',
   kids: 'kids',
+  calculated_price: 'calculated_price',
+  subscription_status: 'subscription_status',
+
   // Redemption Codes
   code: 'code',
   codeStatus: 'status',

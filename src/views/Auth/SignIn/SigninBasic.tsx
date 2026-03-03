@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (reduxAuthenticated) {
-      router.push(paths.ADMINS.LIST)
+      router.push(paths.DASHBOARD)
     }
   }, [reduxAuthenticated, router])
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
         JSON.stringify(result.data.admin)
       )
       toast.success(result.message || MESSAGES.AUTH.SUCCESS.LOGIN_SUCCESS)
-      router.push(paths.ADMINS.LIST)
+      router.push(paths.DASHBOARD)
     } catch (err: any) {
       toast.error(err || MESSAGES.AUTH.ERROR.LOGIN_FAILED)
     }

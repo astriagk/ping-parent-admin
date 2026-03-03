@@ -59,8 +59,8 @@ export interface ParentSubscription {
   parent_name: string
   plan_id: string
   plan_name: string
-  status: 'active' | 'expired' | 'cancelled'
-  amount: number
+  subscription_status: 'active' | 'expired' | 'cancelled'
+  calculated_price: number
   currency: string
   start_date: string
   end_date: string
@@ -78,15 +78,17 @@ export interface ParentSubscriptionListResponse {
 export interface SchoolSubscription {
   _id: string
   school_id: string
-  school_name: string
+  school_name?: string
   plan_id: string
-  plan_name: string
-  status: 'active' | 'expired' | 'cancelled'
-  amount: number
+  plan_name?: string
+  price?: number
   start_date: string
   end_date: string
+  subscription_status: 'active' | 'expired' | 'cancelled'
+  auto_renew: boolean
   created_at: string
   updated_at: string
+  plan?: SubscriptionPlan
 }
 
 export interface SchoolSubscriptionListResponse {
@@ -98,7 +100,8 @@ export interface SchoolSubscriptionListResponse {
 export interface CreateSchoolSubscriptionRequest {
   school_id: string
   plan_id: string
-  amount: number
+  start_date: string
+  end_date: string
 }
 
 // Redemption Codes
@@ -122,5 +125,5 @@ export interface RedemptionCodeListResponse {
 
 export interface GenerateCodesRequest {
   subscriptionId: string
-  count: number
+  studentIds: string[]
 }

@@ -7,28 +7,23 @@ import { useRouter } from 'next/navigation'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
-import { UserRoles, UserRolesType } from '@src/shared/constants/enums'
+import { UserRoles } from '@src/shared/constants/enums'
 import {
   useActivateUserMutation,
   useDeactivateUserMutation,
-  useDeleteUserMutation,
 } from '@src/store/services/adminApi'
 import { useGetParentListQuery } from '@src/store/services/parentApi'
 
 const ParentsList = () => {
   const router = useRouter()
-  const { data: parentListData } = useGetParentListQuery({ user_type: UserRoles.PARENT })
+  const { data: parentListData } = useGetParentListQuery({
+    user_type: UserRoles.PARENT,
+  })
   const [activateUser] = useActivateUserMutation()
   const [deactivateUser] = useDeactivateUserMutation()
-  const [deleteUser] = useDeleteUserMutation()
 
   const handleActivate = (id: string) => activateUser(id)
   const handleDeactivate = (id: string) => deactivateUser(id)
-  const handleDelete = (id: string) => {
-    if (window.confirm('Delete this parent? This cannot be undone.')) {
-      deleteUser(id)
-    }
-  }
 
   const columns = useMemo(
     () => [
@@ -50,7 +45,8 @@ const ParentsList = () => {
           const mapKey = String(row.original.is_active) as keyof typeof badges
           const { label, className } = badges[mapKey] || badges.undefined
           return (
-            <span className={`badge inline-flex items-center gap-1 ${className}`}>
+            <span
+              className={`badge inline-flex items-center gap-1 ${className}`}>
               {label}
             </span>
           )
@@ -83,11 +79,6 @@ const ParentsList = () => {
                 onClick={() => router.push(`/users/parents/details/${id}`)}>
                 View
               </button>
-              <button
-                className="btn btn-red btn-sm"
-                onClick={() => handleDelete(id)}>
-                Delete
-              </button>
             </div>
           )
         },
@@ -102,7 +93,10 @@ const ParentsList = () => {
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
           <div className="card-body">
-            <DatatablesHover columns={columns} data={parentListData?.data || []} />
+            <DatatablesHover
+              columns={columns}
+              data={parentListData?.data || []}
+            />
           </div>
         </div>
       </div>

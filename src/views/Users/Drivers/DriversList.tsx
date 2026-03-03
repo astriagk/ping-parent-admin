@@ -59,15 +59,15 @@ const DriversList = () => {
         cell: ({ row }: { row: { original: any } }) => {
           const { is_active } = row.original
           const mapKey = String(!is_active) as keyof typeof buttonsKeys
-          const { label, className } =
-            buttonsKeys[mapKey] || buttonsKeys.undefined
+          // const { label, className } =
+          //   buttonsKeys[mapKey] || buttonsKeys.undefined
           return (
             <div className="flex justify-end gap-2">
-              <button
+              {/* <button
                 className={`btn btn-sm min-w-[100px] ${className}`}
                 onClick={() => console.log(row.original)}>
                 {label}
-              </button>
+              </button> */}
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() =>

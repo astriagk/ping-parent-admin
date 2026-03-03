@@ -74,19 +74,19 @@ const TripsList = () => {
           return value != null ? `${value} KM` : '-'
         },
       },
-      {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
-        cell: ({ row }: { row: { original: Trip } }) => (
-          <div className="flex justify-end gap-2">
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => router.push(`/trips/details/${row.original._id}`)}>
-              View
-            </button>
-          </div>
-        ),
-      },
+      // {
+      //   accessorKey: accessorkeys.actions,
+      //   header: headerKeys.actions,
+      //   cell: ({ row }: { row: { original: Trip } }) => (
+      //     <div className="flex justify-end gap-2">
+      //       <button
+      //         className="btn btn-primary btn-sm"
+      //         onClick={() => router.push(`/trips/details/${row.original._id}`)}>
+      //         View
+      //       </button>
+      //     </div>
+      //   ),
+      // },
     ],
     []
   )

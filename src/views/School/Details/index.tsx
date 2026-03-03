@@ -8,13 +8,13 @@ import { SchoolAdmin } from '@src/dtos/schoolAdmin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
 import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
-import { useGetSchoolDetailsQuery } from '@src/store/services/schoolApi'
 import {
   useDeactivateSchoolAdminMutation,
   useGetSchoolAdminsQuery,
   useGetSchoolDriversQuery,
   useRemoveDriverFromSchoolMutation,
 } from '@src/store/services/schoolAdminApi'
+import { useGetSchoolDetailsQuery } from '@src/store/services/schoolApi'
 import { toast } from 'react-toastify'
 
 const DetailRow = ({
@@ -136,9 +136,7 @@ const SchoolDetails = () => {
               : status === 'rejected'
                 ? 'badge-red'
                 : 'badge-yellow'
-          return (
-            <span className={`badge ${badgeClass}`}>{status}</span>
-          )
+          return <span className={`badge ${badgeClass}`}>{status}</span>
         },
       },
       {

@@ -83,9 +83,9 @@ const ParentDetails = () => {
         header: headerKeys.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'name', header: 'Name' },
-      { accessorKey: 'grade', header: 'Grade' },
-      { accessorKey: 'school_name', header: 'School' },
+      { accessorKey: 'student_name', header: 'Name' },
+      { accessorKey: 'class', header: 'Class' },
+      { accessorKey: 'school_id', header: 'School ID' },
     ],
     []
   )
@@ -110,9 +110,7 @@ const ParentDetails = () => {
               : status === 'expired'
                 ? 'badge-red'
                 : 'badge-yellow'
-          return (
-            <span className={`badge ${badgeClass}`}>{status}</span>
-          )
+          return <span className={`badge ${badgeClass}`}>{status}</span>
         },
       },
       {
@@ -173,9 +171,7 @@ const ParentDetails = () => {
                 : status === 'refunded'
                   ? 'badge-blue'
                   : 'badge-yellow'
-          return (
-            <span className={`badge ${badgeClass}`}>{status}</span>
-          )
+          return <span className={`badge ${badgeClass}`}>{status}</span>
         },
       },
       {
@@ -224,18 +220,18 @@ const ParentDetails = () => {
                   {parent.name}
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  {parent.phone_number}
+                  {parent.user.phone_number}
                 </p>
               </div>
               <span
-                className={`badge inline-flex items-center gap-1 ${parent.is_active ? 'badge-green' : 'badge-yellow'}`}>
-                {parent.is_active ? 'Active' : 'Inactive'}
+                className={`badge inline-flex items-center gap-1 ${parent.user.is_active ? 'badge-green' : 'badge-yellow'}`}>
+                {parent.user.is_active ? 'Active' : 'Inactive'}
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 pb-6 border-b">
               <DetailRow label="Name" value={parent.name} />
-              <DetailRow label="Phone" value={parent.phone_number} />
+              <DetailRow label="Phone" value={parent.user.phone_number} />
               <DetailRow label="Email" value={parent.email} />
               <DetailRow label="User ID" value={parent.user_id} mono />
               <DetailRow
@@ -250,30 +246,6 @@ const ParentDetails = () => {
                 label="Status"
                 value={parent.is_active ? 'Active' : 'Inactive'}
               />
-            </div>
-
-            <div className="flex gap-4">
-              {parent.is_active ? (
-                <button
-                  className="btn btn-orange btn-sm"
-                  onClick={handleDeactivate}>
-                  Deactivate
-                </button>
-              ) : (
-                <button
-                  className="btn btn-green btn-sm"
-                  onClick={handleActivate}>
-                  Activate
-                </button>
-              )}
-              <button className="btn btn-red btn-sm" onClick={handleDelete}>
-                Delete
-              </button>
-              <button
-                className="btn btn-light btn-sm"
-                onClick={() => window.history.back()}>
-                Back
-              </button>
             </div>
           </div>
         </div>

@@ -35,9 +35,12 @@ export const NEXT_PUBLIC_DRIVER_STUDENT_ASSIGNMENTS_API = '/admin/assignments'
 export const NEXT_PUBLIC_SCHOOL_ASSIGNMENTS_API = '/admin/school-assignments'
 
 // SUBSCRIPTION APIS
-export const NEXT_PUBLIC_SUBSCRIPTION_PLANS_API = '/admin/subscription-plans'
+export const NEXT_PUBLIC_SUBSCRIPTION_PLANS_API = '/public/subscription-plans'
+export const NEXT_ADMIN_SUBSCRIPTION_PLANS_API = '/admin/subscription-plans'
+export const NEXT_PUBLIC_SUBSCRIPTION_PLANS = '/admin/subscriptions'
 export const NEXT_PUBLIC_PARENT_SUBSCRIPTIONS_API = '/admin/subscriptions'
-export const NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API = '/admin/school-subscriptions'
+export const NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API =
+  '/admin/school-subscriptions'
 
 // ROLES APIS
 export const NEXT_PUBLIC_ROLES_API = '/superadmin/roles'

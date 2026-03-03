@@ -24,14 +24,16 @@ const ParentSubscriptionsList = () => {
         header: headerKeys.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'parent_name', header: 'Parent' },
-      { accessorKey: accessorkeys.planName, header: headerKeys.planName },
+      { accessorKey: accessorkeys.plan_id, header: headerKeys.planName },
+      { accessorKey: accessorkeys.parent_id, header: headerKeys.parentName },
       {
-        accessorKey: accessorkeys.subscriptionStatus,
+        accessorKey: accessorkeys.subscription_status,
         header: headerKeys.subscriptionStatus,
         cell: ({ row }: { row: { original: ParentSubscription } }) => {
-          const { label, className } = statusBadge[row.original.status] || {
-            label: row.original.status,
+          const { label, className } = statusBadge[
+            row.original.subscription_status
+          ] || {
+            label: row.original.subscription_status,
             className: 'badge-gray',
           }
           return (
@@ -43,10 +45,10 @@ const ParentSubscriptionsList = () => {
         },
       },
       {
-        accessorKey: accessorkeys.amount,
+        accessorKey: accessorkeys.calculated_price,
         header: headerKeys.amount,
         cell: ({ row }: { row: { original: ParentSubscription } }) =>
-          `₹${row.original.amount}`,
+          `₹${row.original.calculated_price}`,
       },
       {
         accessorKey: accessorkeys.startDate,
