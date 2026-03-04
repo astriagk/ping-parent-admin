@@ -6,7 +6,7 @@ import { DriverDocuments } from '@src/dtos/driver'
 import { ApprovalStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useUpdateDriverApprovalStatusMutation } from '@src/store/services/driverApi'
-import { formatDate } from '@src/utils/dateFormatter'
+import { formatDate } from '@src/utils/formatters'
 import { toast } from 'react-toastify'
 
 import RejectModal from './rejectModal'

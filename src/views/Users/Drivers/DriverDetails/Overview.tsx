@@ -7,8 +7,8 @@ import Image from 'next/image'
 import avatar5 from '@assets/images/avatar/user-5.png'
 import { DriverDetails } from '@src/dtos/driver'
 import { ApprovalStatusType, UserRolesType } from '@src/shared/constants/enums'
-import { formatDate } from '@src/utils/dateFormatter'
 import { formatAddress } from '@src/utils/formatAddress'
+import { formatDate } from '@src/utils/formatters'
 import { MessagesSquare, Pencil, Phone } from 'lucide-react'
 
 const Overview = ({
@@ -43,7 +43,8 @@ const Overview = ({
                     <span className="text-gray-500 dark:text-dark-500">
                       {driverDetails?.user?.user_type &&
                         UserRolesType[
-                          driverDetails.user?.user_type as keyof typeof UserRolesType
+                          driverDetails.user
+                            ?.user_type as keyof typeof UserRolesType
                         ]}
                     </span>
                   </p>
@@ -60,7 +61,9 @@ const Overview = ({
                 <div className="flex flex-wrap items-center mt-5 gap-space">
                   <div className="p-4 text-center border border-gray-200 border-dashed rounded-md dark:border-dark-800 min-w-36 shrink-0">
                     <h4 className="mb-1">
-                      {formatDate(driverDetails?.created_at)}
+                      {driverDetails?.created_at
+                        ? formatDate(driverDetails.created_at)
+                        : '-'}
                     </h4>
                     <p className="text-gray-500 dark:text-dark-500">
                       Joined Date

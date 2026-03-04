@@ -21,6 +21,7 @@ import {
   useDeactivateSubscriptionPlanMutation,
   useGetSubscriptionPlansQuery,
 } from '@src/store/services/subscriptionApi'
+import { formatAmount } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -123,13 +124,13 @@ const SubscriptionPlansList = () => {
         accessorKey: accessorkeys.subscriptionPlans.price,
         header: headerKeys.subscriptionPlans.price,
         cell: ({ row }: { row: { original: SubscriptionPlan } }) =>
-          `₹${row.original.price}${row.original.pricing_model === 'per_kid' ? '/kid' : ''}`,
+          `${formatAmount(row.original.price)}${row.original.pricing_model === 'per_kid' ? '/kid' : ''}`,
       },
       {
         accessorKey: accessorkeys.subscriptionPlans.kids,
         header: headerKeys.subscriptionPlans.kids,
         cell: ({ row }: { row: { original: SubscriptionPlan } }) =>
-          `${row.original.kids.min}–${row.original.kids.max}`,
+          `${row.original.kids.min} – ${row.original.kids.max}`,
       },
       {
         accessorKey: accessorkeys.subscriptionPlans.isActive,

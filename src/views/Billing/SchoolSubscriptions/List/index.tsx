@@ -9,6 +9,7 @@ import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { useGetSchoolSubscriptionsQuery } from '@src/store/services/subscriptionApi'
+import { formatAmount, formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
 
@@ -76,19 +77,19 @@ const SchoolSubscriptionsList = () => {
         accessorKey: accessorkeys.schoolSubscriptionPlans.price,
         header: headerKeys.schoolSubscriptionPlans.price,
         cell: ({ row }: { row: { original: SchoolSubscription } }) =>
-          `₹${row.original.plan?.price || 0}`,
+          `${formatAmount(row.original.plan?.price || 0)}`,
       },
       {
         accessorKey: accessorkeys.schoolSubscriptionPlans.startDate,
         header: headerKeys.schoolSubscriptionPlans.startDate,
         cell: ({ row }: { row: { original: SchoolSubscription } }) =>
-          new Date(row.original.start_date).toLocaleDateString(),
+          formatDate(row.original.start_date),
       },
       {
         accessorKey: accessorkeys.schoolSubscriptionPlans.endDate,
         header: headerKeys.schoolSubscriptionPlans.endDate,
         cell: ({ row }: { row: { original: SchoolSubscription } }) =>
-          new Date(row.original.end_date).toLocaleDateString(),
+          formatDate(row.original.end_date),
       },
       {
         accessorKey: accessorkeys.schoolSubscriptionPlans.subscriptionStatus,
