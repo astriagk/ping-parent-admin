@@ -14,6 +14,7 @@ import {
   PaymentTypeLabel,
 } from '@src/shared/constants/enums'
 import { useGetPaymentDetailsQuery } from '@src/store/services/paymentApi'
+import { formatAmount, formatDate, formatTime } from '@src/utils/formatters'
 
 const statusBannerConfig: Record<
   PaymentStatus,
@@ -115,7 +116,7 @@ const PaymentDetails = () => {
 
   return (
     <React.Fragment>
-      <BreadCrumb title="Payment Details" subTitle={payment.payment_id} />
+      <BreadCrumb title="Payment Details" subTitle={payment._id} />
       <div className="grid grid-cols-12 gap-x-space">
         {/* Main Card */}
         <div className="col-span-12 card">
@@ -124,7 +125,7 @@ const PaymentDetails = () => {
             <div className="flex justify-between items-start mb-6 pb-6 border-b">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {payment.payment_id}
+                  {payment._id}
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
                   Transaction: {payment.transaction_id}
@@ -158,24 +159,17 @@ const PaymentDetails = () => {
               <div>
                 <p className="text-gray-500 text-sm mb-1">Payment Date</p>
                 <p className="text-gray-900 font-medium">
-                  {new Date(payment.payment_date).toLocaleDateString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
+                  {formatDate(payment.payment_date)}
                 </p>
                 <p className="text-gray-400 text-xs mt-1">
-                  {new Date(payment.payment_date).toLocaleTimeString('en-IN', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {formatTime(payment.payment_date)}
                 </p>
               </div>
             </div>
 
             {/* Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 pb-6 border-b">
-              <DetailRow label="Payment ID" value={payment.payment_id} mono />
+              <DetailRow label="Payment ID" value={payment._id} mono />
               <DetailRow
                 label="Subscription ID"
                 value={payment.subscription_id}
@@ -216,10 +210,10 @@ const PaymentDetails = () => {
                   />
                   <DetailRow
                     label="Gateway Amount"
-                    value={`₹${(gw.amount / 100).toLocaleString('en-IN')}`}
+                    value={formatAmount(gw.amount)}
                   />
-                  <DetailRow label="Fee" value={`₹${gw.fee.toFixed(2)}`} />
-                  <DetailRow label="Tax" value={`₹${gw.tax.toFixed(2)}`} />
+                  <DetailRow label="Fee" value={formatAmount(gw.fee)} />
+                  <DetailRow label="Tax" value={formatAmount(gw.tax)} />
                   <DetailRow label="Contact" value={gw.contact} />
                   {gw.vpa && <DetailRow label="VPA" value={gw.vpa} mono />}
                 </div>

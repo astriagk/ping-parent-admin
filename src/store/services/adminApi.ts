@@ -50,14 +50,20 @@ export const adminApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [AuthTags.ADMIN],
     }),
-    activateAdmin: builder.mutation<{ success: boolean; message: string }, string>({
+    activateAdmin: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
       query: (adminId) => ({
         url: `${NEXT_PUBLIC_ADMIN_LIST_API}/by-admin-id/${adminId}/activate`,
         method: ApiMethods.PATCH,
       }),
       invalidatesTags: [AuthTags.ADMIN],
     }),
-    deactivateAdmin: builder.mutation<{ success: boolean; message: string }, string>({
+    deactivateAdmin: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
       query: (adminId) => ({
         url: `${NEXT_PUBLIC_ADMIN_LIST_API}/by-admin-id/${adminId}/deactivate`,
         method: ApiMethods.PATCH,
@@ -65,39 +71,47 @@ export const adminApi = baseApi.injectEndpoints({
       invalidatesTags: [AuthTags.ADMIN],
     }),
     // Shared user actions (parents, drivers, students)
-    activateUser: builder.mutation<{ success: boolean; message: string }, string>({
+    activateUser: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
       query: (userId) => ({
         url: `${NEXT_PUBLIC_USERS_LIST_API}/${userId}/activate`,
         method: ApiMethods.PATCH,
       }),
       invalidatesTags: [AuthTags.PARENT, AuthTags.DRIVER, AuthTags.STUDENT],
     }),
-    deactivateUser: builder.mutation<{ success: boolean; message: string }, string>({
+    deactivateUser: builder.mutation<
+      { success: boolean; message: string },
+      string
+    >({
       query: (userId) => ({
         url: `${NEXT_PUBLIC_USERS_LIST_API}/${userId}/deactivate`,
         method: ApiMethods.PATCH,
       }),
       invalidatesTags: [AuthTags.PARENT, AuthTags.DRIVER, AuthTags.STUDENT],
     }),
-    deleteUser: builder.mutation<{ success: boolean; message: string }, string>({
-      query: (userId) => ({
-        url: `${NEXT_PUBLIC_USERS_LIST_API}/${userId}`,
-        method: ApiMethods.DELETE,
-      }),
-      invalidatesTags: [AuthTags.PARENT, AuthTags.DRIVER, AuthTags.STUDENT],
-    }),
+    deleteUser: builder.mutation<{ success: boolean; message: string }, string>(
+      {
+        query: (userId) => ({
+          url: `${NEXT_PUBLIC_USERS_LIST_API}/${userId}`,
+          method: ApiMethods.DELETE,
+        }),
+        invalidatesTags: [AuthTags.PARENT, AuthTags.DRIVER, AuthTags.STUDENT],
+      }
+    ),
   }),
 })
 
 export const {
-  useGetAdminListQuery,
+  useGetAdminListQuery, // Use this hook to fetch the list of admins
   useLazyGetAdminListQuery,
   useGetAdminByIdQuery,
   useLazyGetAdminByIdQuery,
-  useCreateAdminMutation,
-  useUpdateAdminMutation,
-  useActivateAdminMutation,
-  useDeactivateAdminMutation,
+  useCreateAdminMutation, // Use this hook to create a new admin
+  useUpdateAdminMutation, // Use this hook to update an existing admin
+  useActivateAdminMutation, // Use this hook to activate an admin
+  useDeactivateAdminMutation, // Use this hook to deactivate an admin
   useActivateUserMutation,
   useDeactivateUserMutation,
   useDeleteUserMutation,

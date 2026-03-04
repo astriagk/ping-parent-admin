@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { AuthTags } from '@src/shared/constants/enums'
+import { AuthTags, STORAGE_KEYS } from '@src/shared/constants/enums'
 
 export const baseApi = createApi({
   reducerPath: 'adminApi',
@@ -7,7 +7,7 @@ export const baseApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
     prepareHeaders: (headers) => {
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('access_token')
+        const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
         if (token) {
           headers.set('Authorization', `Bearer ${token}`)
         }

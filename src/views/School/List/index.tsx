@@ -4,21 +4,31 @@ import React, { useMemo, useState } from 'react'
 
 import { SchoolListItem } from '@src/dtos/school'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
+import Pagination from '@src/shared/common/Pagination'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import { ModelModes } from '@src/shared/constants/enums'
+import TableContainer from '@src/shared/custom/table/table'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
-import { CirclePlus } from 'lucide-react'
+import { CirclePlus, Search } from 'lucide-react'
 
 import AddSchoolModal from './addSchoolModal'
 
 const SchoolsList = () => {
-  const { data: schoolsListData, isLoading } = useGetSchoolsListQuery()
+  const { data: schoolsListData } = useGetSchoolsListQuery()
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [addSchoolModalOpen, setAddSchoolModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<ModelModes>(ModelModes.ADD)
   const [selectedSchool, setSelectedSchool] = useState<SchoolListItem | null>(
     null
   )
+
+  //pagination
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
 
   const handleAddSchool = () => {
     setModalMode(ModelModes.ADD)
@@ -38,39 +48,60 @@ const SchoolsList = () => {
     setAddSchoolModalOpen(true)
   }
 
+  const schoolData: SchoolListItem[] = schoolsListData?.data ?? []
+
+  const filteredSchoolRecords = schoolData.filter((item: SchoolListItem) =>
+    item.school_name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedSchools = filteredSchoolRecords.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
+
   const columns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.schoolsList.id,
+        header: headerKeys.schoolsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.schoolName,
-        header: headerKeys.schoolName,
+        accessorKey: accessorkeys.schoolsList.schoolName,
+        header: headerKeys.schoolsList.schoolName,
       },
-      { accessorKey: accessorkeys.city, header: headerKeys.city },
-      { accessorKey: accessorkeys.state, header: headerKeys.state },
       {
-        accessorKey: accessorkeys.contactNumber,
-        header: headerKeys.contactNumber,
+        accessorKey: accessorkeys.schoolsList.city,
+        header: headerKeys.schoolsList.city,
       },
-      { accessorKey: accessorkeys.email, header: headerKeys.email },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
+        accessorKey: accessorkeys.schoolsList.state,
+        header: headerKeys.schoolsList.state,
+      },
+      {
+        accessorKey: accessorkeys.schoolsList.contactNumber,
+        header: headerKeys.schoolsList.contactNumber,
+      },
+      {
+        accessorKey: accessorkeys.schoolsList.email,
+        header: headerKeys.schoolsList.email,
+      },
+      {
+        accessorKey: accessorkeys.schoolsList.actions,
+        header: headerKeys.schoolsList.actions,
         cell: ({ row }: { row: { original: SchoolListItem } }) => {
           return (
             <div className="flex justify-end gap-2">
               <button
-                className="btn btn-primary btn-sm"
-                onClick={() => handleEditSchool(row.original)}>
-                Edit
+                className="btn btn-sub-primary btn-icon !size-8 rounded-md"
+                onClick={() => handleViewSchool(row.original)}>
+                <i className="ri-eye-line"></i>
               </button>
               <button
-                className="btn btn-gray btn-sm"
-                onClick={() => handleViewSchool(row.original)}>
-                View
+                className="btn btn-sub-gray btn-icon !size-8 rounded-md"
+                onClick={() => handleEditSchool(row.original)}>
+                <i className="ri-pencil-line"></i>
               </button>
             </div>
           )
@@ -86,22 +117,51 @@ const SchoolsList = () => {
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
           <div className="card-header">
-            <div className="flex flex-wrap justify-end gap-5">
-              <button
-                className="btn btn-primary shrink-0"
-                data-modal-target="parentsCreateModal"
-                onClick={handleAddSchool}>
-                <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
-                Add School
-              </button>
+            <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 md:col-span-9 lg:col-span-5 xxl:col-span-3">
+                <div className="relative group/form grow">
+                  <input
+                    type="text"
+                    className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
+                    placeholder="Search School"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 ltr:group-[&.right]/form:right-3 rtl:group-[&.right]/form:left-3 ltr:group-[&.right]/form:left-auto rtl:group-[&.right]/form:right-auto focus:outline-hidden">
+                    <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
+                  </button>
+                </div>
+              </div>
+              <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-10 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
+                <button
+                  className="btn btn-primary shrink-0"
+                  data-modal-target="parentsCreateModal"
+                  onClick={handleAddSchool}>
+                  <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />{' '}
+                  Add School
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="pt-4 card-body">
-            <DatatablesHover
-              columns={columns}
-              data={schoolsListData?.data || []}
-            />
+          <div className="pt-0 card-body">
+            <div>
+              <TableContainer
+                columns={columns}
+                data={paginatedSchools}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                lastTrClass="text-end"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
+              />
+              <Pagination
+                totalItems={filteredSchoolRecords.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         </div>
       </div>

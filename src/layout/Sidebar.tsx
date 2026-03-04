@@ -6,12 +6,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import user17 from '@assets/images/avatar/user-17.png'
+import user77 from '@assets/images/avatar/user-77.png'
 import logoSmDark from '@assets/images/logo-sm-dark.png'
 import logoSm from '@assets/images/logo-sm-white.png'
 import logoWhite from '@assets/images/logo-white.png'
 import mainLogo from '@assets/images/main-logo.png'
 import { MainMenu, MegaMenu, SubMenu } from '@src/dtos'
+import { STORAGE_KEYS, UserRolesType } from '@src/shared/constants/enums'
 import { LAYOUT_TYPES, SIDEBAR_SIZE } from '@src/shared/constants/layout'
 import {
   Dropdown,
@@ -20,13 +21,16 @@ import {
   DropdownPosition,
 } from '@src/shared/custom/dropdown/dropdown'
 import { useAppSelector } from '@src/store/hooks'
+import LocalStorage from '@src/utils/LocalStorage'
 import {
   AlignStartVertical,
   Bell,
   BellDot,
   BookOpen,
   Box,
+  Bus,
   Calendar,
+  CalendarDays,
   ChartBarBig,
   ChartScatter,
   ChevronDown,
@@ -39,23 +43,29 @@ import {
   Folders,
   Gauge,
   Gem,
+  GraduationCap,
   Headset,
   Hospital,
+  IndianRupee,
   KeyRound,
   LifeBuoy,
   LogOut,
   Mail,
   Map,
   MapPin,
+  Megaphone,
+  MessageSquare,
   MessagesSquare,
   Monitor,
   PencilRuler,
   Presentation,
+  QrCode,
   RemoveFormatting,
   School,
   Settings,
   Shapes,
   Shield,
+  ShieldCheck,
   ShoppingBag,
   Star,
   Table2,
@@ -84,6 +94,9 @@ const Sidebar = ({
   const router = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const { layoutType, layoutSidebar } = useAppSelector((state) => state.Layout)
+  const user = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+    ? JSON.parse(LocalStorage.getItem(STORAGE_KEYS.ADMIN)!)
+    : null
 
   useEffect(() => {
     const handleScroll = () => {
@@ -138,11 +151,19 @@ const Sidebar = ({
       'life-buoy': <LifeBuoy className={className} />,
       'file-textt': <FileText className={className} />,
       feather: <Feather className={className} />,
-      'layout-dashboard': <Gauge className={className} />, // closest match
-      'shield-user': <Shield className={className} />, // closest match
-      'map-pin': <MapPin className={className} />, // closest match
-      'clipboard-list': <ClipboardList className={className} />, // closest match
-      'credit-card': <CreditCard className={className} />, // closest match
+      'layout-dashboard': <Gauge className={className} />,
+      'shield-user': <Shield className={className} />,
+      'map-pin': <MapPin className={className} />,
+      'clipboard-list': <ClipboardList className={className} />,
+      'credit-card': <CreditCard className={className} />,
+      'qr-code': <QrCode className={className} />,
+      'graduation-cap': <GraduationCap className={className} />,
+      bus: <Bus className={className} />,
+      'calendar-days': <CalendarDays className={className} />,
+      'message-square': <MessageSquare className={className} />,
+      'shield-check': <ShieldCheck className={className} />,
+      'indian-rupee': <IndianRupee className={className} />,
+      megaphone: <Megaphone className={className} />,
       shield: <Shield className={className} />,
       star: <Star className={className} />,
       bell: <Bell className={className} />,
@@ -240,7 +261,7 @@ const Sidebar = ({
                       dropdownClassName="dropdown w-full">
                       <DropdownButton colorClass="flex items-center w-full gap-2 p-4 text-left group-data-[sidebar=small]:px-0">
                         <Image
-                          src={user17}
+                          src={user77}
                           alt="user"
                           className="h-10 rounded-md shrink-0 group-data-[sidebar=small]:mx-auto"
                           width={40}
@@ -248,9 +269,13 @@ const Sidebar = ({
                         />
                         <div className="grow group-data-[sidebar=icon]:hidden group-data-[sidebar=small]:hidden overflow-hidden text-new-500">
                           <h6 className="font-medium truncate text-sidebar-text-active">
-                            Jason Statham
+                            {user?.username || 'User Name'}
                           </h6>
-                          <p className="text-menu-title text-14">ID: 150001</p>
+                          <p className="text-menu-title text-14">
+                            {UserRolesType[
+                              user?.admin_role as keyof typeof UserRolesType
+                            ] || 'Admin Role'}
+                          </p>
                         </div>
                         <div className="shrink-0 text-sidebar-text group-data-[sidebar=icon]:hidden group-data-[sidebar=small]:hidden group-data-[sidebar=medium]:hidden">
                           <ChevronDown className="size-4" />
@@ -259,7 +284,7 @@ const Sidebar = ({
                       <DropdownMenu menuClass="z-50 p-5 bg-white rounded-md shadow-lg !w-64 !left-3">
                         <div className="flex items-center gap-2">
                           <Image
-                            src={user17}
+                            src={user77}
                             alt="user"
                             className="rounded-full size-10"
                           />
@@ -267,7 +292,7 @@ const Sidebar = ({
                             <h6>Hello</h6>
                             <p>
                               <Link href="#!" className="link link-primary">
-                                hello@example.com
+                                {user?.email || 'Email Address'}
                               </Link>
                             </p>
                           </div>

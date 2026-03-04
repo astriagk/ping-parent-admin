@@ -1,10 +1,12 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 import { useVerifyTokenQuery } from '@src/store/services/authApi'
 
+import { STORAGE_KEYS } from '../constants/enums'
 import { MESSAGES } from '../constants/messages'
+import { routeRoles } from '../constants/routeRoles'
 import { paths } from './DynamicTitle'
 
 interface AuthGuardProps {
@@ -13,10 +15,11 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { data, error, isLoading } = useVerifyTokenQuery()
 
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
     if (!token) {
       router.push(`${paths.AUTH.SIGNIN_BASIC}`)
     }
@@ -47,5 +50,17 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     )
   }
 
-  return <>{data ? children : null}</>
+  if (data) {
+    const userRole = data.data?.role ?? ''
+    const allowedRoles = routeRoles[pathname]
+
+    if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
+      router.replace('/dashboard')
+      return null
+    }
+
+    return <>{children}</>
+  }
+
+  return null
 }

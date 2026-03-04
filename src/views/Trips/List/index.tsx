@@ -1,13 +1,16 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { Trip } from '@src/dtos/trip'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
+import Pagination from '@src/shared/common/Pagination'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import { TripStatus } from '@src/shared/constants/enums'
+import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
+import { formatDate } from '@src/utils/formatters'
+import { Search } from 'lucide-react'
 
 const statusBadge: Record<TripStatus, { label: string; className: string }> = {
   [TripStatus.SCHEDULED]: { label: 'Scheduled', className: 'badge-yellow' },
@@ -19,30 +22,50 @@ const statusBadge: Record<TripStatus, { label: string; className: string }> = {
 
 const TripsList = () => {
   const { data: tripsData } = useGetTripListQuery()
+  const [searchQuery, setSearchQuery] = useState<string>('')
+
+  //pagination
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const tripData: Trip[] = tripsData?.data ?? []
+
+  const filteredTripRecords = tripData.filter((item: Trip) =>
+    (item.driver_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedTrips = filteredTripRecords.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
 
   const columns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.tripsList.id,
+        header: headerKeys.tripsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.tripId,
-        header: headerKeys.tripId,
+        accessorKey: accessorkeys.tripsList.tripId,
+        header: headerKeys.tripsList.tripId,
       },
       {
-        accessorKey: accessorkeys.tripType,
-        header: headerKeys.tripType,
+        accessorKey: accessorkeys.tripsList.tripType,
+        header: headerKeys.tripsList.tripType,
         cell: ({ row }: { row: { original: Trip } }) => (
           <span className="capitalize">{row.original.trip_type}</span>
         ),
       },
       {
-        accessorKey: accessorkeys.tripStatus,
-        header: headerKeys.tripStatus,
+        accessorKey: accessorkeys.tripsList.tripStatus,
+        header: headerKeys.tripsList.tripStatus,
         cell: ({ row }: { row: { original: Trip } }) => {
-          console.log(row.original)
           const status = row.original.trip_status as TripStatus
           const { label, className } = statusBadge[status] || {
             label: status,
@@ -57,47 +80,65 @@ const TripsList = () => {
         },
       },
       {
-        accessorKey: accessorkeys.tripDate,
-        header: headerKeys.tripDate,
+        accessorKey: accessorkeys.tripsList.tripDate,
+        header: headerKeys.tripsList.tripDate,
         cell: ({ row }: { row: { original: Trip } }) =>
-          row.original.trip_date
-            ? new Date(row.original.trip_date).toLocaleDateString()
-            : '-',
+          formatDate(row.original.trip_date),
       },
       {
-        accessorKey: accessorkeys.totalDistance,
-        header: headerKeys.totalDistance,
+        accessorKey: accessorkeys.tripsList.totalDistance,
+        header: headerKeys.tripsList.totalDistance,
         cell: ({ row }: { row: { original: Trip } }) => {
           const value = row.original.total_distance
           return value != null ? `${value} KM` : '-'
         },
       },
-      {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
-        cell: ({ row }: { row: { original: Trip } }) => (
-          <div className="flex justify-end gap-2">
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => console.log('View', row.original)}>
-              View
-            </button>
-          </div>
-        ),
-      },
     ],
     []
   )
-
-  console.log(tripsData)
 
   return (
     <React.Fragment>
       <BreadCrumb title="All Trips" subTitle="Trips" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
-          <div className="card-body">
-            <DatatablesHover columns={columns} data={tripsData?.data || []} />
+          <div className="card-header">
+            <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 md:col-span-9 lg:col-span-5 xxl:col-span-3">
+                <div className="relative group/form grow">
+                  <input
+                    type="text"
+                    className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
+                    placeholder="Search by Driver"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 ltr:group-[&.right]/form:right-3 rtl:group-[&.right]/form:left-3 ltr:group-[&.right]/form:left-auto rtl:group-[&.right]/form:right-auto focus:outline-hidden">
+                    <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-0 card-body">
+            <div>
+              <TableContainer
+                columns={columns}
+                data={paginatedTrips}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                lastTrClass="text-end"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
+              />
+              <Pagination
+                totalItems={filteredTripRecords.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         </div>
       </div>

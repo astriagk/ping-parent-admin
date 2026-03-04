@@ -22,20 +22,23 @@ const codeBadge: Record<string, { label: string; className: string }> = {
 const RedemptionCodesList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
   const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
-  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string>('')
+  const [selectedSubscriptionId, setSelectedSubscriptionId] =
+    useState<string>('')
   const [generateCount, setGenerateCount] = useState<number>(1)
   const [generating, setGenerating] = useState(false)
 
-  const [generateCodes, { isLoading: isGenerating }] = useGenerateRedemptionCodesMutation()
+  const [generateCodes, { isLoading: isGenerating }] =
+    useGenerateRedemptionCodesMutation()
 
-  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?.school_id || ''
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
-  const { data: subscriptionsData } = useGetSchoolSubscriptionsQuery(firstSchoolId, {
-    skip: !firstSchoolId,
-  })
+  const { data: subscriptionsData } = useGetSchoolSubscriptionsQuery(
+    firstSchoolId,
+    { skip: !firstSchoolId }
+  )
 
   const firstSubscriptionId =
-    selectedSubscriptionId || subscriptionsData?.data?.[0]?.subscription_id || ''
+    selectedSubscriptionId || subscriptionsData?.data?.[0]?._id || ''
 
   const { data: codesData } = useGetRedemptionCodesQuery(firstSubscriptionId, {
     skip: !firstSubscriptionId,
@@ -46,7 +49,10 @@ const RedemptionCodesList = () => {
     if (window.confirm(`Generate ${generateCount} redemption code(s)?`)) {
       setGenerating(true)
       try {
-        await generateCodes({ subscriptionId: firstSubscriptionId, count: generateCount }).unwrap()
+        await generateCodes({
+          subscriptionId: firstSubscriptionId,
+          studentIds: [], // TODO : pass student ids
+        }).unwrap()
       } finally {
         setGenerating(false)
       }
@@ -78,7 +84,8 @@ const RedemptionCodesList = () => {
             className: 'badge-gray',
           }
           return (
-            <span className={`badge inline-flex items-center gap-1 ${className}`}>
+            <span
+              className={`badge inline-flex items-center gap-1 ${className}`}>
               {label}
             </span>
           )
@@ -120,7 +127,7 @@ const RedemptionCodesList = () => {
                       setSelectedSubscriptionId('')
                     }}>
                     {schoolsData?.data?.map((school) => (
-                      <option key={school.school_id} value={school.school_id}>
+                      <option key={school._id} value={school._id}>
                         {school.school_name}
                       </option>
                     ))}
@@ -133,8 +140,8 @@ const RedemptionCodesList = () => {
                     value={selectedSubscriptionId}
                     onChange={(e) => setSelectedSubscriptionId(e.target.value)}>
                     {subscriptionsData?.data?.map((sub) => (
-                      <option key={sub.subscription_id} value={sub.subscription_id}>
-                        {sub.plan_name} — {sub.status}
+                      <option key={sub._id} value={sub._id}>
+                        {sub.plan_id} — {sub.subscription_status}
                       </option>
                     ))}
                   </select>
@@ -147,7 +154,9 @@ const RedemptionCodesList = () => {
                   max={100}
                   className="form-input w-20 text-center"
                   value={generateCount}
-                  onChange={(e) => setGenerateCount(Math.max(1, Number(e.target.value)))}
+                  onChange={(e) =>
+                    setGenerateCount(Math.max(1, Number(e.target.value)))
+                  }
                   disabled={!firstSubscriptionId}
                 />
                 <button
