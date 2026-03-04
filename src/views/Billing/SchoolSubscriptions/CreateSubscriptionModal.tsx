@@ -61,7 +61,7 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({
             <label className="form-label">Start Date</label>
             <input
               type="date"
-              min={0}
+              min={new Date().toISOString().split('T')[0]}
               className="form-input"
               value={form.startDate}
               onChange={(e) => setForm({ ...form, startDate: e.target.value })}
@@ -72,7 +72,7 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({
             <label className="form-label">End Date</label>
             <input
               type="date"
-              min={0}
+              min={new Date().toISOString().split('T')[0]}
               className="form-input"
               value={form.endDate}
               onChange={(e) => setForm({ ...form, endDate: e.target.value })}

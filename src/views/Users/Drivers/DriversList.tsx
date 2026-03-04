@@ -4,15 +4,10 @@ import React, { useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import { Driver } from '@src/dtos/driver'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import Pagination from '@src/shared/common/Pagination'
 import { paths } from '@src/shared/common/DynamicTitle'
-import {
-  accessorkeys,
-  badges,
-  headerKeys,
-} from '@src/shared/constants/columns'
+import Pagination from '@src/shared/common/Pagination'
+import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
 import { UserRoles } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
@@ -87,9 +82,7 @@ const DriversList = () => {
             <button
               className="btn btn-sub-primary btn-icon !size-8 rounded-md"
               onClick={() =>
-                router.push(
-                  `${paths.USERS.DRIVER_DETAILS}/${row.original._id}`
-                )
+                router.push(`${paths.USERS.DRIVER_DETAILS}/${row.original._id}`)
               }>
               <i className="ri-eye-line"></i>
             </button>

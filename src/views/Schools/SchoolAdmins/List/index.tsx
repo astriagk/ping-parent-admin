@@ -13,7 +13,6 @@ import {
   useDeactivateAdminMutation,
   useGetAdminListQuery,
 } from '@src/store/services/adminApi'
-import { useDeactivateSchoolAdminMutation } from '@src/store/services/schoolAdminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { CirclePlus } from 'lucide-react'
 import Select from 'react-select'

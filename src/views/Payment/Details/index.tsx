@@ -15,7 +15,6 @@ import {
 } from '@src/shared/constants/enums'
 import { useGetPaymentDetailsQuery } from '@src/store/services/paymentApi'
 import { formatAmount, formatDate, formatTime } from '@src/utils/formatters'
-import { format } from 'path'
 
 const statusBannerConfig: Record<
   PaymentStatus,

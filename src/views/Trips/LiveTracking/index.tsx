@@ -9,11 +9,10 @@ import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
 import { formatDate } from '@src/utils/formatters'
-import { MapPin, Search } from 'lucide-react'
-import { format } from 'path'
+import { Search } from 'lucide-react'
 
 const LiveTracking = () => {
-  const { data: tripsData } = useGetTripListQuery()
+  const { data: tripsData } = useGetTripListQuery({ status: 'ongoing' })
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   //pagination

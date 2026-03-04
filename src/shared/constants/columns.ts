@@ -1,5 +1,3 @@
-import SchoolsList from '@src/views/School/List'
-
 const badges = {
   true: { label: 'Active', className: 'badge-green' },
   false: { label: 'Inactive', className: 'badge-yellow' },

@@ -32,8 +32,10 @@ const RedemptionCodesList = () => {
 
   const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
-  const { data: subscriptionsData } =
-    useGetSchoolSubscriptionsQuery(firstSchoolId)
+  const { data: subscriptionsData } = useGetSchoolSubscriptionsQuery(
+    firstSchoolId,
+    { skip: !firstSchoolId }
+  )
 
   const firstSubscriptionId =
     selectedSubscriptionId || subscriptionsData?.data?.[0]?._id || ''

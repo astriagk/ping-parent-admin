@@ -11,7 +11,7 @@ export const formatDate = (date: string | Date): string => {
     const year = dateObj.getFullYear()
     return `${day} ${month}, ${year}`
   } catch {
-    return 'Invalid date'
+    return '-'
   }
 }
 
