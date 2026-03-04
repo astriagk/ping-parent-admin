@@ -47,7 +47,6 @@ const SubscriptionPlansList = () => {
   const adminData: SubscriptionPlan[] = plansData?.data ?? []
 
   const filierPlansRecords = adminData.filter((item: SubscriptionPlan) => {
-    console.log(item)
     const filterRecord = item.plan_name
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
@@ -185,7 +184,7 @@ const SubscriptionPlansList = () => {
               <div className="col-span-12 md:col-span-9 lg:col-span-5 xxl:col-span-3">
                 <div className="relative group/form grow">
                   <input
-                    type="email"
+                    type="text"
                     className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
                     placeholder="Search Plan"
                     value={searchQuery}

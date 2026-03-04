@@ -22,19 +22,25 @@ import AdminModal, { AdminModalState } from './components/adminModal'
 const AdminsList = () => {
   const [searchQuery, setSearchQuery] = useState<string>('')
   const { data: adminListData } = useGetAdminListQuery()
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
+  const [activateAdmin] = useActivateAdminMutation()
+  const [deactivateAdmin] = useDeactivateAdminMutation()
+  const [modal, setModal] = useState<AdminModalState>({
+    open: false,
+    mode: ModelModes.CREATE,
+    data: null,
+  })
 
   //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
   const adminData: AdminListItem[] = adminListData?.data ?? []
 
   const filierParentRecords = adminData.filter((item: AdminListItem) => {
-    console.log(item)
     const filterRecord = item.username
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
@@ -47,22 +53,38 @@ const AdminsList = () => {
     startIndex + itemsPerPage
   )
 
-  const [activateAdmin] = useActivateAdminMutation()
-  const [deactivateAdmin] = useDeactivateAdminMutation()
-  const [modal, setModal] = useState<AdminModalState>({
-    open: false,
-    mode: ModelModes.CREATE,
-    data: null,
-  })
-
   const openCreate = () =>
     setModal({ open: true, mode: ModelModes.CREATE, data: null })
   const openEdit = (row: any) =>
     setModal({ open: true, mode: ModelModes.EDIT, data: row })
-  const openView = (row: any) =>
-    setModal({ open: true, mode: ModelModes.VIEW, data: row })
   const closeModal = () =>
     setModal({ open: false, mode: ModelModes.CREATE, data: null })
+
+  const handleActivate = async (_id: string) => {
+    try {
+      const result = await activateAdmin(_id).unwrap()
+      toast.success(result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
+    } catch (error: any) {
+      const errorMsg =
+        error?.data?.error ||
+        error?.message ||
+        MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+      toast.error(errorMsg)
+    }
+  }
+
+  const handleDeactivate = async (_id: string) => {
+    try {
+      const result = await deactivateAdmin(_id).unwrap()
+      toast.success(result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
+    } catch (error: any) {
+      const errorMsg =
+        error?.data?.error ||
+        error?.message ||
+        MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+      toast.error(errorMsg)
+    }
+  }
 
   const columns = useMemo(
     () => [
@@ -125,14 +147,6 @@ const AdminsList = () => {
           return (
             <div className="flex justify-end gap-2">
               <button
-                className="btn btn-sub-blue btn-icon !size-8 rounded-md"
-                onClick={(e) => {
-                  e.preventDefault()
-                  openView(row.original)
-                }}>
-                <i className="ri-eye-line"></i>
-              </button>
-              <button
                 className="btn btn-sub-gray btn-icon !size-8 rounded-md"
                 onClick={(e) => {
                   e.preventDefault()
@@ -148,32 +162,6 @@ const AdminsList = () => {
     []
   )
 
-  const handleActivate = async (_id: string) => {
-    try {
-      const result = await activateAdmin(_id).unwrap()
-      toast.success(result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
-    } catch (error: any) {
-      const errorMsg =
-        error?.data?.error ||
-        error?.message ||
-        MESSAGES.ADMIN.ERROR.UPDATE_FAILED
-      toast.error(errorMsg)
-    }
-  }
-
-  const handleDeactivate = async (_id: string) => {
-    try {
-      const result = await deactivateAdmin(_id).unwrap()
-      toast.success(result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
-    } catch (error: any) {
-      const errorMsg =
-        error?.data?.error ||
-        error?.message ||
-        MESSAGES.ADMIN.ERROR.UPDATE_FAILED
-      toast.error(errorMsg)
-    }
-  }
-
   return (
     <React.Fragment>
       <BreadCrumb title="Admins List" subTitle="Admins" />
@@ -184,7 +172,7 @@ const AdminsList = () => {
               <div className="col-span-12 md:col-span-9 lg:col-span-5 xxl:col-span-3">
                 <div className="relative group/form grow">
                   <input
-                    type="email"
+                    type="text"
                     className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
                     placeholder="Search User"
                     value={searchQuery}

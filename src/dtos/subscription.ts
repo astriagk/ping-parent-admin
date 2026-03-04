@@ -20,6 +20,7 @@ export interface SubscriptionPlan {
     max: number
   }
   features: SubscriptionPlanFeature[]
+  priority: number
   is_active: boolean
   discounts?: {
     same_trip?: {
@@ -78,10 +79,7 @@ export interface ParentSubscriptionListResponse {
 export interface SchoolSubscription {
   _id: string
   school_id: string
-  school_name?: string
   plan_id: string
-  plan_name?: string
-  price?: number
   start_date: string
   end_date: string
   subscription_status: 'active' | 'expired' | 'cancelled'
