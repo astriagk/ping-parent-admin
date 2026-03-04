@@ -7,7 +7,11 @@ import { useRouter } from 'next/navigation'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import { paths } from '@src/shared/common/DynamicTitle'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { UserRoles } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
@@ -64,8 +68,8 @@ const DriversList = () => {
         header: headerKeys.driversList.isActive,
         cell: ({ row }: { row: { original: any } }) => {
           const { is_active } = row.original
-          const mapKey = String(is_active) as keyof typeof badges
-          const { label, className } = badges[mapKey] || badges.undefined
+          const mapKey = String(is_active) as keyof typeof badgeMaps
+          const { label, className } = badgeMaps[mapKey]
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${className}`}>

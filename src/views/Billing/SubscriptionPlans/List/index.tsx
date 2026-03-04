@@ -5,12 +5,14 @@ import React, { useMemo, useState } from 'react'
 import { SubscriptionPlan } from '@src/dtos/subscription'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeClassNames,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import {
   ModelModes,
-  PlanTypeBadge,
-  PlanTypeLabel,
   PricingModel,
   PricingModelLabel,
 } from '@src/shared/constants/enums'
@@ -108,8 +110,9 @@ const SubscriptionPlansList = () => {
         header: headerKeys.subscriptionPlans.planType,
         cell: ({ row }: { row: { original: SubscriptionPlan } }) => (
           <span
-            className={`badge inline-flex items-center gap-1 ${PlanTypeBadge[row.original.plan_type] || 'badge-gray'}`}>
-            {PlanTypeLabel[row.original.plan_type] ?? row.original.plan_type}
+            className={`badge inline-flex items-center gap-1 ${badgeMaps[row.original.plan_type as keyof typeof badgeMaps]?.className}`}>
+            {badgeMaps[row.original.plan_type as keyof typeof badgeMaps]
+              ?.label ?? row.original.plan_type}
           </span>
         ),
       },

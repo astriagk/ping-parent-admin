@@ -5,8 +5,12 @@ import React, { useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
+import TableContainer from '@src/shared/custom/table/table'
 import {
   useActivateUserMutation,
   useDeactivateUserMutation,
@@ -79,13 +83,22 @@ const ParentDetails = () => {
   const studentColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.parentDetails.id,
+        header: headerKeys.parentDetails.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'student_name', header: 'Name' },
-      { accessorKey: 'class', header: 'Class' },
-      { accessorKey: 'school_id', header: 'School ID' },
+      {
+        accessorKey: accessorkeys.parentDetails.studentName,
+        header: headerKeys.parentDetails.studentName,
+      },
+      {
+        accessorKey: accessorkeys.parentDetails.class,
+        header: headerKeys.parentDetails.class,
+      },
+      {
+        accessorKey: accessorkeys.parentDetails.schoolId,
+        header: headerKeys.parentDetails.schoolId,
+      },
     ],
     []
   )
@@ -93,45 +106,47 @@ const ParentDetails = () => {
   const subscriptionColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.parentDetails.id,
+        header: headerKeys.parentDetails.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'plan_name', header: 'Plan' },
-      { accessorKey: 'plan_type', header: 'Type' },
       {
-        accessorKey: 'status',
-        header: 'Status',
+        accessorKey: accessorkeys.parentDetails.planName,
+        header: headerKeys.parentDetails.planName,
+      },
+      {
+        accessorKey: accessorkeys.parentDetails.planType,
+        header: headerKeys.parentDetails.planType,
+      },
+      {
+        accessorKey: accessorkeys.parentDetails.status,
+        header: headerKeys.parentDetails.status,
         cell: ({ row }: { row: { original: any } }) => {
           const status = row.original.status
           const badgeClass =
-            status === 'active'
-              ? 'badge-green'
-              : status === 'expired'
-                ? 'badge-red'
-                : 'badge-yellow'
+            badgeMaps[status as keyof typeof badgeMaps]?.className
           return <span className={`badge ${badgeClass}`}>{status}</span>
         },
       },
       {
-        accessorKey: 'start_date',
-        header: 'Start Date',
+        accessorKey: accessorkeys.parentDetails.startDate,
+        header: headerKeys.parentDetails.startDate,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.start_date
             ? new Date(row.original.start_date).toLocaleDateString()
             : '—',
       },
       {
-        accessorKey: 'end_date',
-        header: 'End Date',
+        accessorKey: accessorkeys.parentDetails.endDate,
+        header: headerKeys.parentDetails.endDate,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.end_date
             ? new Date(row.original.end_date).toLocaleDateString()
             : '—',
       },
       {
-        accessorKey: 'amount',
-        header: 'Amount',
+        accessorKey: accessorkeys.parentDetails.amount,
+        header: headerKeys.parentDetails.amount,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.amount != null
             ? `₹${row.original.amount.toLocaleString('en-IN')}`
@@ -144,39 +159,39 @@ const ParentDetails = () => {
   const paymentColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.parentDetails.id,
+        header: headerKeys.parentDetails.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'payment_type', header: 'Type' },
       {
-        accessorKey: 'amount',
-        header: 'Amount',
+        accessorKey: accessorkeys.parentDetails.paymentType,
+        header: headerKeys.parentDetails.paymentType,
+      },
+      {
+        accessorKey: accessorkeys.parentDetails.amount,
+        header: headerKeys.parentDetails.amount,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.amount != null
             ? `₹${row.original.amount.toLocaleString('en-IN')}`
             : '—',
       },
-      { accessorKey: 'payment_method', header: 'Method' },
       {
-        accessorKey: 'payment_status',
-        header: 'Status',
+        accessorKey: accessorkeys.parentDetails.paymentMethod,
+        header: headerKeys.parentDetails.paymentMethod,
+      },
+      {
+        accessorKey: accessorkeys.parentDetails.paymentStatus,
+        header: headerKeys.parentDetails.paymentStatus,
         cell: ({ row }: { row: { original: any } }) => {
           const status = row.original.payment_status
           const badgeClass =
-            status === 'completed'
-              ? 'badge-green'
-              : status === 'failed'
-                ? 'badge-red'
-                : status === 'refunded'
-                  ? 'badge-blue'
-                  : 'badge-yellow'
+            badgeMaps[status as keyof typeof badgeMaps]?.className
           return <span className={`badge ${badgeClass}`}>{status}</span>
         },
       },
       {
-        accessorKey: 'payment_date',
-        header: 'Date',
+        accessorKey: accessorkeys.parentDetails.paymentDate,
+        header: headerKeys.parentDetails.paymentDate,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.payment_date
             ? new Date(row.original.payment_date).toLocaleDateString()
@@ -224,7 +239,7 @@ const ParentDetails = () => {
                 </p>
               </div>
               <span
-                className={`badge inline-flex items-center gap-1 ${parent.user.is_active ? 'badge-green' : 'badge-yellow'}`}>
+                className={`badge inline-flex items-center gap-1 ${badgeMaps[String(parent.user.is_active) as keyof typeof badgeMaps]?.className}`}>
                 {parent.user.is_active ? 'Active' : 'Inactive'}
               </span>
             </div>
@@ -256,9 +271,14 @@ const ParentDetails = () => {
             <h6 className="card-title">Linked Students</h6>
           </div>
           <div className="card-body">
-            <DatatablesHover
+            <TableContainer
               columns={studentColumns}
               data={parent.students || []}
+              thClass="!font-medium cursor-pointer"
+              divClass="overflow-x-auto table-box whitespace-nowrap"
+              lastTrClass="text-end"
+              tableClass="table flush"
+              thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
             />
           </div>
         </div>
@@ -269,9 +289,14 @@ const ParentDetails = () => {
             <h6 className="card-title">Subscriptions</h6>
           </div>
           <div className="card-body">
-            <DatatablesHover
+            <TableContainer
               columns={subscriptionColumns}
               data={parent.subscriptions || []}
+              thClass="!font-medium cursor-pointer"
+              divClass="overflow-x-auto table-box whitespace-nowrap"
+              lastTrClass="text-end"
+              tableClass="table flush"
+              thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
             />
           </div>
         </div>
@@ -282,9 +307,14 @@ const ParentDetails = () => {
             <h6 className="card-title">Payments</h6>
           </div>
           <div className="card-body">
-            <DatatablesHover
+            <TableContainer
               columns={paymentColumns}
               data={parent.payments || []}
+              thClass="!font-medium cursor-pointer"
+              divClass="overflow-x-auto table-box whitespace-nowrap"
+              lastTrClass="text-end"
+              tableClass="table flush"
+              thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
             />
           </div>
         </div>

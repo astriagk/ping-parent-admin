@@ -5,11 +5,10 @@ import React from 'react'
 import { useParams } from 'next/navigation'
 
 import BreadCrumb from '@src/shared/common/BreadCrumb'
+import { badgeMaps } from '@src/shared/constants/columns'
 import {
   PaymentMethodLabel,
   PaymentStatus,
-  PaymentStatusBadge,
-  PaymentStatusLabel,
   PaymentType,
   PaymentTypeLabel,
 } from '@src/shared/constants/enums'
@@ -109,8 +108,9 @@ const PaymentDetails = () => {
   }
 
   const status = payment.payment_status as PaymentStatus
-  const statusBadgeClass = PaymentStatusBadge[status] ?? 'badge-gray'
-  const statusLabel = PaymentStatusLabel[status] ?? status
+  const statusBadgeClass =
+    badgeMaps[status as keyof typeof badgeMaps]?.className
+  const statusLabel = badgeMaps[status as keyof typeof badgeMaps]?.label
   const banner = statusBannerConfig[status]
   const gw = payment.gateway_response
 

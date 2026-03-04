@@ -6,9 +6,14 @@ import { useRouter } from 'next/navigation'
 
 import { SchoolDriverItem } from '@src/dtos/schoolAdmin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import Pagination from '@src/shared/common/Pagination'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { UserRoles } from '@src/shared/constants/enums'
+import TableContainer from '@src/shared/custom/table/table'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import {
   useAssignDriverToSchoolMutation,
@@ -16,19 +21,11 @@ import {
   useRemoveDriverFromSchoolMutation,
 } from '@src/store/services/schoolAdminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
-import { CirclePlus } from 'lucide-react'
+import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
 
 const ApprovalBadge = ({ status }: { status: string }) => {
-  const map: Record<string, { label: string; className: string }> = {
-    approved: { label: 'Approved', className: 'badge-green' },
-    pending: { label: 'Pending', className: 'badge-yellow' },
-    rejected: { label: 'Rejected', className: 'badge-red' },
-  }
-  const { label, className } = map[status] || {
-    label: status,
-    className: 'badge-gray',
-  }
+  const { label, className } = badgeMaps[status as keyof typeof badgeMaps]
   return (
     <span className={`badge inline-flex items-center gap-1 ${className}`}>
       {label}
@@ -125,10 +122,14 @@ const SchoolDriversList = () => {
     return first || ''
   })
   const [modalOpen, setModalOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [removeDriver] = useRemoveDriverFromSchoolMutation()
 
-  const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?._id || ''
+  //pagination
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
   const { data: schoolDriversData } = useGetSchoolDriversQuery(firstSchoolId, {
     skip: !firstSchoolId,
@@ -140,41 +141,66 @@ const SchoolDriversList = () => {
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const driversArr: SchoolDriverItem[] = schoolDriversData?.data ?? []
+
+  const filteredRecords = driversArr.filter((item: SchoolDriverItem) =>
+    (item.username ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedData = filteredRecords.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
+
   const columns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.schoolDriversList.id,
+        header: headerKeys.schoolDriversList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.username, header: headerKeys.username },
-      { accessorKey: accessorkeys.email, header: headerKeys.email },
-      { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
       {
-        accessorKey: 'approval_status',
-        header: 'Approval Status',
+        accessorKey: accessorkeys.schoolDriversList.username,
+        header: headerKeys.schoolDriversList.username,
+      },
+      {
+        accessorKey: accessorkeys.schoolDriversList.email,
+        header: headerKeys.schoolDriversList.email,
+      },
+      {
+        accessorKey: accessorkeys.schoolDriversList.phoneNumber,
+        header: headerKeys.schoolDriversList.phoneNumber,
+      },
+      {
+        accessorKey: accessorkeys.schoolDriversList.approvalStatus,
+        header: headerKeys.schoolDriversList.approvalStatus,
         cell: ({ row }: { row: { original: SchoolDriverItem } }) => (
           <ApprovalBadge status={row.original.approval_status} />
         ),
       },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
+        accessorKey: accessorkeys.schoolDriversList.actions,
+        header: headerKeys.schoolDriversList.actions,
         cell: ({ row }: { row: { original: SchoolDriverItem } }) => {
           const driverId = row.original.driver_id
           return (
             <div className="flex justify-end gap-2">
               <button
-                className="btn btn-red btn-sm"
+                className="btn btn-sub-red btn-icon !size-8 rounded-md"
                 onClick={() => handleRemove(driverId)}>
-                Remove
+                <i className="ri-user-unfollow-line"></i>
               </button>
               <button
-                className="btn btn-primary btn-sm"
+                className="btn btn-sub-primary btn-icon !size-8 rounded-md"
                 onClick={() =>
                   router.push(`/users/drivers/details/${driverId}`)
                 }>
-                View
+                <i className="ri-eye-line"></i>
               </button>
             </div>
           )
@@ -189,9 +215,9 @@ const SchoolDriversList = () => {
       <BreadCrumb title="School Drivers" subTitle="Schools" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
-          <div className="card-header flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-full min-w-[260px]">
+          <div className="card-header">
+            <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 lg:col-span-4 xxl:col-span-3">
                 {(() => {
                   const schoolOptions = (schoolsData?.data || []).map(
                     (school: any) => ({
@@ -217,20 +243,50 @@ const SchoolDriversList = () => {
                   )
                 })()}
               </div>
+              <div className="col-span-12 md:col-span-9 lg:col-span-4 xxl:col-span-3">
+                <div className="relative group/form grow">
+                  <input
+                    type="text"
+                    className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
+                    placeholder="Search Driver"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 focus:outline-hidden">
+                    <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
+                  </button>
+                </div>
+              </div>
+              <div className="col-span-12 md:col-span-3 lg:col-span-2 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
+                <button
+                  className="btn btn-primary shrink-0"
+                  disabled={!firstSchoolId}
+                  onClick={() => setModalOpen(true)}>
+                  <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
+                  Assign Driver
+                </button>
+              </div>
             </div>
-            <button
-              className="btn btn-primary shrink-0"
-              disabled={!firstSchoolId}
-              onClick={() => setModalOpen(true)}>
-              <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
-              Assign Driver
-            </button>
           </div>
-          <div className="pt-4 card-body">
-            <DatatablesHover
-              columns={columns}
-              data={schoolDriversData?.data || []}
-            />
+
+          <div className="pt-0 card-body">
+            <div>
+              <TableContainer
+                columns={columns}
+                data={paginatedData}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                lastTrClass="text-end"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
+              />
+              <Pagination
+                totalItems={filteredRecords.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         </div>
       </div>

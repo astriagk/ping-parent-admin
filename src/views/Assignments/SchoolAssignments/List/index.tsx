@@ -4,8 +4,13 @@ import React, { useMemo, useState } from 'react'
 
 import { SchoolAssignment } from '@src/dtos/assignment'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import Pagination from '@src/shared/common/Pagination'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
+import TableContainer from '@src/shared/custom/table/table'
 import {
   useApproveSchoolAssignmentMutation,
   useCreateSchoolAssignmentMutation,
@@ -14,15 +19,8 @@ import {
 } from '@src/store/services/assignmentApi'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
-import { CirclePlus } from 'lucide-react'
+import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
-
-const statusBadge: Record<string, { label: string; className: string }> = {
-  approved: { label: 'Approved', className: 'badge-green' },
-  pending: { label: 'Pending', className: 'badge-yellow' },
-  rejected: { label: 'Rejected', className: 'badge-red' },
-  active: { label: 'Active', className: 'badge-blue' },
-}
 
 const CreateSchoolAssignmentModal = ({
   open,
@@ -90,30 +88,30 @@ const CreateSchoolAssignmentModal = ({
 const SchoolAssignmentsList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
   const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>('')
-  // Map schools to react-select options
+  const [modalOpen, setModalOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [approveAssignment] = useApproveSchoolAssignmentMutation()
+  const [rejectAssignment] = useRejectSchoolAssignmentMutation()
+
+  //pagination
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
   const schoolOptions = (schoolsData?.data || []).map((school: any) => ({
     value: school._id,
     label: school.school_name,
   }))
-  // Find the selected option object
   const selectedSchoolOption =
     schoolOptions.find((opt) => opt.value === selectedSchoolId) || null
-  // Handler for react-select
   const handleSelectSchool = (option: any) => {
     setSelectedSchoolId(option ? option.value : '')
   }
-  const [modalOpen, setModalOpen] = useState(false)
-  const [approveAssignment] = useApproveSchoolAssignmentMutation()
-  const [rejectAssignment] = useRejectSchoolAssignmentMutation()
 
-  const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?._id || ''
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
 
   const { data: assignmentsData } = useGetSchoolAssignmentsQuery(
     firstSchoolId,
-    {
-      skip: !firstSchoolId,
-    }
+    { skip: !firstSchoolId }
   )
 
   const handleApprove = (assignmentId: string) =>
@@ -124,23 +122,42 @@ const SchoolAssignmentsList = () => {
     rejectAssignment({ assignmentId, reason })
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const assignmentsArr: SchoolAssignment[] = assignmentsData?.data ?? []
+
+  const filteredRecords = assignmentsArr.filter((item: SchoolAssignment) =>
+    (item.driver_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedData = filteredRecords.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
+
   const columns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.schoolAssignmentsList.id,
+        header: headerKeys.schoolAssignmentsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.driverName, header: headerKeys.driverName },
-      { accessorKey: accessorkeys.schoolName, header: headerKeys.schoolName },
       {
-        accessorKey: accessorkeys.assignmentStatus,
-        header: headerKeys.assignmentStatus,
+        accessorKey: accessorkeys.schoolAssignmentsList.driverName,
+        header: headerKeys.schoolAssignmentsList.driverName,
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.schoolName,
+        header: headerKeys.schoolAssignmentsList.schoolName,
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.assignmentStatus,
+        header: headerKeys.schoolAssignmentsList.assignmentStatus,
         cell: ({ row }: { row: { original: SchoolAssignment } }) => {
-          const { label, className } = statusBadge[row.original.status] || {
-            label: row.original.status,
-            className: 'badge-gray',
-          }
+          const { label, className } = badgeMaps[row.original.status]
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${className}`}>
@@ -150,14 +167,14 @@ const SchoolAssignmentsList = () => {
         },
       },
       {
-        accessorKey: 'created_at',
-        header: 'Created',
+        accessorKey: accessorkeys.schoolAssignmentsList.createdAt,
+        header: headerKeys.schoolAssignmentsList.createdAt,
         cell: ({ row }: { row: { original: SchoolAssignment } }) =>
           new Date(row.original.created_at).toLocaleDateString(),
       },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
+        accessorKey: accessorkeys.schoolAssignmentsList.actions,
+        header: headerKeys.schoolAssignmentsList.actions,
         cell: ({ row }: { row: { original: SchoolAssignment } }) => {
           const id = row.original._id
           return (
@@ -189,9 +206,9 @@ const SchoolAssignmentsList = () => {
       <BreadCrumb title="School Assignments" subTitle="Assignments" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
-          <div className="card-header flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div style={{ width: 300 }}>
+          <div className="card-header">
+            <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 lg:col-span-4 xxl:col-span-3">
                 <Select
                   classNamePrefix="select"
                   options={schoolOptions}
@@ -201,20 +218,50 @@ const SchoolAssignmentsList = () => {
                   isClearable={true}
                 />
               </div>
+              <div className="col-span-12 md:col-span-9 lg:col-span-4 xxl:col-span-3">
+                <div className="relative group/form grow">
+                  <input
+                    type="text"
+                    className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
+                    placeholder="Search by Driver"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 focus:outline-hidden">
+                    <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
+                  </button>
+                </div>
+              </div>
+              <div className="col-span-12 md:col-span-3 lg:col-span-2 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
+                <button
+                  className="btn btn-primary shrink-0"
+                  disabled={!firstSchoolId}
+                  onClick={() => setModalOpen(true)}>
+                  <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
+                  Create Assignment
+                </button>
+              </div>
             </div>
-            <button
-              className="btn btn-primary shrink-0"
-              disabled={!firstSchoolId}
-              onClick={() => setModalOpen(true)}>
-              <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
-              Create Assignment
-            </button>
           </div>
-          <div className="pt-4 card-body">
-            <DatatablesHover
-              columns={columns}
-              data={assignmentsData?.data || []}
-            />
+
+          <div className="pt-0 card-body">
+            <div>
+              <TableContainer
+                columns={columns}
+                data={paginatedData}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                lastTrClass="text-end"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
+              />
+              <Pagination
+                totalItems={filteredRecords.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         </div>
       </div>

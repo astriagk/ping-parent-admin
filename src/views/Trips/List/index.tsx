@@ -5,20 +5,16 @@ import React, { useMemo, useState } from 'react'
 import { Trip } from '@src/dtos/trip'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { TripStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
 import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
-
-const statusBadge: Record<TripStatus, { label: string; className: string }> = {
-  [TripStatus.SCHEDULED]: { label: 'Scheduled', className: 'badge-yellow' },
-  [TripStatus.STARTED]: { label: 'Started', className: 'badge-blue' },
-  [TripStatus.IN_PROGRESS]: { label: 'In Progress', className: 'badge-blue' },
-  [TripStatus.COMPLETED]: { label: 'Completed', className: 'badge-green' },
-  [TripStatus.CANCELLED]: { label: 'Cancelled', className: 'badge-red' },
-}
 
 const TripsList = () => {
   const { data: tripsData } = useGetTripListQuery()
@@ -67,10 +63,8 @@ const TripsList = () => {
         header: headerKeys.tripsList.tripStatus,
         cell: ({ row }: { row: { original: Trip } }) => {
           const status = row.original.trip_status as TripStatus
-          const { label, className } = statusBadge[status] || {
-            label: status,
-            className: 'badge-gray',
-          }
+          const { label, className } =
+            badgeMaps[status as keyof typeof badgeMaps]
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${className}`}>

@@ -1,71 +1,92 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
-
-const ticketStatusBadge: Record<string, string> = {
-  open: 'badge-blue',
-  in_progress: 'badge-yellow',
-  resolved: 'badge-green',
-  closed: 'badge-gray',
-}
-
-const priorityBadge: Record<string, string> = {
-  low: 'badge-gray',
-  medium: 'badge-yellow',
-  high: 'badge-red',
-}
+import Pagination from '@src/shared/common/Pagination'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
+import TableContainer from '@src/shared/custom/table/table'
+import { Search } from 'lucide-react'
 
 const SupportList = () => {
+  const [searchQuery, setSearchQuery] = useState<string>('')
+
+  //pagination
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const data: any[] = []
+
+  const filteredRecords = data.filter((item: any) =>
+    (item.subject ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedData = filteredRecords.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
+
   const columns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.supportList.id,
+        header: headerKeys.supportList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'subject', header: 'Subject' },
-      { accessorKey: 'user_name', header: 'Raised By' },
       {
-        accessorKey: 'priority',
-        header: 'Priority',
+        accessorKey: accessorkeys.supportList.subject,
+        header: headerKeys.supportList.subject,
+      },
+      {
+        accessorKey: accessorkeys.supportList.userName,
+        header: headerKeys.supportList.userName,
+      },
+      {
+        accessorKey: accessorkeys.supportList.priority,
+        header: headerKeys.supportList.priority,
         cell: ({ row }: { row: { original: any } }) => (
           <span
-            className={`badge ${priorityBadge[row.original.priority] ?? 'badge-gray'}`}>
-            {row.original.priority}
+            className={`badge ${badgeMaps[row.original.priority as keyof typeof badgeMaps]?.className}`}>
+            {badgeMaps[row.original.priority as keyof typeof badgeMaps]?.label}
           </span>
         ),
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
+        accessorKey: accessorkeys.supportList.status,
+        header: headerKeys.supportList.status,
         cell: ({ row }: { row: { original: any } }) => (
           <span
-            className={`badge ${ticketStatusBadge[row.original.status] ?? 'badge-gray'}`}>
-            {row.original.status?.replace('_', ' ')}
+            className={`badge ${badgeMaps[row.original.status as keyof typeof badgeMaps]?.className}`}>
+            {badgeMaps[row.original.status as keyof typeof badgeMaps]?.label}
           </span>
         ),
       },
       {
-        accessorKey: 'created_at',
-        header: 'Date',
+        accessorKey: accessorkeys.supportList.createdAt,
+        header: headerKeys.supportList.createdAt,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.created_at
             ? new Date(row.original.created_at).toLocaleString()
             : '—',
       },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
+        accessorKey: accessorkeys.supportList.actions,
+        header: headerKeys.supportList.actions,
         cell: ({ row }: { row: { original: any } }) => (
           <div className="flex justify-end gap-2">
             <button
-              className="btn btn-primary btn-sm"
+              className="btn btn-sub-primary btn-icon !size-8 rounded-md"
               onClick={() => console.log('View', row.original)}>
-              View
+              <i className="ri-eye-line"></i>
             </button>
           </div>
         ),
@@ -80,10 +101,42 @@ const SupportList = () => {
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
           <div className="card-header">
-            <h6 className="card-title">All Support Tickets</h6>
+            <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 md:col-span-9 lg:col-span-5 xxl:col-span-3">
+                <div className="relative group/form grow">
+                  <input
+                    type="text"
+                    className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
+                    placeholder="Search by Subject"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 ltr:group-[&.right]/form:right-3 rtl:group-[&.right]/form:left-3 ltr:group-[&.right]/form:left-auto rtl:group-[&.right]/form:right-auto focus:outline-hidden">
+                    <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="card-body">
-            <DatatablesHover columns={columns} data={[]} />
+
+          <div className="pt-0 card-body">
+            <div>
+              <TableContainer
+                columns={columns}
+                data={paginatedData}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                lastTrClass="text-end"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
+              />
+              <Pagination
+                totalItems={filteredRecords.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -7,13 +7,12 @@ import { useRouter } from 'next/navigation'
 import { Payment, PaymentDetails } from '@src/dtos/payment'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import {
-  PaymentMethodLabel,
-  PaymentStatus,
-  PaymentStatusBadge,
-  PaymentStatusLabel,
-} from '@src/shared/constants/enums'
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
+import { PaymentMethodLabel, PaymentStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetPaymentListQuery } from '@src/store/services/paymentApi'
 import { formatAmount, formatDate } from '@src/utils/formatters'
@@ -84,8 +83,9 @@ const PaymentList = () => {
         header: headerKeys.payments.paymentStatus,
         cell: ({ row }: { row: { original: Payment } }) => {
           const status = row.original.payment_status as PaymentStatus
-          const label = PaymentStatusLabel[status] ?? status
-          const className = PaymentStatusBadge[status] ?? 'badge-gray'
+          const label = badgeMaps[status as keyof typeof badgeMaps]?.label
+          const className =
+            badgeMaps[status as keyof typeof badgeMaps]?.className
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${className}`}>
@@ -147,13 +147,13 @@ const PaymentList = () => {
                     classNamePrefix="select"
                     options={Object.values(PaymentStatus).map((status) => ({
                       value: status,
-                      label: PaymentStatusLabel[status] ?? status,
+                      label: badgeMaps[status as keyof typeof badgeMaps]?.label,
                     }))}
                     value={
                       Object.values(PaymentStatus)
                         .map((s) => ({
                           value: s,
-                          label: PaymentStatusLabel[s] ?? s,
+                          label: badgeMaps[s as keyof typeof badgeMaps]?.label,
                         }))
                         .find((o) => o.value === statusFilter) || null
                     }

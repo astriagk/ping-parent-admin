@@ -5,7 +5,11 @@ import React, { useMemo, useState } from 'react'
 import { SchoolSubscription } from '@src/dtos/subscription'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { useGetSchoolSubscriptionsQuery } from '@src/store/services/subscriptionApi'
@@ -15,11 +19,6 @@ import Select from 'react-select'
 
 import CreateSubscriptionModal from '../CreateSubscriptionModal'
 
-const statusBadge: Record<string, { label: string; className: string }> = {
-  active: { label: 'Active', className: 'badge-green' },
-  expired: { label: 'Expired', className: 'badge-red' },
-  cancelled: { label: 'Cancelled', className: 'badge-yellow' },
-}
 const SchoolSubscriptionsList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
   const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
@@ -95,12 +94,8 @@ const SchoolSubscriptionsList = () => {
         accessorKey: accessorkeys.schoolSubscriptionPlans.subscriptionStatus,
         header: headerKeys.schoolSubscriptionPlans.subscriptionStatus,
         cell: ({ row }: { row: { original: SchoolSubscription } }) => {
-          const { label, className } = statusBadge[
-            row.original.subscription_status
-          ] || {
-            label: row.original.subscription_status,
-            className: 'badge-gray',
-          }
+          const { label, className } =
+            badgeMaps[row.original.subscription_status]
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${className}`}>
