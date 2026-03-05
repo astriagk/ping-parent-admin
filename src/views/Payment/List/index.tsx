@@ -23,7 +23,7 @@ const PaymentList = () => {
   const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const { data: paymentsData, isLoading } = useGetPaymentListQuery()
+  const { data: paymentsData } = useGetPaymentListQuery()
 
   const filteredData = useMemo(() => {
     const all = paymentsData?.data ?? []
@@ -35,21 +35,21 @@ const PaymentList = () => {
     setSearchQuery(e.target.value)
   }
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
   const adminData: PaymentDetails[] = filteredData ?? []
 
-  const filierPlansRecords = adminData.filter((item: PaymentDetails) => {
-    const filterRecord = item.payment_method
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-    return filterRecord
+  const filteredRecords = adminData.filter((item: PaymentDetails) => {
+    const q = searchQuery.toLowerCase()
+    return (
+      (item.transaction_id ?? '').toLowerCase().includes(q) ||
+      (item.parent_id ?? '').toLowerCase().includes(q)
+    )
   })
 
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedEvents = filierPlansRecords.slice(
+  const paginatedData = filteredRecords.slice(
     startIndex,
     startIndex + itemsPerPage
   )
@@ -62,43 +62,79 @@ const PaymentList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.payments.paymentId,
-        header: headerKeys.payments.paymentId,
+        accessorKey: accessorkeys.payments.transactionId,
+        header: headerKeys.payments.transactionId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.transaction_id || '—',
+      },
+      {
+        accessorKey: accessorkeys.payments.parentName,
+        header: headerKeys.payments.parentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.payments.parentPhone,
+        header: headerKeys.payments.parentPhone,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_phone || '—',
+      },
+      {
+        accessorKey: accessorkeys.payments.paymentType,
+        header: headerKeys.payments.paymentType,
+        cell: ({ row }: { row: { original: any } }) => {
+          const type = row.original.payment_type as keyof typeof badgeMaps
+          if (!type) return <span className="text-gray-400">—</span>
+          const badge = badgeMaps[type] ?? badgeMaps['undefined']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
       },
       {
         accessorKey: accessorkeys.payments.amount,
         header: headerKeys.payments.amount,
         cell: ({ row }: { row: { original: Payment } }) =>
-          `${formatAmount(row.original.amount ?? 0)}`,
+          formatAmount(row.original.amount ?? 0),
       },
       {
         accessorKey: accessorkeys.payments.paymentMethod,
         header: headerKeys.payments.paymentMethod,
         cell: ({ row }: { row: { original: Payment } }) =>
           PaymentMethodLabel[row.original.payment_method] ??
-          row.original.payment_method,
+          row.original.payment_method ??
+          '—',
       },
       {
         accessorKey: accessorkeys.payments.paymentStatus,
         header: headerKeys.payments.paymentStatus,
         cell: ({ row }: { row: { original: Payment } }) => {
           const status = row.original.payment_status as PaymentStatus
-          const label = badgeMaps[status as keyof typeof badgeMaps]?.label
-          const className =
-            badgeMaps[status as keyof typeof badgeMaps]?.className
+          const badge = badgeMaps[status as keyof typeof badgeMaps]
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge?.className}`}>
+              {badge?.label}
             </span>
           )
         },
       },
       {
+        accessorKey: accessorkeys.payments.planName,
+        header: headerKeys.payments.planName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.plan_name || '—',
+      },
+      {
         accessorKey: accessorkeys.payments.paymentDate,
         header: headerKeys.payments.paymentDate,
         cell: ({ row }: { row: { original: Payment } }) =>
-          formatDate(row.original.payment_date),
+          row.original.payment_date
+            ? formatDate(row.original.payment_date)
+            : '—',
       },
       {
         accessorKey: accessorkeys.payments.actions,
@@ -132,7 +168,7 @@ const PaymentList = () => {
                   <input
                     type="text"
                     className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
-                    placeholder="Search Plan"
+                    placeholder="Search by Transaction ID or Parent"
                     value={searchQuery}
                     onChange={handleSearchChange}
                   />
@@ -158,20 +194,11 @@ const PaymentList = () => {
                         .find((o) => o.value === statusFilter) || null
                     }
                     onChange={(option) => setStatusFilter(option?.value || '')}
-                    placeholder="Sorting by payment status"
+                    placeholder="Filter by payment status"
                     isClearable={true}
                   />
                 </div>
               </div>
-              {/* <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-10 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
-                <button
-                  className="btn btn-primary shrink-0"
-                  data-modal-target="parentsCreateModal"
-                  onClick={() => openCreate()}>
-                  <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />{' '}
-                  Add Plan
-                </button>
-              </div> */}
             </div>
           </div>
 
@@ -179,7 +206,7 @@ const PaymentList = () => {
             <div>
               <TableContainer
                 columns={columns}
-                data={paginatedEvents}
+                data={paginatedData}
                 thClass="!font-medium cursor-pointer"
                 divClass="overflow-x-auto table-box whitespace-nowrap"
                 lastTrClass="text-end"
@@ -187,7 +214,7 @@ const PaymentList = () => {
                 thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
               />
               <Pagination
-                totalItems={filierPlansRecords.length}
+                totalItems={filteredRecords.length}
                 itemsPerPage={itemsPerPage}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}

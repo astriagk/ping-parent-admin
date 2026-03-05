@@ -2,19 +2,25 @@
 
 import React, { useMemo, useState } from 'react'
 
-import { Student } from '@src/dtos/student'
+import { useRouter } from 'next/navigation'
+
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetStudentListQuery } from '@src/store/services/studentApi'
+import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const StudentsList = () => {
+  const router = useRouter()
   const { data: studentsListData } = useGetStudentListQuery()
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -22,10 +28,12 @@ const StudentsList = () => {
     setSearchQuery(e.target.value)
   }
 
-  const studentData: Student[] = studentsListData?.data ?? []
+  const studentData: any[] = studentsListData?.data ?? []
 
-  const filteredStudentRecords = studentData.filter((item: Student) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStudentRecords = studentData.filter((item: any) =>
+    (item.student_name ?? item.name ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
   )
 
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -42,28 +50,75 @@ const StudentsList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.studentsList.name,
-        header: headerKeys.studentsList.name,
-      },
-      {
-        accessorKey: accessorkeys.studentsList.email,
-        header: headerKeys.studentsList.email,
-      },
-      {
-        accessorKey: accessorkeys.studentsList.phoneNumber,
-        header: headerKeys.studentsList.phoneNumber,
-      },
-      {
-        accessorKey: accessorkeys.studentsList.grade,
-        header: headerKeys.studentsList.grade,
+        accessorKey: accessorkeys.studentsList.studentName,
+        header: headerKeys.studentsList.studentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.student_name || row.original.name || '—',
       },
       {
         accessorKey: accessorkeys.studentsList.parentName,
         header: headerKeys.studentsList.parentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_name || '—',
       },
       {
-        accessorKey: accessorkeys.studentsList.schoolName,
-        header: headerKeys.studentsList.schoolName,
+        accessorKey: accessorkeys.studentsList.parentPhone,
+        header: headerKeys.studentsList.parentPhone,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_phone || '—',
+      },
+      {
+        accessorKey: accessorkeys.studentsList.school,
+        header: headerKeys.studentsList.school,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.school_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.studentsList.classSection,
+        header: headerKeys.studentsList.classSection,
+        cell: ({ row }: { row: { original: any } }) => {
+          const cls = row.original.class || row.original.grade || ''
+          const section = row.original.section || ''
+          if (!cls) return '—'
+          return section ? `${cls} - ${section}` : cls
+        },
+      },
+      {
+        accessorKey: accessorkeys.studentsList.rollNumber,
+        header: headerKeys.studentsList.rollNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.roll_number || '—',
+      },
+      {
+        accessorKey: accessorkeys.studentsList.gender,
+        header: headerKeys.studentsList.gender,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.gender
+            ? String(row.original.gender).charAt(0).toUpperCase() +
+              String(row.original.gender).slice(1)
+            : '—',
+      },
+      {
+        accessorKey: accessorkeys.studentsList.isActive,
+        header: headerKeys.studentsList.isActive,
+        cell: ({ row }: { row: { original: any } }) => {
+          const mapKey = String(
+            row.original.is_active ?? false
+          ) as keyof typeof badgeMaps
+          const badge = badgeMaps[mapKey] ?? badgeMaps['undefined']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: accessorkeys.studentsList.createdAt,
+        header: headerKeys.studentsList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
       {
         accessorKey: accessorkeys.studentsList.actions,
@@ -72,14 +127,16 @@ const StudentsList = () => {
           <div className="flex justify-end gap-2">
             <button
               className="btn btn-sub-primary btn-icon !size-8 rounded-md"
-              onClick={() => console.log('View', row.original)}>
+              onClick={() =>
+                router.push(`/students/details/${row.original._id}`)
+              }>
               <i className="ri-eye-line"></i>
             </button>
           </div>
         ),
       },
     ],
-    []
+    [router]
   )
 
   return (

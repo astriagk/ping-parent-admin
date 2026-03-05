@@ -19,6 +19,7 @@ import {
   useGetAdminListQuery,
 } from '@src/store/services/adminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
+import { formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
 import { toast } from 'react-toastify'
@@ -127,7 +128,6 @@ const SchoolAdminsList = () => {
   const [deactivateAdmin] = useDeactivateAdminMutation()
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -165,7 +165,7 @@ const SchoolAdminsList = () => {
   }
 
   const filteredRecords = schoolAdmins.filter((item: AdminListItem) =>
-    (item.email ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+    (item.username ?? item.email ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -182,28 +182,46 @@ const SchoolAdminsList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
+        accessorKey: accessorkeys.schoolAdminsList.username,
+        header: headerKeys.schoolAdminsList.username,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.username || '—',
+      },
+      {
         accessorKey: accessorkeys.schoolAdminsList.email,
         header: headerKeys.schoolAdminsList.email,
       },
       {
         accessorKey: accessorkeys.schoolAdminsList.phoneNumber,
         header: headerKeys.schoolAdminsList.phoneNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.phone_number || '—',
       },
       {
         accessorKey: accessorkeys.schoolAdminsList.isActive,
         header: headerKeys.schoolAdminsList.isActive,
         cell: ({ row }: { row: { original: AdminListItem } }) => {
-          const mapKey = String(
-            row.original.is_active
-          ) as keyof typeof badgeMaps
-          const { label, className } = badgeMaps[mapKey]
+          const mapKey = String(row.original.is_active) as keyof typeof badgeMaps
+          const badge = badgeMaps[mapKey] ?? badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
+      },
+      {
+        accessorKey: accessorkeys.schoolAdminsList.lastLogin,
+        header: headerKeys.schoolAdminsList.lastLogin,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.last_login ? formatDate(row.original.last_login) : '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAdminsList.createdAt,
+        header: headerKeys.schoolAdminsList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
       {
         accessorKey: accessorkeys.schoolAdminsList.actions,
@@ -258,7 +276,7 @@ const SchoolAdminsList = () => {
                   <input
                     type="text"
                     className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
-                    placeholder="Search by Email"
+                    placeholder="Search by Username or Email"
                     value={searchQuery}
                     onChange={handleSearchChange}
                   />

@@ -168,10 +168,10 @@ const SchoolDriversList = () => {
         accessorKey: accessorkeys.schoolDriversList.username,
         header: headerKeys.schoolDriversList.username,
       },
-      {
-        accessorKey: accessorkeys.schoolDriversList.email,
-        header: headerKeys.schoolDriversList.email,
-      },
+      // {
+      //   accessorKey: accessorkeys.schoolDriversList.email,
+      //   header: headerKeys.schoolDriversList.email,
+      // },
       {
         accessorKey: accessorkeys.schoolDriversList.phoneNumber,
         header: headerKeys.schoolDriversList.phoneNumber,

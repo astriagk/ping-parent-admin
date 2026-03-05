@@ -19,6 +19,7 @@ import {
 } from '@src/store/services/assignmentApi'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
+import { formatAmount, formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
 
@@ -93,7 +94,6 @@ const SchoolAssignmentsList = () => {
   const [approveAssignment] = useApproveSchoolAssignmentMutation()
   const [rejectAssignment] = useRejectSchoolAssignmentMutation()
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -148,38 +148,99 @@ const SchoolAssignmentsList = () => {
       {
         accessorKey: accessorkeys.schoolAssignmentsList.driverName,
         header: headerKeys.schoolAssignmentsList.driverName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_name || '—',
       },
       {
-        accessorKey: accessorkeys.schoolAssignmentsList.schoolName,
-        header: headerKeys.schoolAssignmentsList.schoolName,
+        accessorKey: accessorkeys.schoolAssignmentsList.driverUniqueId,
+        header: headerKeys.schoolAssignmentsList.driverUniqueId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_unique_id || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.studentName,
+        header: headerKeys.schoolAssignmentsList.studentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.student_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.parentName,
+        header: headerKeys.schoolAssignmentsList.parentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.classSection,
+        header: headerKeys.schoolAssignmentsList.classSection,
+        cell: ({ row }: { row: { original: any } }) => {
+          const cls = row.original.class || ''
+          const section = row.original.section || ''
+          if (!cls) return '—'
+          return section ? `${cls} - ${section}` : cls
+        },
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.monthlyFee,
+        header: headerKeys.schoolAssignmentsList.monthlyFee,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.monthly_fee != null
+            ? formatAmount(row.original.monthly_fee)
+            : '—',
       },
       {
         accessorKey: accessorkeys.schoolAssignmentsList.assignmentStatus,
         header: headerKeys.schoolAssignmentsList.assignmentStatus,
-        cell: ({ row }: { row: { original: SchoolAssignment } }) => {
-          const { label, className } = badgeMaps[row.original.status]
+        cell: ({ row }: { row: { original: any } }) => {
+          const status = (row.original.assignment_status ??
+            row.original.status) as keyof typeof badgeMaps
+          const badge = badgeMaps[status] ?? badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
       },
       {
-        accessorKey: accessorkeys.schoolAssignmentsList.createdAt,
-        header: headerKeys.schoolAssignmentsList.createdAt,
-        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
-          new Date(row.original.created_at).toLocaleDateString(),
+        accessorKey: accessorkeys.schoolAssignmentsList.source,
+        header: headerKeys.schoolAssignmentsList.source,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.assignment_source || row.original.source || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.rejectionReason,
+        header: headerKeys.schoolAssignmentsList.rejectionReason,
+        cell: ({ row }: { row: { original: any } }) => {
+          const status = row.original.assignment_status ?? row.original.status
+          const reason = row.original.rejection_reason
+          if (status !== 'rejected' || !reason) return '—'
+          return <span className="text-red-600 text-sm">{reason}</span>
+        },
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.assignedDate,
+        header: headerKeys.schoolAssignmentsList.assignedDate,
+        cell: ({ row }: { row: { original: any } }) => {
+          const date = row.original.assigned_date ?? row.original.created_at
+          return date ? formatDate(date) : '—'
+        },
+      },
+      {
+        accessorKey: accessorkeys.schoolAssignmentsList.startDate,
+        header: headerKeys.schoolAssignmentsList.startDate,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.start_date ? formatDate(row.original.start_date) : '—',
       },
       {
         accessorKey: accessorkeys.schoolAssignmentsList.actions,
         header: headerKeys.schoolAssignmentsList.actions,
         cell: ({ row }: { row: { original: SchoolAssignment } }) => {
           const id = row.original._id
+          const status = row.original.status ?? (row.original as any).status
           return (
             <div className="flex justify-end gap-2">
-              {row.original.status === 'pending' && (
+              {status === 'pending' && (
                 <>
                   <button
                     className="btn btn-green btn-sm"

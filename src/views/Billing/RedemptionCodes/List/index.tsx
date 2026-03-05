@@ -17,6 +17,7 @@ import {
   useGetRedemptionCodesQuery,
   useGetSchoolSubscriptionsQuery,
 } from '@src/store/services/subscriptionApi'
+import { formatDate } from '@src/utils/formatters'
 import { Key, Search } from 'lucide-react'
 
 const RedemptionCodesList = () => {
@@ -28,7 +29,6 @@ const RedemptionCodesList = () => {
   const [generating, setGenerating] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -97,31 +97,74 @@ const RedemptionCodesList = () => {
         ),
       },
       {
-        accessorKey: accessorkeys.redemptionCodesList.codeStatus,
-        header: headerKeys.redemptionCodesList.codeStatus,
-        cell: ({ row }: { row: { original: RedemptionCode } }) => {
-          const { label, className } = badgeMaps[row.original.status]
-          return (
-            <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
-            </span>
-          )
-        },
+        accessorKey: accessorkeys.redemptionCodesList.school,
+        header: headerKeys.redemptionCodesList.school,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.school_name || '—',
       },
       {
         accessorKey: accessorkeys.redemptionCodesList.studentName,
         header: headerKeys.redemptionCodesList.studentName,
         cell: ({ row }: { row: { original: RedemptionCode } }) =>
-          row.original.student_name || '-',
+          row.original.student_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.redemptionCodesList.studentClass,
+        header: headerKeys.redemptionCodesList.studentClass,
+        cell: ({ row }: { row: { original: any } }) => {
+          const cls = row.original.class || row.original.student_class || ''
+          const section = row.original.section || ''
+          if (!cls) return '—'
+          return section ? `${cls} - ${section}` : cls
+        },
+      },
+      {
+        accessorKey: accessorkeys.redemptionCodesList.codeStatus,
+        header: headerKeys.redemptionCodesList.codeStatus,
+        cell: ({ row }: { row: { original: any } }) => {
+          const isRedeemed =
+            row.original.is_redeemed ??
+            row.original.status === 'redeemed'
+          const badge = isRedeemed ? badgeMaps['redeemed'] : badgeMaps['pending']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: accessorkeys.redemptionCodesList.redeemedBy,
+        header: headerKeys.redemptionCodesList.redeemedBy,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.redeemed_by_name || '—',
       },
       {
         accessorKey: accessorkeys.redemptionCodesList.redeemedAt,
         header: headerKeys.redemptionCodesList.redeemedAt,
         cell: ({ row }: { row: { original: RedemptionCode } }) =>
-          row.original.redeemed_at
-            ? new Date(row.original.redeemed_at).toLocaleDateString()
-            : '-',
+          row.original.redeemed_at ? formatDate(row.original.redeemed_at) : '—',
+      },
+      {
+        accessorKey: accessorkeys.redemptionCodesList.validUntil,
+        header: headerKeys.redemptionCodesList.validUntil,
+        cell: ({ row }: { row: { original: any } }) => {
+          const endDate = row.original.end_date
+          if (!endDate) return '—'
+          const isExpired = new Date(endDate) < new Date()
+          return (
+            <span className={isExpired ? 'text-red-500' : ''}>
+              {formatDate(endDate)}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: accessorkeys.redemptionCodesList.createdAt,
+        header: headerKeys.redemptionCodesList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
     ],
     []

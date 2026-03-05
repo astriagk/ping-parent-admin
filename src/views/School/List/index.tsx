@@ -2,18 +2,26 @@
 
 import React, { useMemo, useState } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import { SchoolListItem } from '@src/dtos/school'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { ModelModes } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
+import { formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 
 import AddSchoolModal from './addSchoolModal'
 
 const SchoolsList = () => {
+  const router = useRouter()
   const { data: schoolsListData } = useGetSchoolsListQuery()
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [addSchoolModalOpen, setAddSchoolModalOpen] = useState(false)
@@ -22,7 +30,6 @@ const SchoolsList = () => {
     null
   )
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -38,12 +45,6 @@ const SchoolsList = () => {
 
   const handleEditSchool = (school: SchoolListItem) => {
     setModalMode(ModelModes.EDIT)
-    setSelectedSchool(school)
-    setAddSchoolModalOpen(true)
-  }
-
-  const handleViewSchool = (school: SchoolListItem) => {
-    setModalMode(ModelModes.VIEW)
     setSelectedSchool(school)
     setAddSchoolModalOpen(true)
   }
@@ -72,20 +73,59 @@ const SchoolsList = () => {
         header: headerKeys.schoolsList.schoolName,
       },
       {
-        accessorKey: accessorkeys.schoolsList.city,
-        header: headerKeys.schoolsList.city,
+        accessorKey: accessorkeys.schoolsList.cityState,
+        header: headerKeys.schoolsList.cityState,
+        cell: ({ row }: { row: { original: any } }) => {
+          const city = row.original.city || ''
+          const state = row.original.state || ''
+          if (!city && !state) return '—'
+          return [city, state].filter(Boolean).join(', ')
+        },
       },
       {
-        accessorKey: accessorkeys.schoolsList.state,
-        header: headerKeys.schoolsList.state,
-      },
-      {
-        accessorKey: accessorkeys.schoolsList.contactNumber,
-        header: headerKeys.schoolsList.contactNumber,
+        accessorKey: accessorkeys.schoolsList.contact,
+        header: headerKeys.schoolsList.contact,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.contact_number || '—',
       },
       {
         accessorKey: accessorkeys.schoolsList.email,
         header: headerKeys.schoolsList.email,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.email || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolsList.driverCount,
+        header: headerKeys.schoolsList.driverCount,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_count ?? '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolsList.studentCount,
+        header: headerKeys.schoolsList.studentCount,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.student_count ?? '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolsList.subscriptionStatus,
+        header: headerKeys.schoolsList.subscriptionStatus,
+        cell: ({ row }: { row: { original: any } }) => {
+          const status = row.original.subscription_status as keyof typeof badgeMaps
+          if (!status) return <span className="text-gray-400">—</span>
+          const badge = badgeMaps[status] ?? badgeMaps['undefined']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: accessorkeys.schoolsList.createdAt,
+        header: headerKeys.schoolsList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
       {
         accessorKey: accessorkeys.schoolsList.actions,
@@ -95,7 +135,9 @@ const SchoolsList = () => {
             <div className="flex justify-end gap-2">
               <button
                 className="btn btn-sub-primary btn-icon !size-8 rounded-md"
-                onClick={() => handleViewSchool(row.original)}>
+                onClick={() =>
+                  router.push(`/schools/details/${row.original._id}`)
+                }>
                 <i className="ri-eye-line"></i>
               </button>
               <button
@@ -108,7 +150,7 @@ const SchoolsList = () => {
         },
       },
     ],
-    []
+    [router]
   )
 
   return (
@@ -135,7 +177,6 @@ const SchoolsList = () => {
               <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-10 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
                 <button
                   className="btn btn-primary shrink-0"
-                  data-modal-target="parentsCreateModal"
                   onClick={handleAddSchool}>
                   <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />{' '}
                   Add School

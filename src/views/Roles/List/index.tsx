@@ -5,14 +5,10 @@ import React, { useMemo, useState } from 'react'
 import { Role } from '@src/dtos/role'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import {
-  accessorkeys,
-  badgeClassNames,
-  badgeMaps,
-  headerKeys,
-} from '@src/shared/constants/columns'
+import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetRoleListQuery } from '@src/store/services/roleApi'
+import { formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 
 const RolesList = () => {
@@ -53,28 +49,14 @@ const RolesList = () => {
       {
         accessorKey: accessorkeys.rolesList.description,
         header: headerKeys.rolesList.description,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.description || '—',
       },
       {
-        accessorKey: accessorkeys.rolesList.permissions,
-        header: headerKeys.rolesList.permissions,
-        cell: ({ row }: { row: { original: Role } }) => (
-          <span className="text-sm">
-            {row.original.permissions?.length || 0} permission(s)
-          </span>
-        ),
-      },
-      {
-        accessorKey: accessorkeys.rolesList.isSystem,
-        header: headerKeys.rolesList.isSystem,
-        cell: ({ row }: { row: { original: Role } }) => {
-          const key = row.original.is_system ? 'system' : 'custom'
-          return (
-            <span
-              className={`badge inline-flex items-center gap-1 ${badgeMaps[key as keyof typeof badgeMaps]?.className}`}>
-              {badgeMaps[key as keyof typeof badgeMaps]?.label}
-            </span>
-          )
-        },
+        accessorKey: accessorkeys.rolesList.createdAt,
+        header: headerKeys.rolesList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
       {
         accessorKey: accessorkeys.rolesList.actions,
@@ -95,11 +77,6 @@ const RolesList = () => {
                 </button>
               </>
             )}
-            <button
-              className="btn btn-sub-primary btn-icon !size-8 rounded-md"
-              onClick={() => console.log('View', row.original)}>
-              <i className="ri-eye-line"></i>
-            </button>
           </div>
         ),
       },

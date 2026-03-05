@@ -12,13 +12,13 @@ import {
 } from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetParentSubscriptionsQuery } from '@src/store/services/subscriptionApi'
+import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const ParentSubscriptionsList = () => {
   const { data: subscriptionsData } = useGetParentSubscriptionsQuery()
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -46,57 +46,75 @@ const ParentSubscriptionsList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.parentSubscriptionsList.planId,
-        header: headerKeys.parentSubscriptionsList.planId,
+        accessorKey: accessorkeys.parentSubscriptionsList.parentName,
+        header: headerKeys.parentSubscriptionsList.parentName,
+        cell: ({ row }: { row: { original: ParentSubscription } }) =>
+          row.original.parent_name || '—',
       },
       {
-        accessorKey: accessorkeys.parentSubscriptionsList.parentId,
-        header: headerKeys.parentSubscriptionsList.parentId,
+        accessorKey: accessorkeys.parentSubscriptionsList.parentPhone,
+        header: headerKeys.parentSubscriptionsList.parentPhone,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_phone || '—',
       },
       {
-        accessorKey: accessorkeys.parentSubscriptionsList.subscriptionStatus,
-        header: headerKeys.parentSubscriptionsList.subscriptionStatus,
-        cell: ({ row }: { row: { original: ParentSubscription } }) => {
-          const { label, className } =
-            badgeMaps[row.original.subscription_status]
+        accessorKey: accessorkeys.parentSubscriptionsList.planName,
+        header: headerKeys.parentSubscriptionsList.planName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.plan_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.parentSubscriptionsList.planType,
+        header: headerKeys.parentSubscriptionsList.planType,
+        cell: ({ row }: { row: { original: any } }) => {
+          const type = row.original.plan_type as keyof typeof badgeMaps
+          if (!type) return <span className="text-gray-400">—</span>
+          const badge = badgeMaps[type] ?? badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
       },
       {
-        accessorKey: accessorkeys.parentSubscriptionsList.amount,
-        header: headerKeys.parentSubscriptionsList.amount,
-        cell: ({ row }: { row: { original: ParentSubscription } }) =>
-          `₹${row.original.calculated_price}`,
+        accessorKey: accessorkeys.parentSubscriptionsList.subscriptionStatus,
+        header: headerKeys.parentSubscriptionsList.subscriptionStatus,
+        cell: ({ row }: { row: { original: ParentSubscription } }) => {
+          const status = row.original.subscription_status as keyof typeof badgeMaps
+          const badge = badgeMaps[status] ?? badgeMaps['undefined']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
       },
       {
         accessorKey: accessorkeys.parentSubscriptionsList.startDate,
         header: headerKeys.parentSubscriptionsList.startDate,
         cell: ({ row }: { row: { original: ParentSubscription } }) =>
-          new Date(row.original.start_date).toLocaleDateString(),
+          row.original.start_date ? formatDate(row.original.start_date) : '—',
       },
       {
         accessorKey: accessorkeys.parentSubscriptionsList.endDate,
         header: headerKeys.parentSubscriptionsList.endDate,
         cell: ({ row }: { row: { original: ParentSubscription } }) =>
-          new Date(row.original.end_date).toLocaleDateString(),
+          row.original.end_date ? formatDate(row.original.end_date) : '—',
       },
       {
-        accessorKey: accessorkeys.parentSubscriptionsList.actions,
-        header: headerKeys.parentSubscriptionsList.actions,
-        cell: ({ row }: { row: { original: ParentSubscription } }) => (
-          <div className="flex justify-end gap-2">
-            <button
-              className="btn btn-sub-primary btn-icon !size-8 rounded-md"
-              onClick={() => console.log('View', row.original)}>
-              <i className="ri-eye-line"></i>
-            </button>
-          </div>
-        ),
+        accessorKey: accessorkeys.parentSubscriptionsList.autoRenew,
+        header: headerKeys.parentSubscriptionsList.autoRenew,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.auto_renew ? 'Yes' : 'No',
+      },
+      {
+        accessorKey: accessorkeys.parentSubscriptionsList.createdAt,
+        header: headerKeys.parentSubscriptionsList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
     ],
     []

@@ -142,7 +142,7 @@ const PaymentDetails = () => {
               <div>
                 <p className="text-gray-500 text-sm mb-1">Amount Paid</p>
                 <p className="text-3xl font-bold text-green-600">
-                  ₹{payment.amount.toLocaleString('en-IN')}
+                  {formatAmount(payment.amount)}
                 </p>
                 <p className="text-gray-400 text-xs mt-1">{payment.currency}</p>
               </div>

@@ -10,6 +10,7 @@ import {
   headerKeys,
 } from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
+import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const SupportList = () => {
@@ -45,38 +46,62 @@ const SupportList = () => {
       {
         accessorKey: accessorkeys.supportList.subject,
         header: headerKeys.supportList.subject,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.subject || '—',
       },
       {
-        accessorKey: accessorkeys.supportList.userName,
-        header: headerKeys.supportList.userName,
+        accessorKey: accessorkeys.supportList.raisedBy,
+        header: headerKeys.supportList.raisedBy,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.raised_by || '—',
+      },
+      {
+        accessorKey: accessorkeys.supportList.phone,
+        header: headerKeys.supportList.phone,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.phone || '—',
       },
       {
         accessorKey: accessorkeys.supportList.priority,
         header: headerKeys.supportList.priority,
-        cell: ({ row }: { row: { original: any } }) => (
-          <span
-            className={`badge ${badgeMaps[row.original.priority as keyof typeof badgeMaps]?.className}`}>
-            {badgeMaps[row.original.priority as keyof typeof badgeMaps]?.label}
-          </span>
-        ),
+        cell: ({ row }: { row: { original: any } }) => {
+          const badge = badgeMaps[row.original.priority as keyof typeof badgeMaps] ?? badgeMaps['undefined']
+          return (
+            <span className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
       },
       {
         accessorKey: accessorkeys.supportList.status,
         header: headerKeys.supportList.status,
-        cell: ({ row }: { row: { original: any } }) => (
-          <span
-            className={`badge ${badgeMaps[row.original.status as keyof typeof badgeMaps]?.className}`}>
-            {badgeMaps[row.original.status as keyof typeof badgeMaps]?.label}
-          </span>
-        ),
+        cell: ({ row }: { row: { original: any } }) => {
+          const badge = badgeMaps[row.original.ticket_status as keyof typeof badgeMaps] ?? badgeMaps['undefined']
+          return (
+            <span className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: accessorkeys.supportList.assignedTo,
+        header: headerKeys.supportList.assignedTo,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.assigned_to || '—',
       },
       {
         accessorKey: accessorkeys.supportList.createdAt,
         header: headerKeys.supportList.createdAt,
         cell: ({ row }: { row: { original: any } }) =>
-          row.original.created_at
-            ? new Date(row.original.created_at).toLocaleString()
-            : '—',
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
+      },
+      {
+        accessorKey: accessorkeys.supportList.resolvedAt,
+        header: headerKeys.supportList.resolvedAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.resolved_at ? formatDate(row.original.resolved_at) : '—',
       },
       {
         accessorKey: accessorkeys.supportList.actions,

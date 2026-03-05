@@ -8,13 +8,13 @@ import Pagination from '@src/shared/common/Pagination'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetAuditLogsQuery } from '@src/store/services/auditLogApi'
+import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const AuditLogsList = () => {
   const { data: auditLogsData } = useGetAuditLogsQuery()
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -25,7 +25,7 @@ const AuditLogsList = () => {
   const logsData: AuditLog[] = auditLogsData?.data ?? []
 
   const filteredRecords = logsData.filter((item: AuditLog) =>
-    ((item as any).user_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+    ((item as any).performed_by ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -41,28 +41,41 @@ const AuditLogsList = () => {
         header: headerKeys.auditLogsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.auditLogsList.userName, header: headerKeys.auditLogsList.userName },
-      { accessorKey: accessorkeys.auditLogsList.userRole, header: headerKeys.auditLogsList.userRole },
-      { accessorKey: accessorkeys.auditLogsList.action, header: headerKeys.auditLogsList.action },
-      { accessorKey: accessorkeys.auditLogsList.resource, header: headerKeys.auditLogsList.resource },
+      {
+        accessorKey: accessorkeys.auditLogsList.action,
+        header: headerKeys.auditLogsList.action,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.action_type || '—',
+      },
+      {
+        accessorKey: accessorkeys.auditLogsList.entityType,
+        header: headerKeys.auditLogsList.entityType,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.entity_type || '—',
+      },
+      {
+        accessorKey: accessorkeys.auditLogsList.entityId,
+        header: headerKeys.auditLogsList.entityId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.entity_id || '—',
+      },
+      {
+        accessorKey: accessorkeys.auditLogsList.performedBy,
+        header: headerKeys.auditLogsList.performedBy,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.performed_by || '—',
+      },
+      {
+        accessorKey: accessorkeys.auditLogsList.ipAddress,
+        header: headerKeys.auditLogsList.ipAddress,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.ip_address || '—',
+      },
       {
         accessorKey: accessorkeys.auditLogsList.timestamp,
         header: headerKeys.auditLogsList.timestamp,
         cell: ({ row }: { row: { original: AuditLog } }) =>
-          new Date(row.original.created_at).toLocaleString(),
-      },
-      {
-        accessorKey: accessorkeys.auditLogsList.actions,
-        header: headerKeys.auditLogsList.actions,
-        cell: ({ row }: { row: { original: AuditLog } }) => (
-          <div className="flex justify-end gap-2">
-            <button
-              className="btn btn-sub-primary btn-icon !size-8 rounded-md"
-              onClick={() => console.log('View', row.original)}>
-              <i className="ri-eye-line"></i>
-            </button>
-          </div>
-        ),
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
     ],
     []
@@ -80,7 +93,7 @@ const AuditLogsList = () => {
                   <input
                     type="text"
                     className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
-                    placeholder="Search by User"
+                    placeholder="Search by Performed By"
                     value={searchQuery}
                     onChange={handleSearchChange}
                   />

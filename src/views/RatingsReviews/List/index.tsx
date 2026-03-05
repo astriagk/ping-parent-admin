@@ -8,19 +8,8 @@ import Pagination from '@src/shared/common/Pagination'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetAllRatingsQuery } from '@src/store/services/ratingApi'
-import { Search, Star } from 'lucide-react'
-
-const StarRating = ({ rating }: { rating: number }) => (
-  <div className="flex items-center gap-1">
-    {[1, 2, 3, 4, 5].map((star) => (
-      <Star
-        key={star}
-        className={`size-4 ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
-      />
-    ))}
-    <span className="text-sm ml-1">{rating}/5</span>
-  </div>
-)
+import { formatDate } from '@src/utils/formatters'
+import { Search } from 'lucide-react'
 
 const RatingsReviewsList = () => {
   const { data: ratingsData } = useGetAllRatingsQuery()
@@ -53,21 +42,47 @@ const RatingsReviewsList = () => {
         header: headerKeys.ratingsReviewsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.ratingsReviewsList.driverName, header: headerKeys.ratingsReviewsList.driverName },
-      { accessorKey: accessorkeys.ratingsReviewsList.parentName, header: headerKeys.ratingsReviewsList.parentName },
       {
         accessorKey: accessorkeys.ratingsReviewsList.rating,
         header: headerKeys.ratingsReviewsList.rating,
-        cell: ({ row }: { row: { original: Rating } }) => (
-          <StarRating rating={row.original.rating} />
-        ),
+        cell: ({ row }: { row: { original: Rating } }) =>
+          row.original.rating != null ? `⭐ ${row.original.rating.toFixed(1)}` : '—',
       },
-      { accessorKey: accessorkeys.ratingsReviewsList.review, header: headerKeys.ratingsReviewsList.review },
+      {
+        accessorKey: accessorkeys.ratingsReviewsList.driverName,
+        header: headerKeys.ratingsReviewsList.driverName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.ratingsReviewsList.driverUniqueId,
+        header: headerKeys.ratingsReviewsList.driverUniqueId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_unique_id || '—',
+      },
+      {
+        accessorKey: accessorkeys.ratingsReviewsList.parentName,
+        header: headerKeys.ratingsReviewsList.parentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.ratingsReviewsList.review,
+        header: headerKeys.ratingsReviewsList.review,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.review_text || '—',
+      },
+      {
+        accessorKey: accessorkeys.ratingsReviewsList.tripDate,
+        header: headerKeys.ratingsReviewsList.tripDate,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.trip_date ? formatDate(row.original.trip_date) : '—',
+      },
       {
         accessorKey: accessorkeys.ratingsReviewsList.createdAt,
         header: headerKeys.ratingsReviewsList.createdAt,
         cell: ({ row }: { row: { original: Rating } }) =>
-          new Date(row.original.created_at).toLocaleDateString(),
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
     ],
     []

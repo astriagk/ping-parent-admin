@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 
-import { DriverStudentAssignment, SchoolAssignment } from '@src/dtos/assignment'
+import { SchoolAssignment } from '@src/dtos/assignment'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
 import {
@@ -26,6 +26,7 @@ import {
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import { useGetStudentListQuery } from '@src/store/services/studentApi'
 import LocalStorage from '@src/utils/LocalStorage'
+import { formatAmount, formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -85,7 +86,7 @@ const CreateAssignmentModal = ({
                 <option
                   key={s.student_id ?? s._id}
                   value={s.student_id ?? s._id}>
-                  {s.name}
+                  {s.student_name ?? s.name}
                 </option>
               ))}
             </select>
@@ -117,7 +118,6 @@ const DriverStudentAssignmentsList = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -208,23 +208,50 @@ const DriverStudentAssignmentsList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.driverStudentList.assignmentId,
-        header: headerKeys.driverStudentList.assignmentId,
+        accessorKey: accessorkeys.driverStudentList.driverName,
+        header: headerKeys.driverStudentList.driverName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_name || '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.driverUniqueId,
         header: headerKeys.driverStudentList.driverUniqueId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_unique_id || '—',
       },
       {
-        accessorKey: accessorkeys.driverStudentList.studentId,
-        header: headerKeys.driverStudentList.studentId,
+        accessorKey: accessorkeys.driverStudentList.studentName,
+        header: headerKeys.driverStudentList.studentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.student_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.driverStudentList.parentName,
+        header: headerKeys.driverStudentList.parentName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.parent_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.driverStudentList.school,
+        header: headerKeys.driverStudentList.school,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.school_name || '—',
+      },
+      {
+        accessorKey: accessorkeys.driverStudentList.monthlyFee,
+        header: headerKeys.driverStudentList.monthlyFee,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.monthly_fee != null
+            ? formatAmount(row.original.monthly_fee)
+            : '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.assignmentStatus,
         header: headerKeys.driverStudentList.assignmentStatus,
-        cell: ({ row }: { row: { original: SchoolAssignment } }) => {
-          const key = row.original.status as keyof typeof badgeMaps
-          const badge = badgeMaps[key] || badgeMaps['inactive']
+        cell: ({ row }: { row: { original: any } }) => {
+          const status = (row.original.assignment_status ??
+            row.original.status) as keyof typeof badgeMaps
+          const badge = badgeMaps[status] ?? badgeMaps['inactive']
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${badge.className}`}>
@@ -234,16 +261,25 @@ const DriverStudentAssignmentsList = () => {
         },
       },
       {
-        accessorKey: accessorkeys.driverStudentList.createdAt,
-        header: headerKeys.driverStudentList.createdAt,
-        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
-          new Date(row.original.created_at).toLocaleDateString(),
+        accessorKey: accessorkeys.driverStudentList.source,
+        header: headerKeys.driverStudentList.source,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.assignment_source || row.original.source || '—',
+      },
+      {
+        accessorKey: accessorkeys.driverStudentList.assignedDate,
+        header: headerKeys.driverStudentList.assignedDate,
+        cell: ({ row }: { row: { original: any } }) => {
+          const date = row.original.assigned_date ?? row.original.created_at
+          return date ? formatDate(date) : '—'
+        },
       },
       {
         accessorKey: accessorkeys.driverStudentList.actions,
         header: headerKeys.driverStudentList.actions,
         cell: ({ row }: { row: { original: SchoolAssignment } }) => {
-          const { status, _id } = row.original
+          const status = row.original.status ?? (row.original as any).status
+          const { _id } = row.original
           return (
             <div className="flex justify-end flex-wrap gap-2">
               {(status === AssignmentStatus.PENDING ||
