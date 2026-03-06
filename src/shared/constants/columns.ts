@@ -186,7 +186,6 @@ const accessorkeys = {
     driverUniqueId: 'driver_unique_id',
     studentName: 'student_name',
     parentName: 'parent_name',
-    school: 'school_name',
     monthlyFee: 'monthly_fee',
     assignmentStatus: 'assignment_status',
     source: 'assignment_source',
@@ -240,6 +239,23 @@ const accessorkeys = {
     redeemedAt: 'redeemed_at',
     validUntil: 'end_date',
     createdAt: 'created_at',
+  },
+  generateCodesList: {
+    id: 'id',
+    name: 'student_name',
+    classSection: 'class',
+    rollNumber: 'roll_number',
+    isActive: 'is_active',
+    actions: 'Actions',
+  },
+  assignStudentsList: {
+    id: 'id',
+    name: 'student_name',
+    classSection: 'class',
+    rollNumber: 'roll_number',
+    gender: 'gender',
+    isActive: 'is_active',
+    actions: 'Actions',
   },
   // ── Payments ───────────────────────────────────────────
   payments: {
@@ -537,7 +553,6 @@ const headerKeys = {
     driverUniqueId: 'Driver ID',
     studentName: 'Student',
     parentName: 'Parent',
-    school: 'School',
     monthlyFee: 'Monthly Fee',
     assignmentStatus: 'Status',
     source: 'Source',
@@ -591,6 +606,23 @@ const headerKeys = {
     redeemedAt: 'Redeemed At',
     validUntil: 'Valid Until',
     createdAt: 'Created On',
+  },
+  generateCodesList: {
+    id: '#',
+    name: 'Name',
+    classSection: 'Class / Section',
+    rollNumber: 'Roll No.',
+    isActive: 'Status',
+    actions: 'Actions',
+  },
+  assignStudentsList: {
+    id: '#',
+    name: 'Name',
+    classSection: 'Class / Section',
+    rollNumber: 'Roll No.',
+    gender: 'Gender',
+    isActive: 'Status',
+    actions: 'Actions',
   },
   // ── Payments ───────────────────────────────────────────
   payments: {

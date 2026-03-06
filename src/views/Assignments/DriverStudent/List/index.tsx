@@ -101,9 +101,14 @@ const DriverStudentAssignmentsList = () => {
 
   const assignmentsArr: SchoolAssignment[] = allData?.data ?? []
 
-  const filteredRecords = assignmentsArr.filter((item: SchoolAssignment) =>
-    (item.driver_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredRecords = assignmentsArr.filter((item: SchoolAssignment) => {
+    const query = searchQuery.toLowerCase()
+    return (
+      (item.driver?.name ?? '').toLowerCase().includes(query) ||
+      (item.student?.student_name ?? '').toLowerCase().includes(query) ||
+      (item.parent_name ?? '').toLowerCase().includes(query)
+    )
+  })
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedData = filteredRecords.slice(
@@ -121,37 +126,33 @@ const DriverStudentAssignmentsList = () => {
       {
         accessorKey: accessorkeys.driverStudentList.driverName,
         header: headerKeys.driverStudentList.driverName,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.driver_name || '—',
+        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
+          row.original.driver?.name || '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.driverUniqueId,
         header: headerKeys.driverStudentList.driverUniqueId,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.driver_unique_id || '—',
+        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
+          row.original.driver?.driver_unique_id ||
+          row.original.driver_unique_id ||
+          '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.studentName,
         header: headerKeys.driverStudentList.studentName,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.student_name || '—',
+        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
+          row.original.student?.student_name || '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.parentName,
         header: headerKeys.driverStudentList.parentName,
-        cell: ({ row }: { row: { original: any } }) =>
+        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
           row.original.parent_name || '—',
-      },
-      {
-        accessorKey: accessorkeys.driverStudentList.school,
-        header: headerKeys.driverStudentList.school,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.school_name || '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.monthlyFee,
         header: headerKeys.driverStudentList.monthlyFee,
-        cell: ({ row }: { row: { original: any } }) =>
+        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
           row.original.monthly_fee != null
             ? formatAmount(row.original.monthly_fee)
             : '—',
@@ -159,7 +160,7 @@ const DriverStudentAssignmentsList = () => {
       {
         accessorKey: accessorkeys.driverStudentList.assignmentStatus,
         header: headerKeys.driverStudentList.assignmentStatus,
-        cell: ({ row }: { row: { original: any } }) => {
+        cell: ({ row }: { row: { original: SchoolAssignment } }) => {
           const status = (row.original.assignment_status ??
             row.original.status) as keyof typeof badgeMaps
           const badge = badgeMaps[status] ?? badgeMaps['inactive']
@@ -174,13 +175,13 @@ const DriverStudentAssignmentsList = () => {
       {
         accessorKey: accessorkeys.driverStudentList.source,
         header: headerKeys.driverStudentList.source,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.assignment_source || row.original.source || '—',
+        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
+          row.original.assignment_source || '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.assignedDate,
         header: headerKeys.driverStudentList.assignedDate,
-        cell: ({ row }: { row: { original: any } }) => {
+        cell: ({ row }: { row: { original: SchoolAssignment } }) => {
           const date = row.original.assigned_date ?? row.original.created_at
           return date ? formatDate(date) : '—'
         },
@@ -189,7 +190,7 @@ const DriverStudentAssignmentsList = () => {
         accessorKey: accessorkeys.driverStudentList.actions,
         header: headerKeys.driverStudentList.actions,
         cell: ({ row }: { row: { original: SchoolAssignment } }) => {
-          const status = row.original.status ?? (row.original as any).status
+          const status = row.original.assignment_status ?? row.original.status
           const { _id } = row.original
           return (
             <div className="flex justify-end flex-wrap gap-2">
@@ -197,29 +198,24 @@ const DriverStudentAssignmentsList = () => {
                 status === AssignmentStatus.PARENT_REQUESTED) && (
                 <>
                   <button
-                    className="btn btn-green btn-sm"
+                    className="btn btn-sub-green btn-icon !size-8 rounded-md"
                     onClick={() => handleApprove(_id)}>
-                    Approve
+                    <i className="ri-checkbox-circle-line"></i>
                   </button>
                   <button
-                    className="btn btn-red btn-sm"
+                    className="btn btn-sub-red btn-icon !size-8 rounded-md"
                     onClick={() => handleReject(_id)}>
-                    Reject
+                    <i className="ri-close-circle-line"></i>
                   </button>
                 </>
               )}
               {status === AssignmentStatus.ACTIVE && (
                 <button
-                  className="btn btn-orange btn-sm"
+                  className="btn btn-sub-red btn-icon !size-8 rounded-md"
                   onClick={() => handleDeactivate(_id)}>
-                  Deactivate
+                  <i className="ri-forbid-line"></i>
                 </button>
               )}
-              <button
-                className="btn btn-sub-red btn-icon !size-8 rounded-md"
-                onClick={() => handleDelete(_id)}>
-                <i className="ri-delete-bin-line"></i>
-              </button>
             </div>
           )
         },
@@ -240,7 +236,7 @@ const DriverStudentAssignmentsList = () => {
                   <input
                     type="text"
                     className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
-                    placeholder="Search by Driver"
+                    placeholder="Search by driver, student, or parent..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                   />

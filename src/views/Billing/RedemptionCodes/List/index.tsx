@@ -20,7 +20,7 @@ import {
 } from '@src/store/services/subscriptionApi'
 import LocalStorage from '@src/utils/LocalStorage'
 import { formatDate } from '@src/utils/formatters'
-import { Key, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import Select from 'react-select'
 
 const RedemptionCodesList = () => {

@@ -39,7 +39,7 @@ const CreateSchoolAssignmentModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedDriverId) return
-    await createAssignment({ schoolId, driver_id: selectedDriverId }).unwrap()
+    await createAssignment({ schoolId, driver_id: selectedDriverId, student_ids: [] }).unwrap()
     setSelectedDriverId('')
     onClose()
   }

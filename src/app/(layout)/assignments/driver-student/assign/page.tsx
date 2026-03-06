@@ -1,7 +1,7 @@
-import DriversAssignmentsList from '@src/views/Schools/SchoolDrivers/assign'
+import AssignToStudents from '@src/views/Assignments/DriverStudent/Assign'
 
-const DriverAssignmentsPage = () => {
-  return <DriversAssignmentsList />
+const AssignToStudentsPage = () => {
+  return <AssignToStudents />
 }
 
-export default DriverAssignmentsPage
+export default AssignToStudentsPage
