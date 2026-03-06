@@ -10,6 +10,7 @@ import {
   badgeMaps,
   headerKeys,
 } from '@src/shared/constants/columns'
+import { STORAGE_KEYS } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import {
@@ -17,12 +18,19 @@ import {
   useGetRedemptionCodesQuery,
   useGetSchoolSubscriptionsQuery,
 } from '@src/store/services/subscriptionApi'
+import LocalStorage from '@src/utils/LocalStorage'
 import { formatDate } from '@src/utils/formatters'
 import { Key, Search } from 'lucide-react'
+import Select from 'react-select'
 
 const RedemptionCodesList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
-  const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
+  const user = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+    ? JSON.parse(LocalStorage.getItem(STORAGE_KEYS.ADMIN)!)
+    : null
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string>(
+    user?.school_id || ''
+  )
   const [selectedSubscriptionId, setSelectedSubscriptionId] =
     useState<string>('')
   const [generateCount, setGenerateCount] = useState<number>(1)
@@ -97,12 +105,6 @@ const RedemptionCodesList = () => {
         ),
       },
       {
-        accessorKey: accessorkeys.redemptionCodesList.school,
-        header: headerKeys.redemptionCodesList.school,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.school_name || '—',
-      },
-      {
         accessorKey: accessorkeys.redemptionCodesList.studentName,
         header: headerKeys.redemptionCodesList.studentName,
         cell: ({ row }: { row: { original: RedemptionCode } }) =>
@@ -123,9 +125,10 @@ const RedemptionCodesList = () => {
         header: headerKeys.redemptionCodesList.codeStatus,
         cell: ({ row }: { row: { original: any } }) => {
           const isRedeemed =
-            row.original.is_redeemed ??
-            row.original.status === 'redeemed'
-          const badge = isRedeemed ? badgeMaps['redeemed'] : badgeMaps['pending']
+            row.original.is_redeemed ?? row.original.status === 'redeemed'
+          const badge = isRedeemed
+            ? badgeMaps['redeemed']
+            : badgeMaps['pending']
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${badge.className}`}>
@@ -160,12 +163,12 @@ const RedemptionCodesList = () => {
           )
         },
       },
-      {
-        accessorKey: accessorkeys.redemptionCodesList.createdAt,
-        header: headerKeys.redemptionCodesList.createdAt,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.created_at ? formatDate(row.original.created_at) : '—',
-      },
+      // {
+      //   accessorKey: accessorkeys.redemptionCodesList.createdAt,
+      //   header: headerKeys.redemptionCodesList.createdAt,
+      //   cell: ({ row }: { row: { original: any } }) =>
+      //     row.original.created_at ? formatDate(row.original.created_at) : '—',
+      // },
     ],
     []
   )
@@ -177,46 +180,52 @@ const RedemptionCodesList = () => {
         <div className="col-span-12 card">
           <div className="card-header">
             <div className="grid items-center gap-3 grid-cols-12">
-              <div className="col-span-12 lg:col-span-7 xxl:col-span-6">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="font-medium text-sm whitespace-nowrap">
-                      School:
-                    </label>
-                    <select
-                      className="form-select w-40"
-                      value={selectedSchoolId}
-                      onChange={(e) => {
-                        setSelectedSchoolId(e.target.value)
-                        setSelectedSubscriptionId('')
-                      }}>
-                      {schoolsData?.data?.map((school) => (
-                        <option key={school._id} value={school._id}>
-                          {school.school_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="font-medium text-sm whitespace-nowrap">
-                      Subscription:
-                    </label>
-                    <select
-                      className="form-select w-40"
-                      value={selectedSubscriptionId}
-                      onChange={(e) =>
-                        setSelectedSubscriptionId(e.target.value)
-                      }>
-                      {subscriptionsData?.data?.map((sub) => (
-                        <option key={sub._id} value={sub._id}>
-                          {sub.plan_id} — {sub.subscription_status}
-                        </option>
-                      ))}
-                    </select>
+              {!user?.school_id && (
+                <div className="col-span-12 md:col-span-12 lg:col-span-4 xxl:col-span-4">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="relative group/form grow">
+                      <Select<{ value: string; label: string }>
+                        classNamePrefix="select"
+                        options={schoolsData?.data?.map((school) => ({
+                          value: school._id,
+                          label: school.school_name,
+                        }))}
+                        value={
+                          schoolsData?.data
+                            ?.map((s) => ({
+                              value: s._id,
+                              label: s.school_name,
+                            }))
+                            .find((o) => o.value === selectedSchoolId) || null
+                        }
+                        onChange={(option) => {
+                          setSelectedSchoolId(option?.value || '')
+                          setSelectedSubscriptionId('')
+                        }}
+                        placeholder="Filter by School"
+                        isClearable={true}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-span-12 md:col-span-7 lg:col-span-3 xxl:col-span-4">
+              )}
+              {/* {user?.school_id && (
+                <div className="col-span-12 md:col-span-12 lg:col-span-4 xxl:col-span-4">
+                  <div className="form-group">
+                    <div className="form-control bg-gray-100 dark:bg-dark-850 px-3 py-2 rounded-md">
+                      {schoolsData?.data?.find(
+                        (s) => s._id === selectedSchoolId
+                      )?.school_name || '—'}
+                    </div>
+                  </div>
+                </div>
+              )} */}
+              <div
+                className={
+                  user?.school_id
+                    ? 'col-span-12 md:col-span-9 lg:col-span-4 xxl:col-span-4'
+                    : 'col-span-12 md:col-span-9 lg:col-span-6 xxl:col-span-6'
+                }>
                 <div className="relative group/form grow">
                   <input
                     type="text"
@@ -225,24 +234,18 @@ const RedemptionCodesList = () => {
                     value={searchQuery}
                     onChange={handleSearchChange}
                   />
-                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 focus:outline-hidden">
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 ltr:group-[&.right]/form:right-3 rtl:group-[&.right]/form:left-3 ltr:group-[&.right]/form:left-auto rtl:group-[&.right]/form:right-auto focus:outline-hidden">
                     <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
                   </button>
                 </div>
               </div>
-              <div className="col-span-12 md:col-span-5 lg:col-span-2 xxl:col-span-2 ltr:md:text-right rtl:md:text-left">
+              {/* <div
+                className={
+                  user?.school_id
+                    ? 'col-span-12 md:col-span-3 lg:col-span-4 xxl:col-span-4 ltr:text-right rtl:text-left'
+                    : 'col-span-12 md:col-span-3 lg:col-span-2 xxl:col-span-2 ltr:md:text-right rtl:md:text-left'
+                }>
                 <div className="flex items-center justify-end gap-2">
-                  <input
-                    type="number"
-                    min={1}
-                    max={100}
-                    className="form-input w-16 text-center"
-                    value={generateCount}
-                    onChange={(e) =>
-                      setGenerateCount(Math.max(1, Number(e.target.value)))
-                    }
-                    disabled={!firstSubscriptionId}
-                  />
                   <button
                     className="btn btn-primary shrink-0"
                     disabled={
@@ -253,7 +256,7 @@ const RedemptionCodesList = () => {
                     Generate
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

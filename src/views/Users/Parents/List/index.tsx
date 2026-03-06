@@ -67,31 +67,12 @@ const ParentsList = () => {
           row.original.email || '—',
       },
       {
-        accessorKey: accessorkeys.parentsList.studentCount,
-        header: headerKeys.parentsList.studentCount,
-        cell: ({ row }: { row: { original: any } }) =>
-          row.original.student_count ?? '—',
-      },
-      {
-        accessorKey: accessorkeys.parentsList.subscriptionStatus,
-        header: headerKeys.parentsList.subscriptionStatus,
-        cell: ({ row }: { row: { original: any } }) => {
-          const status = row.original.subscription_status as keyof typeof badgeMaps
-          if (!status) return <span className="text-gray-400">—</span>
-          const badge = badgeMaps[status] ?? badgeMaps['undefined']
-          return (
-            <span
-              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
-              {badge.label}
-            </span>
-          )
-        },
-      },
-      {
         accessorKey: accessorkeys.parentsList.isActive,
         header: headerKeys.parentsList.isActive,
         cell: ({ row }: { row: { original: any } }) => {
-          const mapKey = String(row.original.is_active) as keyof typeof badgeMaps
+          const mapKey = String(
+            row.original.is_active
+          ) as keyof typeof badgeMaps
           const badge = badgeMaps[mapKey] ?? badgeMaps['undefined']
           return (
             <span

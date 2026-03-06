@@ -293,7 +293,7 @@ const SchoolAssignmentsList = () => {
                   </button>
                 </div>
               </div>
-              <div className="col-span-12 md:col-span-3 lg:col-span-2 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
+              <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
                 <button
                   className="btn btn-primary shrink-0"
                   disabled={!firstSchoolId}

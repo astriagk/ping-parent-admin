@@ -14,10 +14,12 @@ import TableContainer from '@src/shared/custom/table/table'
 import { useGetParentSubscriptionsQuery } from '@src/store/services/subscriptionApi'
 import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
+import Select from 'react-select'
 
 const ParentSubscriptionsList = () => {
   const { data: subscriptionsData } = useGetParentSubscriptionsQuery()
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const [selectedStatus, setSelectedStatus] = useState<string>('')
 
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
@@ -28,9 +30,15 @@ const ParentSubscriptionsList = () => {
 
   const subscriptionData: ParentSubscription[] = subscriptionsData?.data ?? []
 
-  const filteredRecords = subscriptionData.filter((item: ParentSubscription) =>
-    (item.parent_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredRecords = subscriptionData.filter((item: ParentSubscription) => {
+    const matchesSearch = (item.parent_name ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+    const matchesStatus = selectedStatus
+      ? item.subscription_status === selectedStatus
+      : true
+    return matchesSearch && matchesStatus
+  })
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedData = filteredRecords.slice(
@@ -127,6 +135,26 @@ const ParentSubscriptionsList = () => {
         <div className="col-span-12 card">
           <div className="card-header">
             <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 md:col-span-4 lg:col-span-3 xxl:col-span-2">
+                <div className="relative group/form grow">
+                  <Select<{ value: string; label: string }>
+                    classNamePrefix="select"
+                    options={[
+                      { value: 'active', label: 'Active' },
+                      { value: 'expired', label: 'Expired' },
+                      { value: 'cancelled', label: 'Cancelled' },
+                    ]}
+                    value={
+                      selectedStatus
+                        ? { value: selectedStatus, label: selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1) }
+                        : null
+                    }
+                    onChange={(option) => setSelectedStatus(option?.value || '')}
+                    placeholder="Filter by Status"
+                    isClearable={true}
+                  />
+                </div>
+              </div>
               <div className="col-span-12 md:col-span-9 lg:col-span-5 xxl:col-span-3">
                 <div className="relative group/form grow">
                   <input

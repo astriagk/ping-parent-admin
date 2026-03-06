@@ -57,5 +57,9 @@
   "pe-assignments": "Assignments",
   "pe-driver-student": "Driver Student",
   "pe-school-assignments": "School Assignments",
-  "pe-redemption-codes": "Redemption Codes"
+  "pe-redemption-codes": "Redemption Codes",
+  "pe-all-redemption-codes": "All Redemption Codes",
+  "pe-generate-redemption-codes": "Generate Redemption Codes",
+  "pe-driver-student-assignments": "Driver Student Assignments",
+  "pe-generate-driver-assignments": "Driver Assignments"
 }

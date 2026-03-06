@@ -6,14 +6,19 @@ import { Trip } from '@src/dtos/trip'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
 import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import { STORAGE_KEYS } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
+import LocalStorage from '@src/utils/LocalStorage'
 import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const LiveTracking = () => {
   const { data: tripsData } = useGetTripListQuery({ status: 'ongoing' })
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const user = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+    ? JSON.parse(LocalStorage.getItem(STORAGE_KEYS.ADMIN)!)
+    : null
 
   //pagination
   const itemsPerPage = 10
@@ -33,9 +38,18 @@ const LiveTracking = () => {
     )
   }, [tripsData])
 
-  const filteredActiveTrips = activeTrips.filter((item: Trip) =>
-    (item.driver_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredActiveTrips = activeTrips.filter((item: Trip) => {
+    const matchesSearch = (item?.driver?.name ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+
+    // Only filter by school_id if user has a school_id
+    if (user?.school_id) {
+      return matchesSearch && item?.school?.school_id === user?.school_id
+    }
+
+    return matchesSearch
+  })
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedTrips = filteredActiveTrips.slice(

@@ -165,7 +165,9 @@ const SchoolAdminsList = () => {
   }
 
   const filteredRecords = schoolAdmins.filter((item: AdminListItem) =>
-    (item.username ?? item.email ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+    (item.username ?? item.email ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
   )
 
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -201,7 +203,9 @@ const SchoolAdminsList = () => {
         accessorKey: accessorkeys.schoolAdminsList.isActive,
         header: headerKeys.schoolAdminsList.isActive,
         cell: ({ row }: { row: { original: AdminListItem } }) => {
-          const mapKey = String(row.original.is_active) as keyof typeof badgeMaps
+          const mapKey = String(
+            row.original.is_active
+          ) as keyof typeof badgeMaps
           const badge = badgeMaps[mapKey] ?? badgeMaps['undefined']
           return (
             <span
@@ -227,13 +231,27 @@ const SchoolAdminsList = () => {
         accessorKey: accessorkeys.schoolAdminsList.actions,
         header: headerKeys.schoolAdminsList.actions,
         cell: ({ row }: { row: { original: AdminListItem } }) => (
-          <div className="flex justify-end gap-2">
-            <button
-              className="btn btn-sub-red btn-icon !size-8 rounded-md"
-              onClick={() => handleDeactivate(row.original._id)}>
-              <i className="ri-user-unfollow-line"></i>
-            </button>
-          </div>
+          <label className="switch-group switch-soft">
+            <div className="relative">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={row.original.is_active}
+                onChange={() => {
+                  handleDeactivate(row.original._id)
+                }}
+              />
+              <div className="switch-wrapper peer-checked:!bg-green-500/15"></div>
+              <div className="switch-dot peer-checked:translate-x-full rtl:peer-checked:-translate-x-full peer-checked:!bg-green-500"></div>
+            </div>
+          </label>
+          // <div className="flex justify-end gap-2">
+          //   <button
+          //     className="btn btn-sub-red btn-icon !size-8 rounded-md"
+          //     onClick={() => handleDeactivate(row.original._id)}>
+          //     <i className="ri-user-unfollow-line"></i>
+          //   </button>
+          // </div>
         ),
       },
     ],
@@ -285,7 +303,7 @@ const SchoolAdminsList = () => {
                   </button>
                 </div>
               </div>
-              <div className="col-span-12 md:col-span-3 lg:col-span-2 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
+              <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
                 <button
                   className="btn btn-primary shrink-0"
                   disabled={!firstSchoolId}
@@ -304,7 +322,6 @@ const SchoolAdminsList = () => {
                 data={paginatedData}
                 thClass="!font-medium cursor-pointer"
                 divClass="overflow-x-auto table-box whitespace-nowrap"
-                lastTrClass="text-end"
                 tableClass="table flush"
                 thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
               />

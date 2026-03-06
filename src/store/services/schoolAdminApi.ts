@@ -28,7 +28,7 @@ export const schoolAdminApi = baseApi.injectEndpoints({
     }),
     assignDriverToSchool: builder.mutation<
       { success: boolean; message: string },
-      { driver_id: string; school_id: string }
+      { driverId: string; schoolId: string }
     >({
       query: (body) => ({
         url: `${NEXT_PUBLIC_SCHOOL_DRIVER_API}/assign`,

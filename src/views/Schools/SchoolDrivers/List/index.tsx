@@ -12,16 +12,15 @@ import {
   badgeMaps,
   headerKeys,
 } from '@src/shared/constants/columns'
-import { UserRoles } from '@src/shared/constants/enums'
+import { STORAGE_KEYS } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
-import { useGetDriverListQuery } from '@src/store/services/driverApi'
 import {
-  useAssignDriverToSchoolMutation,
   useGetSchoolDriversQuery,
   useRemoveDriverFromSchoolMutation,
 } from '@src/store/services/schoolAdminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
-import { CirclePlus, Search } from 'lucide-react'
+import LocalStorage from '@src/utils/LocalStorage'
+import { Search } from 'lucide-react'
 import Select from 'react-select'
 
 const ApprovalBadge = ({ status }: { status: string }) => {
@@ -33,87 +32,6 @@ const ApprovalBadge = ({ status }: { status: string }) => {
   )
 }
 
-const AssignDriverModal = ({
-  open,
-  schoolId,
-  onClose,
-}: {
-  open: boolean
-  schoolId: string
-  onClose: () => void
-}) => {
-  const { data: driversData } = useGetDriverListQuery({
-    user_type: UserRoles.DRIVER,
-  })
-  const [assignDriver, { isLoading }] = useAssignDriverToSchoolMutation()
-  const [selectedDriverId, setSelectedDriverId] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedDriverId) return
-    await assignDriver({
-      school_id: schoolId,
-      driver_id: selectedDriverId,
-    }).unwrap()
-    setSelectedDriverId('')
-    onClose()
-  }
-
-  if (!open) return null
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-dark-900 rounded-lg shadow-xl w-full max-w-md p-6">
-        <h5 className="text-lg font-semibold mb-4">Assign Driver to School</h5>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="form-label">Select Driver</label>
-            <div className="min-w-[260px]">
-              {(() => {
-                const driverOptions = (driversData?.data || []).map(
-                  (d: any) => ({
-                    value: d._id,
-                    label: `${d.name ?? d.username} (${d.email})`,
-                  })
-                )
-                const selectedOption =
-                  driverOptions.find((opt) => opt.value === selectedDriverId) ||
-                  null
-                return (
-                  <Select
-                    classNamePrefix="select"
-                    options={driverOptions}
-                    value={selectedOption}
-                    onChange={(option: any) =>
-                      setSelectedDriverId(option ? option.value : '')
-                    }
-                    placeholder="Select driver"
-                    isClearable={true}
-                  />
-                )
-              })()}
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              className="btn btn-light btn-sm"
-              onClick={onClose}>
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              disabled={isLoading}>
-              Assign
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
 const SchoolDriversList = () => {
   const router = useRouter()
   const { data: schoolsData } = useGetSchoolsListQuery()
@@ -121,9 +39,11 @@ const SchoolDriversList = () => {
     const first = schoolsData?.data?.[0]?._id
     return first || ''
   })
-  const [modalOpen, setModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [removeDriver] = useRemoveDriverFromSchoolMutation()
+  const adminData = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+  const user = adminData ? JSON.parse(adminData) : null
+  const schoolId = user?.school_id
 
   //pagination
   const itemsPerPage = 10
@@ -135,11 +55,11 @@ const SchoolDriversList = () => {
     skip: !firstSchoolId,
   })
 
-  const handleRemove = (driverId: string) => {
-    if (window.confirm('Remove this driver from the school?')) {
-      removeDriver(driverId)
-    }
-  }
+  // const handleRemove = (driverId: string) => {
+  //   if (window.confirm('Remove this driver from the school?')) {
+  //     removeDriver(driverId)
+  //   }
+  // }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -168,13 +88,19 @@ const SchoolDriversList = () => {
         accessorKey: accessorkeys.schoolDriversList.username,
         header: headerKeys.schoolDriversList.username,
       },
-      // {
-      //   accessorKey: accessorkeys.schoolDriversList.email,
-      //   header: headerKeys.schoolDriversList.email,
-      // },
       {
-        accessorKey: accessorkeys.schoolDriversList.phoneNumber,
-        header: headerKeys.schoolDriversList.phoneNumber,
+        accessorKey: accessorkeys.schoolDriversList.vehicleNumber,
+        header: headerKeys.schoolDriversList.vehicleNumber,
+      },
+      {
+        accessorKey: accessorkeys.schoolDriversList.vehicleType,
+        header: headerKeys.schoolDriversList.vehicleType,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.vehicle_type.toUpperCase(),
+      },
+      {
+        accessorKey: accessorkeys.schoolDriversList.capacity,
+        header: headerKeys.schoolDriversList.capacity,
       },
       {
         accessorKey: accessorkeys.schoolDriversList.approvalStatus,
@@ -183,29 +109,25 @@ const SchoolDriversList = () => {
           <ApprovalBadge status={row.original.approval_status} />
         ),
       },
-      {
-        accessorKey: accessorkeys.schoolDriversList.actions,
-        header: headerKeys.schoolDriversList.actions,
-        cell: ({ row }: { row: { original: SchoolDriverItem } }) => {
-          const driverId = row.original.driver_id
-          return (
-            <div className="flex justify-end gap-2">
-              <button
-                className="btn btn-sub-red btn-icon !size-8 rounded-md"
-                onClick={() => handleRemove(driverId)}>
-                <i className="ri-user-unfollow-line"></i>
-              </button>
-              <button
-                className="btn btn-sub-primary btn-icon !size-8 rounded-md"
-                onClick={() =>
-                  router.push(`/users/drivers/details/${driverId}`)
-                }>
-                <i className="ri-eye-line"></i>
-              </button>
-            </div>
-          )
-        },
-      },
+
+      // {
+      //   accessorKey: accessorkeys.schoolDriversList.actions,
+      //   header: headerKeys.schoolDriversList.actions,
+      //   cell: ({ row }: { row: { original: SchoolDriverItem } }) => {
+      //     const driverId = row.original._id
+      //     return (
+      //       <div className="flex justify-end gap-2">
+      //         {/* <button
+      //           className="btn btn-sub-primary btn-icon !size-8 rounded-md"
+      //           onClick={() =>
+      //             router.push(`/users/drivers/details/${driverId}`)
+      //           }>
+      //           <i className="ri-eye-line"></i>
+      //         </button> */}
+      //       </div>
+      //     )
+      //   },
+      // },
     ],
     [router]
   )
@@ -217,32 +139,34 @@ const SchoolDriversList = () => {
         <div className="col-span-12 card">
           <div className="card-header">
             <div className="grid items-center gap-3 grid-cols-12">
-              <div className="col-span-12 lg:col-span-4 xxl:col-span-3">
-                {(() => {
-                  const schoolOptions = (schoolsData?.data || []).map(
-                    (school: any) => ({
-                      value: school._id,
-                      label: school.school_name,
-                    })
-                  )
-                  const selectedOption =
-                    schoolOptions.find(
-                      (opt) => opt.value === selectedSchoolId
-                    ) || null
-                  return (
-                    <Select
-                      classNamePrefix="select"
-                      options={schoolOptions}
-                      value={selectedOption}
-                      onChange={(option: any) =>
-                        setSelectedSchoolId(option ? option.value : '')
-                      }
-                      placeholder="Select school"
-                      isClearable={true}
-                    />
-                  )
-                })()}
-              </div>
+              {!schoolId && (
+                <div className="col-span-12 lg:col-span-4 xxl:col-span-3">
+                  {(() => {
+                    const schoolOptions = (schoolsData?.data || []).map(
+                      (school: any) => ({
+                        value: school._id,
+                        label: school.school_name,
+                      })
+                    )
+                    const selectedOption =
+                      schoolOptions.find(
+                        (opt) => opt.value === selectedSchoolId
+                      ) || null
+                    return (
+                      <Select
+                        classNamePrefix="select"
+                        options={schoolOptions}
+                        value={selectedOption}
+                        onChange={(option: any) =>
+                          setSelectedSchoolId(option ? option.value : '')
+                        }
+                        placeholder="Select school"
+                        isClearable={true}
+                      />
+                    )
+                  })()}
+                </div>
+              )}
               <div className="col-span-12 md:col-span-9 lg:col-span-4 xxl:col-span-3">
                 <div className="relative group/form grow">
                   <input
@@ -257,15 +181,6 @@ const SchoolDriversList = () => {
                   </button>
                 </div>
               </div>
-              <div className="col-span-12 md:col-span-3 lg:col-span-2 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
-                <button
-                  className="btn btn-primary shrink-0"
-                  disabled={!firstSchoolId}
-                  onClick={() => setModalOpen(true)}>
-                  <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
-                  Assign Driver
-                </button>
-              </div>
             </div>
           </div>
 
@@ -276,7 +191,6 @@ const SchoolDriversList = () => {
                 data={paginatedData}
                 thClass="!font-medium cursor-pointer"
                 divClass="overflow-x-auto table-box whitespace-nowrap"
-                lastTrClass="text-end"
                 tableClass="table flush"
                 thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
               />
@@ -290,11 +204,6 @@ const SchoolDriversList = () => {
           </div>
         </div>
       </div>
-      <AssignDriverModal
-        open={modalOpen}
-        schoolId={firstSchoolId}
-        onClose={() => setModalOpen(false)}
-      />
     </React.Fragment>
   )
 }

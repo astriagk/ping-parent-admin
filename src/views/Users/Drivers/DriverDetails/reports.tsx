@@ -137,7 +137,7 @@ const Reports = ({
       <div className="col-span-12 overflow-hidden xl:col-span-6 xl:row-span-2 card">
         <div className="flex items-center gap-3 card-header">
           <h6 className="card-title grow">Documents</h6>
-          {approvalStatus === ApprovalStatus.PENDING && (
+          {approvalStatus !== ApprovalStatus.APPROVED && (
             <button
               className="btn btn-primary btn-md"
               onClick={() => handleApprovalStatus(ApprovalStatus.APPROVED)}>

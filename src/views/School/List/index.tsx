@@ -107,21 +107,6 @@ const SchoolsList = () => {
           row.original.student_count ?? '—',
       },
       {
-        accessorKey: accessorkeys.schoolsList.subscriptionStatus,
-        header: headerKeys.schoolsList.subscriptionStatus,
-        cell: ({ row }: { row: { original: any } }) => {
-          const status = row.original.subscription_status as keyof typeof badgeMaps
-          if (!status) return <span className="text-gray-400">—</span>
-          const badge = badgeMaps[status] ?? badgeMaps['undefined']
-          return (
-            <span
-              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
-              {badge.label}
-            </span>
-          )
-        },
-      },
-      {
         accessorKey: accessorkeys.schoolsList.createdAt,
         header: headerKeys.schoolsList.createdAt,
         cell: ({ row }: { row: { original: any } }) =>

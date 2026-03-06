@@ -12,16 +12,22 @@ import {
   badgeMaps,
   headerKeys,
 } from '@src/shared/constants/columns'
-import { TripStatus } from '@src/shared/constants/enums'
+import { STORAGE_KEYS, TripStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
+import LocalStorage from '@src/utils/LocalStorage'
 import { formatDate, formatTime } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const TripsList = () => {
   const router = useRouter()
   const { data: tripsData } = useGetTripListQuery()
+  const user = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+    ? JSON.parse(LocalStorage.getItem(STORAGE_KEYS.ADMIN)!)
+    : null
   const [searchQuery, setSearchQuery] = useState<string>('')
+
+  console.log(user)
 
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
@@ -32,9 +38,18 @@ const TripsList = () => {
 
   const tripData: Trip[] = tripsData?.data ?? []
 
-  const filteredTripRecords = tripData.filter((item: Trip) =>
-    (item.driver_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredTripRecords = tripData.filter((item: Trip) => {
+    const matchesSearch = (item?.driver?.name ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+
+    // Only filter by school_id if user has a school_id
+    if (user?.school_id) {
+      return matchesSearch && item?.school?.school_id === user?.school_id
+    }
+
+    return matchesSearch
+  })
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedTrips = filteredTripRecords.slice(
@@ -66,26 +81,28 @@ const TripsList = () => {
         accessorKey: accessorkeys.tripsList.driverName,
         header: headerKeys.tripsList.driverName,
         cell: ({ row }: { row: { original: any } }) =>
-          row.original.driver_name || '—',
+          row.original.driver?.name || '—',
       },
       {
         accessorKey: accessorkeys.tripsList.driverUniqueId,
         header: headerKeys.tripsList.driverUniqueId,
         cell: ({ row }: { row: { original: any } }) =>
-          row.original.driver_unique_id || '—',
+          row.original.driver?.driver_unique_id || '—',
       },
       {
         accessorKey: accessorkeys.tripsList.school,
         header: headerKeys.tripsList.school,
         cell: ({ row }: { row: { original: any } }) =>
-          row.original.school_name || '—',
+          row.original.school?.school_name || '—',
       },
       {
         accessorKey: accessorkeys.tripsList.tripStatus,
         header: headerKeys.tripsList.tripStatus,
         cell: ({ row }: { row: { original: Trip } }) => {
           const status = row.original.trip_status as TripStatus
-          const badge = badgeMaps[status as keyof typeof badgeMaps] ?? badgeMaps['undefined']
+          const badge =
+            badgeMaps[status as keyof typeof badgeMaps] ??
+            badgeMaps['undefined']
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${badge.className}`}>
@@ -127,9 +144,7 @@ const TripsList = () => {
           <div className="flex justify-end gap-2">
             <button
               className="btn btn-sub-primary btn-icon !size-8 rounded-md"
-              onClick={() =>
-                router.push(`/trips/details/${row.original._id}`)
-              }>
+              onClick={() => router.push(`/trips/details/${row.original._id}`)}>
               <i className="ri-eye-line"></i>
             </button>
           </div>

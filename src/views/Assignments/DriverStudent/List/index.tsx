@@ -10,112 +10,23 @@ import {
   badgeMaps,
   headerKeys,
 } from '@src/shared/constants/columns'
-import {
-  AssignmentStatus,
-  STORAGE_KEYS,
-  UserRoles,
-} from '@src/shared/constants/enums'
+import { AssignmentStatus, STORAGE_KEYS } from '@src/shared/constants/enums'
 import { MESSAGES } from '@src/shared/constants/messages'
 import TableContainer from '@src/shared/custom/table/table'
 import {
-  useCreateDriverStudentAssignmentMutation,
   useDeleteDriverStudentAssignmentMutation,
   useGetSchoolAssignmentsQuery,
   useUpdateDriverStudentAssignmentMutation,
 } from '@src/store/services/assignmentApi'
-import { useGetDriverListQuery } from '@src/store/services/driverApi'
-import { useGetStudentListQuery } from '@src/store/services/studentApi'
 import LocalStorage from '@src/utils/LocalStorage'
 import { formatAmount, formatDate } from '@src/utils/formatters'
-import { CirclePlus, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { toast } from 'react-toastify'
-
-const CreateAssignmentModal = ({
-  open,
-  onClose,
-}: {
-  open: boolean
-  onClose: () => void
-}) => {
-  const { data: driversData } = useGetDriverListQuery({
-    user_type: UserRoles.DRIVER,
-  })
-  const { data: studentsData } = useGetStudentListQuery()
-  const [createAssignment, { isLoading }] =
-    useCreateDriverStudentAssignmentMutation()
-  const [form, setForm] = useState({ driver_id: '', student_id: '' })
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    await createAssignment(form).unwrap()
-    setForm({ driver_id: '', student_id: '' })
-    onClose()
-  }
-
-  if (!open) return null
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-dark-900 rounded-lg shadow-xl w-full max-w-md p-6">
-        <h5 className="text-lg font-semibold mb-4">Create Assignment</h5>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="form-label">Driver</label>
-            <select
-              className="form-select"
-              value={form.driver_id}
-              onChange={(e) => setForm({ ...form, driver_id: e.target.value })}
-              required>
-              <option value="">-- Select Driver --</option>
-              {driversData?.data?.map((d: any) => (
-                <option key={d.driver_id ?? d._id} value={d.driver_id ?? d._id}>
-                  {d.name ?? d.username}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="form-label">Student</label>
-            <select
-              className="form-select"
-              value={form.student_id}
-              onChange={(e) => setForm({ ...form, student_id: e.target.value })}
-              required>
-              <option value="">-- Select Student --</option>
-              {studentsData?.data?.map((s: any) => (
-                <option
-                  key={s.student_id ?? s._id}
-                  value={s.student_id ?? s._id}>
-                  {s.student_name ?? s.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              className="btn btn-light btn-sm"
-              onClick={onClose}>
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              disabled={isLoading}>
-              Create
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
 
 const DriverStudentAssignmentsList = () => {
   const adminData = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
   const user = adminData ? JSON.parse(adminData) : null
   const schoolId = user?.school_id
-  const [modalOpen, setModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   const itemsPerPage = 10
@@ -338,14 +249,6 @@ const DriverStudentAssignmentsList = () => {
                   </button>
                 </div>
               </div>
-              <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-10 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
-                <button
-                  className="btn btn-primary shrink-0"
-                  onClick={() => setModalOpen(true)}>
-                  <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
-                  Create Assignment
-                </button>
-              </div>
             </div>
           </div>
 
@@ -370,10 +273,6 @@ const DriverStudentAssignmentsList = () => {
           </div>
         </div>
       </div>
-      <CreateAssignmentModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
     </React.Fragment>
   )
 }
