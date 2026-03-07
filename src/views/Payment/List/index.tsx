@@ -112,8 +112,8 @@ const PaymentList = () => {
         accessorKey: accessorkeys.payments.paymentStatus,
         header: headerKeys.payments.paymentStatus,
         cell: ({ row }: { row: { original: Payment } }) => {
-          const status = row.original.payment_status as PaymentStatus
-          const badge = badgeMaps[status as keyof typeof badgeMaps]
+          const badge =
+            badgeMaps[row.original.payment_status as keyof typeof badgeMaps]
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${badge?.className}`}>

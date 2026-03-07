@@ -27,8 +27,6 @@ const TripsList = () => {
     : null
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  console.log(user)
-
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 

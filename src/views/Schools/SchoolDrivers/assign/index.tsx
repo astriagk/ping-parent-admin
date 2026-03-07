@@ -8,7 +8,11 @@ import {
   badgeMaps,
   headerKeys,
 } from '@src/shared/constants/columns'
-import { STORAGE_KEYS, UserRoles } from '@src/shared/constants/enums'
+import {
+  ApprovalStatus,
+  STORAGE_KEYS,
+  UserRoles,
+} from '@src/shared/constants/enums'
 import { MESSAGES } from '@src/shared/constants/messages'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
@@ -41,9 +45,10 @@ const DriversAssignmentsList = () => {
     if (!searchQuery.trim()) return false
     const query = searchQuery.toLowerCase()
     return (
-      (driver.name ?? '').toLowerCase().includes(query) ||
-      (driver.email ?? '').toLowerCase().includes(query) ||
-      (driver.phone_number ?? '').includes(query)
+      ((driver.name ?? '').toLowerCase().includes(query) ||
+        (driver.email ?? '').toLowerCase().includes(query) ||
+        (driver.phone_number ?? '').includes(query)) &&
+      driver.approval_status === ApprovalStatus.APPROVED
     )
   })
 

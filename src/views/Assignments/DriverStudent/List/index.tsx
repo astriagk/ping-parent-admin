@@ -19,9 +19,10 @@ import {
   useUpdateDriverStudentAssignmentMutation,
 } from '@src/store/services/assignmentApi'
 import LocalStorage from '@src/utils/LocalStorage'
-import { formatAmount, formatDate } from '@src/utils/formatters'
+import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { Tooltip } from 'react-tooltip'
 
 const DriverStudentAssignmentsList = () => {
   const adminData = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
@@ -150,14 +151,6 @@ const DriverStudentAssignmentsList = () => {
           row.original.parent_name || '—',
       },
       {
-        accessorKey: accessorkeys.driverStudentList.monthlyFee,
-        header: headerKeys.driverStudentList.monthlyFee,
-        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
-          row.original.monthly_fee != null
-            ? formatAmount(row.original.monthly_fee)
-            : '—',
-      },
-      {
         accessorKey: accessorkeys.driverStudentList.assignmentStatus,
         header: headerKeys.driverStudentList.assignmentStatus,
         cell: ({ row }: { row: { original: SchoolAssignment } }) => {
@@ -171,12 +164,6 @@ const DriverStudentAssignmentsList = () => {
             </span>
           )
         },
-      },
-      {
-        accessorKey: accessorkeys.driverStudentList.source,
-        header: headerKeys.driverStudentList.source,
-        cell: ({ row }: { row: { original: SchoolAssignment } }) =>
-          row.original.assignment_source || '—',
       },
       {
         accessorKey: accessorkeys.driverStudentList.assignedDate,
@@ -199,22 +186,48 @@ const DriverStudentAssignmentsList = () => {
                 <>
                   <button
                     className="btn btn-sub-green btn-icon !size-8 rounded-md"
+                    data-tip="Approve Assignment"
+                    data-for="approveTooltip"
+                    data-tooltip-id="approveTooltip"
                     onClick={() => handleApprove(_id)}>
                     <i className="ri-checkbox-circle-line"></i>
                   </button>
+                  <Tooltip
+                    id="approveTooltip"
+                    place="top"
+                    content="Approve Assignment"
+                  />
                   <button
                     className="btn btn-sub-red btn-icon !size-8 rounded-md"
+                    data-tip="Reject Assignment"
+                    data-for="rejectTooltip"
+                    data-tooltip-id="rejectTooltip"
                     onClick={() => handleReject(_id)}>
                     <i className="ri-close-circle-line"></i>
                   </button>
+                  <Tooltip
+                    id="rejectTooltip"
+                    place="top"
+                    content="Reject Assignment"
+                  />
                 </>
               )}
               {status === AssignmentStatus.ACTIVE && (
-                <button
-                  className="btn btn-sub-red btn-icon !size-8 rounded-md"
-                  onClick={() => handleDeactivate(_id)}>
-                  <i className="ri-forbid-line"></i>
-                </button>
+                <>
+                  <button
+                    className="btn btn-sub-red btn-icon !size-8 rounded-md"
+                    data-tip="Deactivate Assignment"
+                    data-for="deactivateTooltip"
+                    data-tooltip-id="deactivateTooltip"
+                    onClick={() => handleDeactivate(_id)}>
+                    <i className="ri-forbid-line"></i>
+                  </button>
+                  <Tooltip
+                    id="deactivateTooltip"
+                    place="top"
+                    content="Deactivate Assignment"
+                  />
+                </>
               )}
             </div>
           )
@@ -226,7 +239,7 @@ const DriverStudentAssignmentsList = () => {
 
   return (
     <React.Fragment>
-      <BreadCrumb title="Driver-Student Assignments" subTitle="Assignments" />
+      <BreadCrumb title="Driver Student Assignments" subTitle="Assignments" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
           <div className="card-header">
