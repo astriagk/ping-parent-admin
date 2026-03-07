@@ -5,21 +5,14 @@ import React, { useMemo } from 'react'
 import { useParams } from 'next/navigation'
 
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { TripStatus } from '@src/shared/constants/enums'
+import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripDetailsQuery } from '@src/store/services/tripApi'
-
-const tripStatusBadge: Record<
-  TripStatus,
-  { label: string; className: string }
-> = {
-  [TripStatus.SCHEDULED]: { label: 'Scheduled', className: 'badge-yellow' },
-  [TripStatus.STARTED]: { label: 'Started', className: 'badge-blue' },
-  [TripStatus.IN_PROGRESS]: { label: 'In Progress', className: 'badge-blue' },
-  [TripStatus.COMPLETED]: { label: 'Completed', className: 'badge-green' },
-  [TripStatus.CANCELLED]: { label: 'Cancelled', className: 'badge-red' },
-}
 
 const DetailRow = ({
   label,
@@ -52,43 +45,52 @@ const TripDetails = () => {
   const studentColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.tripDetails.id,
+        header: headerKeys.tripDetails.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'name', header: 'Student Name' },
       {
-        accessorKey: 'pickup_status',
-        header: 'Pickup Status',
+        accessorKey: accessorkeys.tripDetails.name,
+        header: headerKeys.tripDetails.name,
+      },
+      {
+        accessorKey: accessorkeys.tripDetails.pickupStatus,
+        header: headerKeys.tripDetails.pickupStatus,
         cell: ({ row }: { row: { original: any } }) => {
           const status = row.original.pickup_status
           const badgeClass =
-            status === 'picked_up'
-              ? 'badge-green'
-              : status === 'missed'
-                ? 'badge-red'
-                : 'badge-yellow'
+            badgeMaps[status as keyof typeof badgeMaps]?.className
           return (
             <span className={`badge ${badgeClass}`}>
-              {status?.replace('_', ' ') || '—'}
+              {badgeMaps[status as keyof typeof badgeMaps]?.label || '—'}
             </span>
           )
         },
       },
       {
-        accessorKey: 'drop_status',
-        header: 'Drop Status',
+        accessorKey: accessorkeys.tripDetails.dropStatus,
+        header: headerKeys.tripDetails.dropStatus,
         cell: ({ row }: { row: { original: any } }) => {
           const status = row.original.drop_status
           const badgeClass =
-            status === 'dropped'
-              ? 'badge-green'
-              : status === 'missed'
-                ? 'badge-red'
-                : 'badge-yellow'
+            badgeMaps[status as keyof typeof badgeMaps]?.className
           return (
             <span className={`badge ${badgeClass}`}>
-              {status?.replace('_', ' ') || '—'}
+              {badgeMaps[status as keyof typeof badgeMaps]?.label || '—'}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: accessorkeys.tripDetails.dropStatus,
+        header: headerKeys.tripDetails.dropStatus,
+        cell: ({ row }: { row: { original: any } }) => {
+          const status = row.original.drop_status
+          const badgeClass =
+            badgeMaps[status as keyof typeof badgeMaps]?.className
+          return (
+            <span className={`badge ${badgeClass}`}>
+              {badgeMaps[status as keyof typeof badgeMaps]?.label || '—'}
             </span>
           )
         },
@@ -100,25 +102,25 @@ const TripDetails = () => {
   const trackingColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.tripDetails.id,
+        header: headerKeys.tripDetails.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: 'lat',
-        header: 'Latitude',
+        accessorKey: accessorkeys.tripDetails.lat,
+        header: headerKeys.tripDetails.lat,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.lat?.toFixed(6) ?? '—',
       },
       {
-        accessorKey: 'lng',
-        header: 'Longitude',
+        accessorKey: accessorkeys.tripDetails.lng,
+        header: headerKeys.tripDetails.lng,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.lng?.toFixed(6) ?? '—',
       },
       {
-        accessorKey: 'timestamp',
-        header: 'Time',
+        accessorKey: accessorkeys.tripDetails.timestamp,
+        header: headerKeys.tripDetails.timestamp,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.timestamp
             ? new Date(row.original.timestamp).toLocaleString()
@@ -150,10 +152,7 @@ const TripDetails = () => {
   }
 
   const status = trip.trip_status as TripStatus
-  const badge = tripStatusBadge[status] || {
-    label: status,
-    className: 'badge-gray',
-  }
+  const badge = badgeMaps[status as keyof typeof badgeMaps]
 
   return (
     <React.Fragment>
@@ -167,9 +166,7 @@ const TripDetails = () => {
                 <h2 className="text-xl font-bold text-gray-900">
                   Trip #{trip._id.slice(-8)}
                 </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  {trip.school_name}
-                </p>
+                <p className="text-gray-500 text-sm mt-1">{trip.school_name}</p>
               </div>
               <span
                 className={`badge inline-flex items-center gap-1 ${badge.className}`}>
@@ -183,9 +180,7 @@ const TripDetails = () => {
               <DetailRow label="School" value={trip.school_name} />
               <DetailRow
                 label="Type"
-                value={
-                  <span className="capitalize">{trip.trip_type}</span>
-                }
+                value={<span className="capitalize">{trip.trip_type}</span>}
               />
               <DetailRow
                 label="Date"
@@ -207,10 +202,7 @@ const TripDetails = () => {
                     : undefined
                 }
               />
-              <DetailRow
-                label="Students"
-                value={trip.students_count}
-              />
+              <DetailRow label="Students" value={trip.students_count} />
               <DetailRow
                 label="Start Time"
                 value={
@@ -253,9 +245,14 @@ const TripDetails = () => {
             </h6>
           </div>
           <div className="card-body">
-            <DatatablesHover
+            <TableContainer
               columns={studentColumns}
               data={trip.students || []}
+              thClass="!font-medium cursor-pointer"
+              divClass="overflow-x-auto table-box whitespace-nowrap"
+              lastTrClass="text-end"
+              tableClass="table flush"
+              thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
             />
           </div>
         </div>
@@ -269,9 +266,14 @@ const TripDetails = () => {
               </h6>
             </div>
             <div className="card-body">
-              <DatatablesHover
+              <TableContainer
                 columns={trackingColumns}
                 data={trip.tracking_history}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                lastTrClass="text-end"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
               />
             </div>
           </div>

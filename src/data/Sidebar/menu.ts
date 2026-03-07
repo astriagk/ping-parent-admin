@@ -1,6 +1,7 @@
 import { MegaMenu } from '@src/dtos'
 
 const menu: MegaMenu[] = [
+  // ── Main ─────────────────────────────────────────────────
   {
     separator: true,
     title: 'Main',
@@ -15,12 +16,14 @@ const menu: MegaMenu[] = [
     separator: false,
     children: [],
   },
+
+  // ── Admin Management (superadmin) ─────────────────────────
   {
     separator: true,
     title: 'Admin Management',
     lang: 'pe-admin-management',
     children: [],
-    allowedRoles: ['superadmin', 'admin'],
+    allowedRoles: ['superadmin'],
   },
   {
     title: 'Manage Admins',
@@ -31,6 +34,8 @@ const menu: MegaMenu[] = [
     allowedRoles: ['superadmin'],
     children: [],
   },
+
+  // ── Billing (superadmin) ──────────────────────────────────
   {
     separator: true,
     title: 'Billing',
@@ -53,13 +58,13 @@ const menu: MegaMenu[] = [
         dropdownPosition: null,
         children: [],
       },
-      // {
-      //   title: 'Parent Subscriptions',
-      //   lang: 'pe-parent-subscriptions',
-      //   link: '/billing/parent-subscriptions/list',
-      //   dropdownPosition: null,
-      //   children: [],
-      // },
+      {
+        title: 'Parent Subscriptions',
+        lang: 'pe-parent-subscriptions',
+        link: '/billing/parent-subscriptions/list',
+        dropdownPosition: null,
+        children: [],
+      },
       {
         title: 'School Subscriptions',
         lang: 'pe-school-subscriptions',
@@ -78,6 +83,8 @@ const menu: MegaMenu[] = [
     allowedRoles: ['superadmin'],
     children: [],
   },
+
+  // ── School Management (superadmin, admin) ─────────────────
   {
     separator: true,
     title: 'School Management',
@@ -100,15 +107,26 @@ const menu: MegaMenu[] = [
         dropdownPosition: null,
         children: [],
       },
-      // {
-      //   title: 'School Drivers',
-      //   lang: 'pe-school-drivers',
-      //   link: '/schools/school-drivers/list',
-      //   dropdownPosition: null,
-      //   children: [],
-      // },
+      {
+        title: 'School Drivers',
+        lang: 'pe-school-drivers',
+        link: '/schools/school-drivers/list',
+        dropdownPosition: null,
+        children: [],
+      },
     ],
   },
+  {
+    title: 'School Admins',
+    lang: 'pe-school-admins',
+    icon: 'shield-check',
+    link: '/schools/school-admins/list',
+    separator: false,
+    allowedRoles: ['superadmin', 'admin'],
+    children: [],
+  },
+
+  // ── User Management (superadmin, admin) ───────────────────
   {
     separator: true,
     title: 'User Management',
@@ -127,34 +145,26 @@ const menu: MegaMenu[] = [
       {
         title: 'Parents',
         lang: 'pe-parents',
-        link: '/users/parents',
+        link: '/users/parents/list',
         dropdownPosition: null,
-        children: [
-          {
-            title: 'List',
-            lang: 'pe-list',
-            link: '/users/parents/list',
-            dropdownPosition: null,
-            children: [],
-          },
-        ],
+        children: [],
       },
       {
         title: 'Driver Approvals',
         lang: 'pe-drivers',
-        link: '/users/drivers',
+        link: '/users/drivers/list',
         dropdownPosition: null,
-        children: [
-          {
-            title: 'List',
-            lang: 'pe-list',
-            link: '/users/drivers/list',
-            dropdownPosition: null,
-            children: [],
-          },
-        ],
+        children: [],
       },
     ],
+  },
+
+  // ── Trips & Tracking (all roles) ──────────────────────────
+  {
+    separator: true,
+    title: 'Trips & Tracking',
+    lang: 'pe-trips-tracking',
+    children: [],
   },
   {
     title: 'Trips & Tracking',
@@ -179,45 +189,92 @@ const menu: MegaMenu[] = [
       },
     ],
   },
+
+  // ── School Admin Management (school_admin) ────────────────
+  {
+    separator: true,
+    title: 'School Admin',
+    lang: 'pe-school-admin',
+    children: [],
+    allowedRoles: ['school_admin'],
+  },
   {
     title: 'Student Codes',
     lang: 'pe-student-codes',
     icon: 'qr-code',
-    link: '/billing/redemption-codes/list',
+    link: '#',
     separator: false,
     allowedRoles: ['school_admin'],
-    children: [],
+    children: [
+      {
+        title: 'All Redemption Codes',
+        lang: 'pe-all-redemption-codes',
+        link: '/billing/redemption-codes/list',
+        dropdownPosition: null,
+        children: [],
+      },
+      {
+        title: 'Generate Redemption Codes',
+        lang: 'pe-generate-redemption-codes',
+        link: '/billing/redemption-codes/generate',
+        dropdownPosition: null,
+        children: [],
+      },
+    ],
   },
   {
-    title: 'Driver Assignments',
-    lang: 'pe-driver-assignments',
+    title: 'School Drivers',
+    lang: 'pe-school-drivers-group',
     icon: 'bus',
-    link: '/assignments/driver-student/list',
+    link: '#',
     separator: false,
     allowedRoles: ['school_admin'],
-    children: [],
+    children: [
+      {
+        title: 'Drivers List',
+        lang: 'pe-drivers-list',
+        link: '/schools/school-drivers/list',
+        dropdownPosition: null,
+        children: [],
+      },
+      {
+        title: 'Assign to School',
+        lang: 'pe-assign-to-school',
+        link: '/schools/school-drivers/assign',
+        dropdownPosition: null,
+        children: [],
+      },
+    ],
   },
-  // {
-  //   separator: true,
-  //   title: 'School',
-  //   lang: 'pe-school-section',
-  //   children: [],
-  //   allowedRoles: ['school_admin'],
-  // },
+  {
+    title: 'Assignments',
+    lang: 'pe-assignments',
+    icon: 'add',
+    link: '#',
+    separator: false,
+    allowedRoles: ['school_admin'],
+    children: [
+      {
+        title: 'All Assignments',
+        lang: 'pe-all-assignments',
+        link: '/assignments/driver-student/list',
+        dropdownPosition: null,
+        children: [],
+      },
+      {
+        title: 'Assign to Students',
+        lang: 'pe-assign-to-students',
+        link: '/assignments/driver-student/assign',
+        dropdownPosition: null,
+        children: [],
+      },
+    ],
+  },
   // {
   //   title: 'Subscription',
   //   lang: 'pe-subscription',
   //   icon: 'credit-card',
   //   link: '/billing/school-subscriptions/list',
-  //   separator: false,
-  //   allowedRoles: ['school_admin'],
-  //   children: [],
-  // },
-  // {
-  //   title: 'Student Codes',
-  //   lang: 'pe-student-codes',
-  //   icon: 'qr-code',
-  //   link: '/billing/redemption-codes/list',
   //   separator: false,
   //   allowedRoles: ['school_admin'],
   //   children: [],
@@ -265,19 +322,7 @@ const menu: MegaMenu[] = [
   //   children: [],
   // },
 
-  // {
-  //   title: 'School Admins',
-  //   lang: 'pe-school-admins',
-  //   icon: 'shield-check',
-  //   link: '/schools/school-admins/list',
-  //   separator: false,
-  //   allowedRoles: ['superadmin', 'admin'],
-  //   children: [],
-  // },
-
-  // ── Billing (superadmin only) ─────────────────────────────
-
-  // // ── Others (superadmin, admin) ────────────────────────────
+  // ── Others (superadmin, admin) ────────────────────────────
   // {
   //   separator: true,
   //   title: 'Others',
@@ -321,7 +366,7 @@ const menu: MegaMenu[] = [
   //   allowedRoles: ['superadmin', 'admin'],
   //   children: [],
   // },
-  // // ── Administration ────────────────────────────────────────
+  // ── Administration ────────────────────────────────────────
   // {
   //   separator: true,
   //   title: 'Administration',

@@ -10,6 +10,7 @@ export interface Driver {
   phone_number: string
   user_type: UserRoles
   is_active: boolean
+  approval_status: ApprovalStatus
   created_at: string
   updated_at: string
 }

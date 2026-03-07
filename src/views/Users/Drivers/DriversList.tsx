@@ -7,10 +7,15 @@ import { useRouter } from 'next/navigation'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import { paths } from '@src/shared/common/DynamicTitle'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { UserRoles } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
+import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const DriversList = () => {
@@ -20,7 +25,6 @@ const DriversList = () => {
   })
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -48,31 +52,93 @@ const DriversList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
+        accessorKey: accessorkeys.driversList.driverUniqueId,
+        header: headerKeys.driversList.driverUniqueId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_unique_id || '—',
+      },
+      {
         accessorKey: accessorkeys.driversList.name,
         header: headerKeys.driversList.name,
       },
       {
         accessorKey: accessorkeys.driversList.phoneNumber,
         header: headerKeys.driversList.phoneNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.phone_number || '—',
       },
       {
-        accessorKey: accessorkeys.driversList.email,
-        header: headerKeys.driversList.email,
+        accessorKey: accessorkeys.driversList.vehicleType,
+        header: headerKeys.driversList.vehicleType,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.vehicle_type
+            ? String(row.original.vehicle_type).replace(/_/g, ' ')
+            : '—',
       },
       {
-        accessorKey: accessorkeys.driversList.isActive,
-        header: headerKeys.driversList.isActive,
+        accessorKey: accessorkeys.driversList.vehicleNumber,
+        header: headerKeys.driversList.vehicleNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.vehicle_number || '—',
+      },
+      {
+        accessorKey: accessorkeys.driversList.school,
+        header: headerKeys.driversList.school,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.school_name || 'Independent',
+      },
+      {
+        accessorKey: accessorkeys.driversList.approvalStatus,
+        header: headerKeys.driversList.approvalStatus,
         cell: ({ row }: { row: { original: any } }) => {
-          const { is_active } = row.original
-          const mapKey = String(is_active) as keyof typeof badges
-          const { label, className } = badges[mapKey] || badges.undefined
+          const status = row.original.approval_status as keyof typeof badgeMaps
+          const badge = badgeMaps[status] ?? badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
+      },
+      {
+        accessorKey: accessorkeys.driversList.isAvailable,
+        header: headerKeys.driversList.isAvailable,
+        cell: ({ row }: { row: { original: any } }) => {
+          const key = String(
+            row.original.is_available ?? false
+          ) as keyof typeof badgeMaps
+          const badge = badgeMaps[key] ?? badgeMaps['undefined']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: accessorkeys.driversList.rating,
+        header: headerKeys.driversList.rating,
+        cell: ({ row }: { row: { original: any } }) => {
+          const rating = row.original.rating
+          return rating != null ? `⭐ ${Number(rating).toFixed(1)}` : '—'
+        },
+      },
+      {
+        accessorKey: accessorkeys.driversList.studentCount,
+        header: headerKeys.driversList.studentCount,
+        cell: ({ row }: { row: { original: any } }) => {
+          const current = row.original.current_student_count ?? 0
+          const capacity = row.original.vehicle_capacity ?? '?'
+          return `${current} / ${capacity}`
+        },
+      },
+      {
+        accessorKey: accessorkeys.driversList.createdAt,
+        header: headerKeys.driversList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
       {
         accessorKey: accessorkeys.driversList.actions,
@@ -90,7 +156,7 @@ const DriversList = () => {
         ),
       },
     ],
-    []
+    [router]
   )
 
   return (

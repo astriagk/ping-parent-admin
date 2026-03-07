@@ -6,19 +6,15 @@ import { useParams } from 'next/navigation'
 
 import { Trip } from '@src/dtos/trip'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { TripStatus } from '@src/shared/constants/enums'
+import TableContainer from '@src/shared/custom/table/table'
 import { useGetStudentDetailsQuery } from '@src/store/services/studentApi'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
-
-const statusBadge: Record<TripStatus, { label: string; className: string }> = {
-  [TripStatus.SCHEDULED]: { label: 'Scheduled', className: 'badge-yellow' },
-  [TripStatus.STARTED]: { label: 'Started', className: 'badge-blue' },
-  [TripStatus.IN_PROGRESS]: { label: 'In Progress', className: 'badge-blue' },
-  [TripStatus.COMPLETED]: { label: 'Completed', className: 'badge-green' },
-  [TripStatus.CANCELLED]: { label: 'Cancelled', className: 'badge-red' },
-}
 
 const DetailRow = ({
   label,
@@ -56,27 +52,27 @@ const StudentDetails = () => {
   const tripColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.tripsList.id,
+        header: headerKeys.tripsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.tripId, header: headerKeys.tripId },
       {
-        accessorKey: accessorkeys.tripType,
-        header: headerKeys.tripType,
+        accessorKey: accessorkeys.tripsList.tripId,
+        header: headerKeys.tripsList.tripId,
+      },
+      {
+        accessorKey: accessorkeys.tripsList.tripType,
+        header: headerKeys.tripsList.tripType,
         cell: ({ row }: { row: { original: Trip } }) => (
           <span className="capitalize">{row.original.trip_type}</span>
         ),
       },
       {
-        accessorKey: accessorkeys.tripStatus,
-        header: headerKeys.tripStatus,
+        accessorKey: accessorkeys.tripsList.tripStatus,
+        header: headerKeys.tripsList.tripStatus,
         cell: ({ row }: { row: { original: Trip } }) => {
           const status = row.original.trip_status as TripStatus
-          const badge = statusBadge[status] || {
-            label: status,
-            className: 'badge-gray',
-          }
+          const badge = badgeMaps[status as keyof typeof badgeMaps]
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${badge.className}`}>
@@ -86,8 +82,8 @@ const StudentDetails = () => {
         },
       },
       {
-        accessorKey: accessorkeys.tripDate,
-        header: headerKeys.tripDate,
+        accessorKey: accessorkeys.tripsList.tripDate,
+        header: headerKeys.tripsList.tripDate,
         cell: ({ row }: { row: { original: Trip } }) =>
           row.original.trip_date
             ? new Date(row.original.trip_date).toLocaleDateString()
@@ -135,8 +131,14 @@ const StudentDetails = () => {
                 </p>
               </div>
               <span
-                className={`badge inline-flex items-center gap-1 ${student.is_active ? 'badge-green' : 'badge-yellow'}`}>
-                {student.is_active ? 'Active' : 'Inactive'}
+                className={`badge inline-flex items-center gap-1 ${badgeMaps[(student.is_active ? 'active' : 'inactive') as keyof typeof badgeMaps]?.className}`}>
+                {
+                  badgeMaps[
+                    (student.is_active
+                      ? 'active'
+                      : 'inactive') as keyof typeof badgeMaps
+                  ]?.label
+                }
               </span>
             </div>
 
@@ -171,9 +173,14 @@ const StudentDetails = () => {
             <h6 className="card-title">Trip History</h6>
           </div>
           <div className="card-body">
-            <DatatablesHover
+            <TableContainer
               columns={tripColumns}
               data={tripsData?.data || []}
+              thClass="!font-medium cursor-pointer"
+              divClass="overflow-x-auto table-box whitespace-nowrap"
+              lastTrClass="text-end"
+              tableClass="table flush"
+              thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
             />
           </div>
         </div>

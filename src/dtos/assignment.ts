@@ -21,11 +21,32 @@ export interface DriverStudentAssignmentListResponse {
 
 export interface SchoolAssignment {
   _id: string
-  school_id: string
-  school_name: string
   driver_id: string
-  driver_name: string
-  status: AssignmentStatus
+  student_id: string
+  school_id: string
+  driver_unique_id?: string
+  monthly_fee?: number | null
+  assignment_status: AssignmentStatus
+  assigned_date?: string
+  start_date?: string
+  assigned_by?: string
+  assignment_source?: string
+  status?: AssignmentStatus
+  parent_name?: string
+  driver?: {
+    driver_id: string
+    name: string
+    driver_unique_id: string
+    vehicle_type?: string
+    vehicle_number?: string
+    phone_number?: string
+  }
+  student?: {
+    student_id: string
+    student_name: string
+    class?: string
+    section?: string
+  }
   created_at: string
   updated_at: string
 }

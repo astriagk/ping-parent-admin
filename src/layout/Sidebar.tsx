@@ -58,6 +58,7 @@ import {
   MessagesSquare,
   Monitor,
   PencilRuler,
+  Plus,
   Presentation,
   QrCode,
   RemoveFormatting,
@@ -168,6 +169,7 @@ const Sidebar = ({
       star: <Star className={className} />,
       bell: <Bell className={className} />,
       settings: <Settings className={className} />,
+      add: <Plus className={className} />,
     }
     return icons[icon]
   }

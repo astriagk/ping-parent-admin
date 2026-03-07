@@ -42,6 +42,9 @@ export const NEXT_PUBLIC_PARENT_SUBSCRIPTIONS_API = '/admin/subscriptions'
 export const NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API =
   '/admin/school-subscriptions'
 
+// STUDENT APIS
+export const NEXT_PUBLIC_STUDENTS_BY_SCHOOL_API = '/admin/students/school'
+
 // ROLES APIS
 export const NEXT_PUBLIC_ROLES_API = '/superadmin/roles'
 

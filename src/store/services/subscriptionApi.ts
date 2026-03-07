@@ -80,7 +80,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
     ),
     getSchoolSubscriptions: builder.query<
       SchoolSubscriptionListResponse,
-      string
+      string | undefined
     >({
       query: (schoolId) => ({
         url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/school/${schoolId}`,

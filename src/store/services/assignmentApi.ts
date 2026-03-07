@@ -97,12 +97,12 @@ export const assignmentApi = baseApi.injectEndpoints({
     }),
     createSchoolAssignment: builder.mutation<
       { success: boolean; message: string },
-      { schoolId: string; driver_id: string }
+      { schoolId: string; driver_id: string; student_ids: string[] }
     >({
-      query: ({ schoolId, driver_id }) => ({
+      query: ({ schoolId, driver_id, student_ids }) => ({
         url: `${NEXT_PUBLIC_SCHOOL_ASSIGNMENTS_API}/${schoolId}/create`,
         method: ApiMethods.POST,
-        body: { driver_id },
+        body: { driver_id, student_ids },
       }),
       invalidatesTags: [AuthTags.ASSIGNMENT],
     }),

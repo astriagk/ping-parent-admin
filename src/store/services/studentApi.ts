@@ -1,6 +1,9 @@
 import { StudentDetailsResponse, StudentListResponse } from '@src/dtos/student'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
-import { NEXT_PUBLIC_USERS_LIST_API } from '@utils/url_helper'
+import {
+  NEXT_PUBLIC_STUDENTS_BY_SCHOOL_API,
+  NEXT_PUBLIC_USERS_LIST_API,
+} from '@utils/url_helper'
 
 import { baseApi } from './baseApi'
 
@@ -9,6 +12,13 @@ export const studentApi = baseApi.injectEndpoints({
     getStudentList: builder.query<StudentListResponse, void>({
       query: () => ({
         url: `${NEXT_PUBLIC_USERS_LIST_API}?user_type=student`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.STUDENT],
+    }),
+    getStudentsBySchool: builder.query<StudentListResponse, string>({
+      query: (schoolId) => ({
+        url: `${NEXT_PUBLIC_STUDENTS_BY_SCHOOL_API}/${schoolId}`,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.STUDENT],
@@ -23,4 +33,8 @@ export const studentApi = baseApi.injectEndpoints({
   }),
 })
 
-export const { useGetStudentListQuery, useGetStudentDetailsQuery } = studentApi
+export const {
+  useGetStudentListQuery,
+  useGetStudentsBySchoolQuery,
+  useGetStudentDetailsQuery,
+} = studentApi

@@ -6,14 +6,15 @@ import { useRouter } from 'next/navigation'
 
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { UserRoles } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
-import {
-  useActivateUserMutation,
-  useDeactivateUserMutation,
-} from '@src/store/services/adminApi'
 import { useGetParentListQuery } from '@src/store/services/parentApi'
+import { formatDate } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
 const ParentsList = () => {
@@ -21,20 +22,14 @@ const ParentsList = () => {
   const { data: parentListData } = useGetParentListQuery({
     user_type: UserRoles.PARENT,
   })
-  const [activateUser] = useActivateUserMutation()
-  const [deactivateUser] = useDeactivateUserMutation()
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
-
-  const handleActivate = (id: string) => activateUser(id)
-  const handleDeactivate = (id: string) => deactivateUser(id)
 
   const parentData: any[] = parentListData?.data ?? []
 
@@ -62,37 +57,36 @@ const ParentsList = () => {
       {
         accessorKey: accessorkeys.parentsList.phoneNumber,
         header: headerKeys.parentsList.phoneNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.phone_number || '—',
       },
       {
         accessorKey: accessorkeys.parentsList.email,
         header: headerKeys.parentsList.email,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.email || '—',
       },
       {
         accessorKey: accessorkeys.parentsList.isActive,
         header: headerKeys.parentsList.isActive,
         cell: ({ row }: { row: { original: any } }) => {
-          const { is_active, _id } = row.original
+          const mapKey = String(
+            row.original.is_active
+          ) as keyof typeof badgeMaps
+          const badge = badgeMaps[mapKey] ?? badgeMaps['undefined']
           return (
-            <label className="switch-group switch-soft">
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={is_active}
-                  onChange={() => {
-                    if (!is_active) {
-                      handleActivate(_id)
-                    } else {
-                      handleDeactivate(_id)
-                    }
-                  }}
-                />
-                <div className="switch-wrapper peer-checked:!bg-green-500/15"></div>
-                <div className="switch-dot peer-checked:translate-x-full rtl:peer-checked:-translate-x-full peer-checked:!bg-green-500"></div>
-              </div>
-            </label>
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
           )
         },
+      },
+      {
+        accessorKey: accessorkeys.parentsList.createdAt,
+        header: headerKeys.parentsList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
       {
         accessorKey: accessorkeys.parentsList.actions,

@@ -5,21 +5,20 @@ import React, { useMemo, useState } from 'react'
 import { SchoolSubscription } from '@src/dtos/subscription'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { useGetSchoolSubscriptionsQuery } from '@src/store/services/subscriptionApi'
-import { formatAmount, formatDate } from '@src/utils/formatters'
+import { formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
 
 import CreateSubscriptionModal from '../CreateSubscriptionModal'
 
-const statusBadge: Record<string, { label: string; className: string }> = {
-  active: { label: 'Active', className: 'badge-green' },
-  expired: { label: 'Expired', className: 'badge-red' },
-  cancelled: { label: 'Cancelled', className: 'badge-yellow' },
-}
 const SchoolSubscriptionsList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
   const [selectedSchoolId, setSelectedSchoolId] = useState<string>('')
@@ -40,21 +39,22 @@ const SchoolSubscriptionsList = () => {
     setSearchQuery(e.target.value)
   }
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
-  const adminData: SchoolSubscription[] = subscriptionsData?.data ?? []
+  const schoolSubscriptionData: SchoolSubscription[] =
+    subscriptionsData?.data ?? []
 
-  const filierPlansRecords = adminData.filter((item: SchoolSubscription) => {
-    const filterRecord = item.plan?.plan_name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-    return filterRecord
-  })
+  const filteredRecords = schoolSubscriptionData.filter(
+    (item: SchoolSubscription) => {
+      return (item.plan?.plan_name ?? '')
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    }
+  )
 
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedEvents = filierPlansRecords.slice(
+  const paginatedData = filteredRecords.slice(
     startIndex,
     startIndex + itemsPerPage
   )
@@ -67,47 +67,82 @@ const SchoolSubscriptionsList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
+        accessorKey: accessorkeys.schoolSubscriptionPlans.schoolName,
+        header: headerKeys.schoolSubscriptionPlans.schoolName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.school_name || '—',
+      },
+      {
         accessorKey: accessorkeys.schoolSubscriptionPlans.planName,
         header: headerKeys.schoolSubscriptionPlans.planName,
         cell: ({ row }: { row: { original: SchoolSubscription } }) =>
           row.original.plan?.plan_name || '—',
       },
-
       {
-        accessorKey: accessorkeys.schoolSubscriptionPlans.price,
-        header: headerKeys.schoolSubscriptionPlans.price,
-        cell: ({ row }: { row: { original: SchoolSubscription } }) =>
-          `${formatAmount(row.original.plan?.price || 0)}`,
-      },
-      {
-        accessorKey: accessorkeys.schoolSubscriptionPlans.startDate,
-        header: headerKeys.schoolSubscriptionPlans.startDate,
-        cell: ({ row }: { row: { original: SchoolSubscription } }) =>
-          formatDate(row.original.start_date),
-      },
-      {
-        accessorKey: accessorkeys.schoolSubscriptionPlans.endDate,
-        header: headerKeys.schoolSubscriptionPlans.endDate,
-        cell: ({ row }: { row: { original: SchoolSubscription } }) =>
-          formatDate(row.original.end_date),
+        accessorKey: accessorkeys.schoolSubscriptionPlans.planType,
+        header: headerKeys.schoolSubscriptionPlans.planType,
+        cell: ({ row }: { row: { original: any } }) => {
+          const type = row.original.plan?.plan_type as keyof typeof badgeMaps
+          if (!type) return <span className="text-gray-400">—</span>
+          const badge = badgeMaps[type] ?? badgeMaps['undefined']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
+        },
       },
       {
         accessorKey: accessorkeys.schoolSubscriptionPlans.subscriptionStatus,
         header: headerKeys.schoolSubscriptionPlans.subscriptionStatus,
         cell: ({ row }: { row: { original: SchoolSubscription } }) => {
-          const { label, className } = statusBadge[
-            row.original.subscription_status
-          ] || {
-            label: row.original.subscription_status,
-            className: 'badge-gray',
-          }
+          const status = row.original
+            .subscription_status as keyof typeof badgeMaps
+          const badge = badgeMaps[status] ?? badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
+      },
+      {
+        accessorKey: accessorkeys.schoolSubscriptionPlans.startDate,
+        header: headerKeys.schoolSubscriptionPlans.startDate,
+        cell: ({ row }: { row: { original: SchoolSubscription } }) =>
+          row.original.start_date ? formatDate(row.original.start_date) : '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolSubscriptionPlans.endDate,
+        header: headerKeys.schoolSubscriptionPlans.endDate,
+        cell: ({ row }: { row: { original: SchoolSubscription } }) =>
+          row.original.end_date ? formatDate(row.original.end_date) : '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolSubscriptionPlans.maxDrivers,
+        header: headerKeys.schoolSubscriptionPlans.maxDrivers,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.max_drivers ?? '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolSubscriptionPlans.maxStudents,
+        header: headerKeys.schoolSubscriptionPlans.maxStudents,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.max_students ?? '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolSubscriptionPlans.billingContact,
+        header: headerKeys.schoolSubscriptionPlans.billingContact,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.billing_contact || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolSubscriptionPlans.autoRenew,
+        header: headerKeys.schoolSubscriptionPlans.autoRenew,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.auto_renew ? 'Yes' : 'No',
       },
     ],
     []
@@ -139,7 +174,7 @@ const SchoolSubscriptionsList = () => {
                     onChange={(option) =>
                       setSelectedSchoolId(option?.value || '')
                     }
-                    placeholder="Sorting by school"
+                    placeholder="Filter by school"
                     isClearable={true}
                   />
                 </div>
@@ -161,7 +196,6 @@ const SchoolSubscriptionsList = () => {
               <div className="col-span-12 md:col-span-4 lg:col-span-4 lg:col-start-10 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
                 <button
                   className="btn btn-primary shrink-0"
-                  data-modal-target="parentsCreateModal"
                   onClick={() => setCreateModalOpen(true)}>
                   <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />{' '}
                   Create Subscription
@@ -174,14 +208,14 @@ const SchoolSubscriptionsList = () => {
             <div>
               <TableContainer
                 columns={columns}
-                data={paginatedEvents}
+                data={paginatedData}
                 thClass="!font-medium cursor-pointer"
                 divClass="overflow-x-auto table-box whitespace-nowrap"
                 tableClass="table flush"
                 thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
               />
               <Pagination
-                totalItems={filierPlansRecords.length}
+                totalItems={filteredRecords.length}
                 itemsPerPage={itemsPerPage}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}

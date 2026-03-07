@@ -113,20 +113,6 @@ enum PaymentStatus {
   REFUNDED = 'refunded',
 }
 
-const PaymentStatusLabel: Record<PaymentStatus, string> = {
-  [PaymentStatus.PENDING]: 'Pending',
-  [PaymentStatus.COMPLETED]: 'Completed',
-  [PaymentStatus.FAILED]: 'Failed',
-  [PaymentStatus.REFUNDED]: 'Refunded',
-}
-
-const PaymentStatusBadge: Record<PaymentStatus, string> = {
-  [PaymentStatus.PENDING]: 'badge-yellow',
-  [PaymentStatus.COMPLETED]: 'badge-green',
-  [PaymentStatus.FAILED]: 'badge-red',
-  [PaymentStatus.REFUNDED]: 'badge-blue',
-}
-
 const PaymentMethodLabel: Record<string, string> = {
   netbanking: 'Net Banking',
   upi: 'UPI',
@@ -170,8 +156,6 @@ export {
   PricingModelLabel,
   PlanTypeBadge,
   PaymentStatus,
-  PaymentStatusLabel,
-  PaymentStatusBadge,
   PaymentMethodLabel,
   PaymentType,
   PaymentTypeLabel,

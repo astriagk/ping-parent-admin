@@ -2,29 +2,31 @@
 
 import React, { useMemo, useState } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import { Trip } from '@src/dtos/trip'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
-import { TripStatus } from '@src/shared/constants/enums'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
+import { STORAGE_KEYS, TripStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
-import { formatDate } from '@src/utils/formatters'
+import LocalStorage from '@src/utils/LocalStorage'
+import { formatDate, formatTime } from '@src/utils/formatters'
 import { Search } from 'lucide-react'
 
-const statusBadge: Record<TripStatus, { label: string; className: string }> = {
-  [TripStatus.SCHEDULED]: { label: 'Scheduled', className: 'badge-yellow' },
-  [TripStatus.STARTED]: { label: 'Started', className: 'badge-blue' },
-  [TripStatus.IN_PROGRESS]: { label: 'In Progress', className: 'badge-blue' },
-  [TripStatus.COMPLETED]: { label: 'Completed', className: 'badge-green' },
-  [TripStatus.CANCELLED]: { label: 'Cancelled', className: 'badge-red' },
-}
-
 const TripsList = () => {
+  const router = useRouter()
   const { data: tripsData } = useGetTripListQuery()
+  const user = LocalStorage.getItem(STORAGE_KEYS.ADMIN)
+    ? JSON.parse(LocalStorage.getItem(STORAGE_KEYS.ADMIN)!)
+    : null
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -34,9 +36,18 @@ const TripsList = () => {
 
   const tripData: Trip[] = tripsData?.data ?? []
 
-  const filteredTripRecords = tripData.filter((item: Trip) =>
-    (item.driver_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredTripRecords = tripData.filter((item: Trip) => {
+    const matchesSearch = (item?.driver?.name ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+
+    // Only filter by school_id if user has a school_id
+    if (user?.school_id) {
+      return matchesSearch && item?.school?.school_id === user?.school_id
+    }
+
+    return matchesSearch
+  })
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedTrips = filteredTripRecords.slice(
@@ -52,49 +63,93 @@ const TripsList = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.tripsList.tripId,
-        header: headerKeys.tripsList.tripId,
+        accessorKey: accessorkeys.tripsList.tripDate,
+        header: headerKeys.tripsList.tripDate,
+        cell: ({ row }: { row: { original: Trip } }) =>
+          row.original.trip_date ? formatDate(row.original.trip_date) : '—',
       },
       {
         accessorKey: accessorkeys.tripsList.tripType,
         header: headerKeys.tripsList.tripType,
         cell: ({ row }: { row: { original: Trip } }) => (
-          <span className="capitalize">{row.original.trip_type}</span>
+          <span className="capitalize">{row.original.trip_type ?? '—'}</span>
         ),
+      },
+      {
+        accessorKey: accessorkeys.tripsList.driverName,
+        header: headerKeys.tripsList.driverName,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver?.name || '—',
+      },
+      {
+        accessorKey: accessorkeys.tripsList.driverUniqueId,
+        header: headerKeys.tripsList.driverUniqueId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver?.driver_unique_id || '—',
+      },
+      {
+        accessorKey: accessorkeys.tripsList.school,
+        header: headerKeys.tripsList.school,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.school?.school_name || '—',
       },
       {
         accessorKey: accessorkeys.tripsList.tripStatus,
         header: headerKeys.tripsList.tripStatus,
         cell: ({ row }: { row: { original: Trip } }) => {
           const status = row.original.trip_status as TripStatus
-          const { label, className } = statusBadge[status] || {
-            label: status,
-            className: 'badge-gray',
-          }
+          const badge =
+            badgeMaps[status as keyof typeof badgeMaps] ??
+            badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
       },
       {
-        accessorKey: accessorkeys.tripsList.tripDate,
-        header: headerKeys.tripsList.tripDate,
-        cell: ({ row }: { row: { original: Trip } }) =>
-          formatDate(row.original.trip_date),
+        accessorKey: accessorkeys.tripsList.studentCount,
+        header: headerKeys.tripsList.studentCount,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.student_count ?? '—',
+      },
+      {
+        accessorKey: accessorkeys.tripsList.startTime,
+        header: headerKeys.tripsList.startTime,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.start_time ? formatTime(row.original.start_time) : '—',
+      },
+      {
+        accessorKey: accessorkeys.tripsList.endTime,
+        header: headerKeys.tripsList.endTime,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.end_time ? formatTime(row.original.end_time) : '—',
       },
       {
         accessorKey: accessorkeys.tripsList.totalDistance,
         header: headerKeys.tripsList.totalDistance,
         cell: ({ row }: { row: { original: Trip } }) => {
           const value = row.original.total_distance
-          return value != null ? `${value} KM` : '-'
+          return value != null ? `${value} km` : '—'
         },
       },
+      {
+        accessorKey: accessorkeys.tripsList.actions,
+        header: headerKeys.tripsList.actions,
+        cell: ({ row }: { row: { original: any } }) => (
+          <div className="flex justify-end gap-2">
+            <button
+              className="btn btn-sub-primary btn-icon !size-8 rounded-md"
+              onClick={() => router.push(`/trips/details/${row.original._id}`)}>
+              <i className="ri-eye-line"></i>
+            </button>
+          </div>
+        ),
+      },
     ],
-    []
+    [router]
   )
 
   return (

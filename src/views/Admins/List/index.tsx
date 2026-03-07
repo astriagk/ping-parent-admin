@@ -5,7 +5,11 @@ import React, { useMemo, useState } from 'react'
 import { AdminListItem } from '@src/dtos/admin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
-import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
+import {
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
 import { ModelModes, UserRolesType } from '@src/shared/constants/enums'
 import { MESSAGES } from '@src/shared/constants/messages'
 import TableContainer from '@src/shared/custom/table/table'
@@ -14,6 +18,7 @@ import {
   useDeactivateAdminMutation,
   useGetAdminListQuery,
 } from '@src/store/services/adminApi'
+import { formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -30,7 +35,6 @@ const AdminsList = () => {
     data: null,
   })
 
-  //pagination
   const itemsPerPage = 10
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -40,15 +44,12 @@ const AdminsList = () => {
 
   const adminData: AdminListItem[] = adminListData?.data ?? []
 
-  const filierParentRecords = adminData.filter((item: AdminListItem) => {
-    const filterRecord = item.username
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-    return filterRecord
+  const filteredRecords = adminData.filter((item: AdminListItem) => {
+    return item.username.toLowerCase().includes(searchQuery.toLowerCase())
   })
 
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedEvents = filierParentRecords.slice(
+  const paginatedData = filteredRecords.slice(
     startIndex,
     startIndex + itemsPerPage
   )
@@ -65,11 +66,11 @@ const AdminsList = () => {
       const result = await activateAdmin(_id).unwrap()
       toast.success(result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
     } catch (error: any) {
-      const errorMsg =
+      toast.error(
         error?.data?.error ||
-        error?.message ||
-        MESSAGES.ADMIN.ERROR.UPDATE_FAILED
-      toast.error(errorMsg)
+          error?.message ||
+          MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+      )
     }
   }
 
@@ -78,11 +79,11 @@ const AdminsList = () => {
       const result = await deactivateAdmin(_id).unwrap()
       toast.success(result?.message || MESSAGES.ADMIN.SUCCESS.ADMIN_UPDATED)
     } catch (error: any) {
-      const errorMsg =
+      toast.error(
         error?.data?.error ||
-        error?.message ||
-        MESSAGES.ADMIN.ERROR.UPDATE_FAILED
-      toast.error(errorMsg)
+          error?.message ||
+          MESSAGES.ADMIN.ERROR.UPDATE_FAILED
+      )
     }
   }
 
@@ -104,13 +105,21 @@ const AdminsList = () => {
       {
         accessorKey: accessorkeys.adminList.phoneNumber,
         header: headerKeys.adminList.phoneNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.phone_number || '—',
       },
       {
         accessorKey: accessorkeys.adminList.adminRole,
         header: headerKeys.adminList.adminRole,
         cell: ({ row }: { row: { original: any } }) => {
-          const role = row.original[accessorkeys.adminList.adminRole]
-          return UserRolesType[role as keyof typeof UserRolesType] || role
+          const role = row.original.admin_role as keyof typeof badgeMaps
+          const badge = badgeMaps[role] ?? badgeMaps['undefined']
+          return (
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
+          )
         },
       },
       {
@@ -139,6 +148,18 @@ const AdminsList = () => {
             </label>
           )
         },
+      },
+      {
+        accessorKey: accessorkeys.adminList.lastLogin,
+        header: headerKeys.adminList.lastLogin,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.last_login ? formatDate(row.original.last_login) : '—',
+      },
+      {
+        accessorKey: accessorkeys.adminList.createdAt,
+        header: headerKeys.adminList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
       },
       {
         accessorKey: accessorkeys.adminList.actions,
@@ -174,7 +195,7 @@ const AdminsList = () => {
                   <input
                     type="text"
                     className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
-                    placeholder="Search User"
+                    placeholder="Search by Username"
                     value={searchQuery}
                     onChange={handleSearchChange}
                   />
@@ -186,10 +207,9 @@ const AdminsList = () => {
               <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-10 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
                 <button
                   className="btn btn-primary shrink-0"
-                  data-modal-target="parentsCreateModal"
                   onClick={() => openCreate()}>
                   <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />{' '}
-                  Add Parents
+                  Add Admin
                 </button>
               </div>
             </div>
@@ -199,7 +219,7 @@ const AdminsList = () => {
             <div>
               <TableContainer
                 columns={columns}
-                data={paginatedEvents}
+                data={paginatedData}
                 thClass="!font-medium cursor-pointer"
                 divClass="overflow-x-auto table-box whitespace-nowrap"
                 lastTrClass="text-end"
@@ -207,7 +227,7 @@ const AdminsList = () => {
                 thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
               />
               <Pagination
-                totalItems={filierParentRecords.length}
+                totalItems={filteredRecords.length}
                 itemsPerPage={itemsPerPage}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}

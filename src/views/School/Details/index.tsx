@@ -6,8 +6,8 @@ import { useParams } from 'next/navigation'
 
 import { SchoolAdmin } from '@src/dtos/schoolAdmin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
+import { accessorkeys, badges, headerKeys, approvalStatusBadge } from '@src/shared/constants/columns'
+import TableContainer from '@src/shared/custom/table/table'
 import {
   useDeactivateSchoolAdminMutation,
   useGetSchoolAdminsQuery,
@@ -75,16 +75,16 @@ const SchoolDetails = () => {
   const adminColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.schoolDetails.id,
+        header: headerKeys.schoolDetails.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'name', header: 'Name' },
-      { accessorKey: 'email', header: 'Email' },
-      { accessorKey: 'phone_number', header: 'Phone' },
+      { accessorKey: accessorkeys.schoolDetails.name, header: headerKeys.schoolDetails.name },
+      { accessorKey: accessorkeys.schoolDetails.email, header: headerKeys.schoolDetails.email },
+      { accessorKey: accessorkeys.schoolDetails.phoneNumber, header: headerKeys.schoolDetails.phoneNumber },
       {
-        accessorKey: accessorkeys.isActive,
-        header: headerKeys.isActive,
+        accessorKey: accessorkeys.schoolDetails.isActive,
+        header: headerKeys.schoolDetails.isActive,
         cell: ({ row }: { row: { original: SchoolAdmin } }) => {
           const mapKey = String(row.original.is_active) as keyof typeof badges
           const { label, className } = badges[mapKey] || badges.undefined
@@ -97,8 +97,8 @@ const SchoolDetails = () => {
         },
       },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
+        accessorKey: accessorkeys.schoolDetails.actions,
+        header: headerKeys.schoolDetails.actions,
         cell: ({ row }: { row: { original: SchoolAdmin } }) => (
           <div className="flex justify-end gap-2">
             {row.original.is_active && (
@@ -118,16 +118,16 @@ const SchoolDetails = () => {
   const driverColumns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.schoolDetails.id,
+        header: headerKeys.schoolDetails.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: 'name', header: 'Name' },
-      { accessorKey: 'email', header: 'Email' },
-      { accessorKey: 'phone_number', header: 'Phone' },
+      { accessorKey: accessorkeys.schoolDetails.name, header: headerKeys.schoolDetails.name },
+      { accessorKey: accessorkeys.schoolDetails.email, header: headerKeys.schoolDetails.email },
+      { accessorKey: accessorkeys.schoolDetails.phoneNumber, header: headerKeys.schoolDetails.phoneNumber },
       {
-        accessorKey: 'approval_status',
-        header: 'Approval',
+        accessorKey: accessorkeys.schoolDetails.approvalStatus,
+        header: headerKeys.schoolDetails.approvalStatus,
         cell: ({ row }: { row: { original: any } }) => {
           const status = row.original.approval_status
           const badgeClass =
@@ -140,8 +140,8 @@ const SchoolDetails = () => {
         },
       },
       {
-        accessorKey: accessorkeys.isActive,
-        header: headerKeys.isActive,
+        accessorKey: accessorkeys.schoolDetails.isActive,
+        header: headerKeys.schoolDetails.isActive,
         cell: ({ row }: { row: { original: any } }) => {
           const mapKey = String(row.original.is_active) as keyof typeof badges
           const { label, className } = badges[mapKey] || badges.undefined
@@ -154,8 +154,8 @@ const SchoolDetails = () => {
         },
       },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
+        accessorKey: accessorkeys.schoolDetails.actions,
+        header: headerKeys.schoolDetails.actions,
         cell: ({ row }: { row: { original: any } }) => (
           <div className="flex justify-end gap-2">
             <button
@@ -245,9 +245,14 @@ const SchoolDetails = () => {
             <h6 className="card-title">School Admins</h6>
           </div>
           <div className="card-body">
-            <DatatablesHover
+            <TableContainer
               columns={adminColumns}
               data={adminsData?.data || []}
+              thClass="!font-medium cursor-pointer"
+              divClass="overflow-x-auto table-box whitespace-nowrap"
+              lastTrClass="text-end"
+              tableClass="table flush"
+              thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
             />
           </div>
         </div>
@@ -258,9 +263,14 @@ const SchoolDetails = () => {
             <h6 className="card-title">School Drivers</h6>
           </div>
           <div className="card-body">
-            <DatatablesHover
+            <TableContainer
               columns={driverColumns}
               data={driversData?.data || []}
+              thClass="!font-medium cursor-pointer"
+              divClass="overflow-x-auto table-box whitespace-nowrap"
+              lastTrClass="text-end"
+              tableClass="table flush"
+              thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
             />
           </div>
         </div>
