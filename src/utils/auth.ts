@@ -1,7 +1,5 @@
 // Authentication utility functions for token management
-
-const ACCESS_TOKEN_KEY = 'access_token'
-const REFRESH_TOKEN_KEY = 'refresh_token'
+import { STORAGE_KEYS } from '@src/shared/constants/enums'
 
 const isBrowser = typeof window !== 'undefined'
 
@@ -12,8 +10,8 @@ export const setAuthTokens = (
   if (!isBrowser) return
 
   try {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken)
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken)
   } catch (error) {
     console.error('Error storing auth tokens:', error)
   }
@@ -23,7 +21,7 @@ export const getAccessToken = (): string | null => {
   if (!isBrowser) return null
 
   try {
-    return localStorage.getItem(ACCESS_TOKEN_KEY)
+    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
   } catch (error) {
     console.error('Error getting access token:', error)
     return null
@@ -34,7 +32,7 @@ export const getRefreshToken = (): string | null => {
   if (!isBrowser) return null
 
   try {
-    return localStorage.getItem(REFRESH_TOKEN_KEY)
+    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
   } catch (error) {
     console.error('Error getting refresh token:', error)
     return null
@@ -45,8 +43,9 @@ export const clearAuthData = (): void => {
   if (!isBrowser) return
 
   try {
-    localStorage.removeItem(ACCESS_TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
+    localStorage.removeItem(STORAGE_KEYS.ADMIN)
   } catch (error) {
     console.error('Error clearing auth data:', error)
   }

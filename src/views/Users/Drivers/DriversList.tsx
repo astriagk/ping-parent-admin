@@ -1,93 +1,162 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
 import BreadCrumb from '@src/shared/common/BreadCrumb'
 import { paths } from '@src/shared/common/DynamicTitle'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
+import Pagination from '@src/shared/common/Pagination'
 import {
   accessorkeys,
-  badges,
-  buttonsKeys,
+  badgeMaps,
   headerKeys,
 } from '@src/shared/constants/columns'
-import { UserRoles, UserRolesType } from '@src/shared/constants/enums'
+import { UserRoles } from '@src/shared/constants/enums'
+import TableContainer from '@src/shared/custom/table/table'
 import { useGetDriverListQuery } from '@src/store/services/driverApi'
+import { formatDate } from '@src/utils/formatters'
+import { Search } from 'lucide-react'
 
 const DriversList = () => {
   const router = useRouter()
   const { data: driverListData } = useGetDriverListQuery({
     user_type: UserRoles.DRIVER,
   })
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
-  console.log(driverListData)
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const driverData: any[] = driverListData?.data ?? []
+
+  const filteredDriverRecords = driverData.filter((item: any) =>
+    (item.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedDrivers = filteredDriverRecords.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
 
   const columns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.driversList.id,
+        header: headerKeys.driversList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.name, header: headerKeys.username },
-      { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
       {
-        accessorKey: accessorkeys.userType,
-        header: headerKeys.userType,
-        cell: ({ row }: { row: { original: any } }) => {
-          const userType = row.original.user_type
-          const userTypeLabels: Record<string, string> = UserRolesType
-          return userTypeLabels[userType] || userType
-        },
+        accessorKey: accessorkeys.driversList.driverUniqueId,
+        header: headerKeys.driversList.driverUniqueId,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.driver_unique_id || '—',
       },
       {
-        accessorKey: accessorkeys.isActive,
-        header: headerKeys.isActive,
+        accessorKey: accessorkeys.driversList.name,
+        header: headerKeys.driversList.name,
+      },
+      {
+        accessorKey: accessorkeys.driversList.phoneNumber,
+        header: headerKeys.driversList.phoneNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.phone_number || '—',
+      },
+      {
+        accessorKey: accessorkeys.driversList.vehicleType,
+        header: headerKeys.driversList.vehicleType,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.vehicle_type
+            ? String(row.original.vehicle_type).replace(/_/g, ' ')
+            : '—',
+      },
+      {
+        accessorKey: accessorkeys.driversList.vehicleNumber,
+        header: headerKeys.driversList.vehicleNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.vehicle_number || '—',
+      },
+      {
+        accessorKey: accessorkeys.driversList.school,
+        header: headerKeys.driversList.school,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.school_name || 'Independent',
+      },
+      {
+        accessorKey: accessorkeys.driversList.approvalStatus,
+        header: headerKeys.driversList.approvalStatus,
         cell: ({ row }: { row: { original: any } }) => {
-          const { is_active } = row.original
-          const mapKey = String(is_active) as keyof typeof badges
-          const { label, className } = badges[mapKey] || badges.undefined
+          const status = row.original.approval_status as keyof typeof badgeMaps
+          const badge = badgeMaps[status] ?? badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
       },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
-        className: 'text-right',
+        accessorKey: accessorkeys.driversList.isAvailable,
+        header: headerKeys.driversList.isAvailable,
         cell: ({ row }: { row: { original: any } }) => {
-          const { is_active } = row.original
-          const mapKey = String(!is_active) as keyof typeof buttonsKeys
-          const { label, className } =
-            buttonsKeys[mapKey] || buttonsKeys.undefined
+          const key = String(
+            row.original.is_available ?? false
+          ) as keyof typeof badgeMaps
+          const badge = badgeMaps[key] ?? badgeMaps['undefined']
           return (
-            <div className="flex justify-end gap-2">
-              <button
-                className={`btn btn-sm min-w-[100px] ${className}`}
-                onClick={() => console.log(row.original)}>
-                {label}
-              </button>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() =>
-                  router.push(
-                    `${paths.USERS.DRIVER_DETAILS}/${row.original._id}`
-                  )
-                }>
-                View
-              </button>
-            </div>
+            <span
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
+            </span>
           )
         },
       },
+      {
+        accessorKey: accessorkeys.driversList.rating,
+        header: headerKeys.driversList.rating,
+        cell: ({ row }: { row: { original: any } }) => {
+          const rating = row.original.rating
+          return rating != null ? `⭐ ${Number(rating).toFixed(1)}` : '—'
+        },
+      },
+      {
+        accessorKey: accessorkeys.driversList.studentCount,
+        header: headerKeys.driversList.studentCount,
+        cell: ({ row }: { row: { original: any } }) => {
+          const current = row.original.current_student_count ?? 0
+          const capacity = row.original.vehicle_capacity ?? '?'
+          return `${current} / ${capacity}`
+        },
+      },
+      {
+        accessorKey: accessorkeys.driversList.createdAt,
+        header: headerKeys.driversList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
+      },
+      {
+        accessorKey: accessorkeys.driversList.actions,
+        header: headerKeys.driversList.actions,
+        cell: ({ row }: { row: { original: any } }) => (
+          <div className="flex justify-end gap-2">
+            <button
+              className="btn btn-sub-primary btn-icon !size-8 rounded-md"
+              onClick={() =>
+                router.push(`${paths.USERS.DRIVER_DETAILS}/${row.original._id}`)
+              }>
+              <i className="ri-eye-line"></i>
+            </button>
+          </div>
+        ),
+      },
     ],
-    []
+    [router]
   )
 
   return (
@@ -95,11 +164,43 @@ const DriversList = () => {
       <BreadCrumb title="Drivers List" subTitle="Drivers" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
-          <div className="card-body">
-            <DatatablesHover
-              columns={columns}
-              data={driverListData?.data || []}
-            />
+          <div className="card-header">
+            <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 md:col-span-9 lg:col-span-5 xxl:col-span-3">
+                <div className="relative group/form grow">
+                  <input
+                    type="text"
+                    className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
+                    placeholder="Search Driver"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 ltr:group-[&.right]/form:right-3 rtl:group-[&.right]/form:left-3 ltr:group-[&.right]/form:left-auto rtl:group-[&.right]/form:right-auto focus:outline-hidden">
+                    <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-0 card-body">
+            <div>
+              <TableContainer
+                columns={columns}
+                data={paginatedDrivers}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                lastTrClass="text-end"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
+              />
+              <Pagination
+                totalItems={filteredDriverRecords.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         </div>
       </div>

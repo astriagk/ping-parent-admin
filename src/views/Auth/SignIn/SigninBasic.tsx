@@ -9,12 +9,14 @@ import { useRouter } from 'next/navigation'
 import whiteLogo from '@assets/images/logo-white.png'
 import LogoMain from '@assets/images/main-logo.png'
 import { paths } from '@src/shared/common/DynamicTitle'
+import { STORAGE_KEYS } from '@src/shared/constants/enums'
 import { MESSAGES } from '@src/shared/constants/messages'
 import { useAppSelector } from '@src/store/hooks'
 import { useLoginMutation } from '@src/store/services/authApi'
+import LocalStorage from '@src/utils/LocalStorage'
+import { setAuthTokens } from '@src/utils/auth'
 import { Eye, EyeOff } from 'lucide-react'
 import { toast } from 'react-toastify'
-import { setAuthTokens } from '@src/utils/auth'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -29,7 +31,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (reduxAuthenticated) {
-      router.push(paths.ADMINS.LIST)
+      router.push(paths.DASHBOARD)
     }
   }, [reduxAuthenticated, router])
 
@@ -47,8 +49,12 @@ export default function LoginPage() {
         password: password.trim(),
       }).unwrap()
       setAuthTokens(result.data.access_token, result.data.refresh_token)
+      LocalStorage.setItem(
+        STORAGE_KEYS.ADMIN,
+        JSON.stringify(result.data.admin)
+      )
       toast.success(result.message || MESSAGES.AUTH.SUCCESS.LOGIN_SUCCESS)
-      router.push(paths.ADMINS.LIST)
+      router.push(paths.DASHBOARD)
     } catch (err: any) {
       toast.error(err || MESSAGES.AUTH.ERROR.LOGIN_FAILED)
     }

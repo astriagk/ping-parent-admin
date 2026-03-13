@@ -10,8 +10,9 @@ import {
 } from '@src/dtos/subscription'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
 import {
-  NEXT_PUBLIC_PARENT_SUBSCRIPTIONS_API,
-  NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API,
+  NEXT_PUBLIC_ADMIN_PARENT_SUBSCRIPTIONS_API,
+  NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API,
+  NEXT_PUBLIC_ADMIN_SUBSCRIPTION_PLANS_API,
   NEXT_PUBLIC_SUBSCRIPTION_PLANS_API,
 } from '@utils/url_helper'
 
@@ -21,7 +22,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getSubscriptionPlans: builder.query<SubscriptionPlanListResponse, void>({
       query: () => ({
-        url: NEXT_PUBLIC_SUBSCRIPTION_PLANS_API,
+        url: NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.SUBSCRIPTION],
@@ -31,7 +32,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       CreateSubscriptionPlanRequest
     >({
       query: (body) => ({
-        url: NEXT_PUBLIC_SUBSCRIPTION_PLANS_API,
+        url: NEXT_PUBLIC_ADMIN_SUBSCRIPTION_PLANS_API,
         method: ApiMethods.POST,
         body,
       }),
@@ -42,7 +43,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       { id: string } & Partial<CreateSubscriptionPlanRequest>
     >({
       query: ({ id, ...body }) => ({
-        url: `${NEXT_PUBLIC_SUBSCRIPTION_PLANS_API}/${id}`,
+        url: `${NEXT_PUBLIC_ADMIN_SUBSCRIPTION_PLANS_API}/${id}`,
         method: ApiMethods.PUT,
         body,
       }),
@@ -53,7 +54,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (id) => ({
-        url: `${NEXT_PUBLIC_SUBSCRIPTION_PLANS_API}/${id}/activate`,
+        url: `${NEXT_PUBLIC_ADMIN_SUBSCRIPTION_PLANS_API}/${id}/activate`,
         method: ApiMethods.PATCH,
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
@@ -63,7 +64,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (id) => ({
-        url: `${NEXT_PUBLIC_SUBSCRIPTION_PLANS_API}/${id}/deactivate`,
+        url: `${NEXT_PUBLIC_ADMIN_SUBSCRIPTION_PLANS_API}/${id}/deactivate`,
         method: ApiMethods.PATCH,
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
@@ -71,7 +72,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
     getParentSubscriptions: builder.query<ParentSubscriptionListResponse, void>(
       {
         query: () => ({
-          url: NEXT_PUBLIC_PARENT_SUBSCRIPTIONS_API,
+          url: NEXT_PUBLIC_ADMIN_PARENT_SUBSCRIPTIONS_API,
           method: ApiMethods.GET,
         }),
         providesTags: [AuthTags.SUBSCRIPTION],
@@ -82,7 +83,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (schoolId) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/school/${schoolId}`,
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/school/${schoolId}`,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.SUBSCRIPTION],
@@ -92,7 +93,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       CreateSchoolSubscriptionRequest
     >({
       query: (body) => ({
-        url: NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API,
+        url: NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API,
         method: ApiMethods.POST,
         body,
       }),
@@ -100,7 +101,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
     }),
     getRedemptionCodes: builder.query<RedemptionCodeListResponse, string>({
       query: (subscriptionId) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/codes`,
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/codes`,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.SUBSCRIPTION],
@@ -109,10 +110,10 @@ export const subscriptionApi = baseApi.injectEndpoints({
       { success: boolean; message: string },
       GenerateCodesRequest
     >({
-      query: ({ subscriptionId, count }) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/generate-codes`,
+      query: ({ subscriptionId, studentIds }) => ({
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/generate-codes`,
         method: ApiMethods.POST,
-        body: { count },
+        body: { student_ids: studentIds },
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
     }),
@@ -121,7 +122,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (schoolId) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/school/${schoolId}/active`,
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/school/${schoolId}/active`,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.SUBSCRIPTION],
@@ -131,7 +132,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       { subscriptionId: string } & Partial<CreateSchoolSubscriptionRequest>
     >({
       query: ({ subscriptionId, ...body }) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}`,
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}`,
         method: ApiMethods.PATCH,
         body,
       }),
@@ -142,7 +143,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (subscriptionId) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/renew`,
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/renew`,
         method: ApiMethods.POST,
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
@@ -152,7 +153,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       string
     >({
       query: (subscriptionId) => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/cancel`,
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/${subscriptionId}/cancel`,
         method: ApiMethods.POST,
       }),
       invalidatesTags: [AuthTags.SUBSCRIPTION],
@@ -162,7 +163,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       void
     >({
       query: () => ({
-        url: `${NEXT_PUBLIC_SCHOOL_SUBSCRIPTIONS_API}/expired/list`,
+        url: `${NEXT_PUBLIC_ADMIN_SCHOOL_SUBSCRIPTIONS_API}/expired/list`,
         method: ApiMethods.GET,
       }),
       providesTags: [AuthTags.SUBSCRIPTION],

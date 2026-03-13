@@ -113,20 +113,6 @@ enum PaymentStatus {
   REFUNDED = 'refunded',
 }
 
-const PaymentStatusLabel: Record<PaymentStatus, string> = {
-  [PaymentStatus.PENDING]: 'Pending',
-  [PaymentStatus.COMPLETED]: 'Completed',
-  [PaymentStatus.FAILED]: 'Failed',
-  [PaymentStatus.REFUNDED]: 'Refunded',
-}
-
-const PaymentStatusBadge: Record<PaymentStatus, string> = {
-  [PaymentStatus.PENDING]: 'badge-yellow',
-  [PaymentStatus.COMPLETED]: 'badge-green',
-  [PaymentStatus.FAILED]: 'badge-red',
-  [PaymentStatus.REFUNDED]: 'badge-blue',
-}
-
 const PaymentMethodLabel: Record<string, string> = {
   netbanking: 'Net Banking',
   upi: 'UPI',
@@ -148,6 +134,12 @@ const PaymentTypeLabel: Record<PaymentType, string> = {
   [PaymentType.ONE_TIME]: 'One Time',
 }
 
+const STORAGE_KEYS = {
+  ACCESS_TOKEN: 'access_token',
+  REFRESH_TOKEN: 'refresh_token',
+  ADMIN: 'admin',
+}
+
 export {
   AuthTags,
   ApiMethods,
@@ -164,9 +156,8 @@ export {
   PricingModelLabel,
   PlanTypeBadge,
   PaymentStatus,
-  PaymentStatusLabel,
-  PaymentStatusBadge,
   PaymentMethodLabel,
   PaymentType,
   PaymentTypeLabel,
+  STORAGE_KEYS,
 }

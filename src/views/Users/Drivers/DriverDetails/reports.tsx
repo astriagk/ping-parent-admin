@@ -3,10 +3,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { DriverDocuments } from '@src/dtos/driver'
+import { accessorkeys, headerKeys } from '@src/shared/constants/columns'
 import { ApprovalStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useUpdateDriverApprovalStatusMutation } from '@src/store/services/driverApi'
-import { formatDate } from '@src/utils/dateFormatter'
+import { formatDate } from '@src/utils/formatters'
 import { toast } from 'react-toastify'
 
 import RejectModal from './rejectModal'
@@ -15,9 +16,11 @@ import ViewModal from './viewModal'
 const Reports = ({
   id,
   driverDocuments,
+  approvalStatus,
 }: {
   id: string
   driverDocuments?: DriverDocuments
+  approvalStatus?: ApprovalStatus
 }) => {
   const [reportData, setReportData] = useState<any[]>([])
   const [show, setShow] = useState<boolean>(false)
@@ -60,16 +63,16 @@ const Reports = ({
   const columns = useMemo(
     () => [
       {
-        header: 'Name',
-        accessorKey: 'name',
+        header: headerKeys.driverDocuments.name,
+        accessorKey: accessorkeys.driverDocuments.name,
       },
       {
-        header: 'Number',
-        accessorKey: 'number',
+        header: headerKeys.driverDocuments.number,
+        accessorKey: accessorkeys.driverDocuments.number,
       },
       {
-        header: 'Action',
-        accessorKey: 'action',
+        header: headerKeys.driverDocuments.action,
+        accessorKey: accessorkeys.driverDocuments.action,
         cell: (value: { row: { original: any } }) => (
           <div className="flex items-center gap-2 justify-end">
             <button
@@ -134,11 +137,13 @@ const Reports = ({
       <div className="col-span-12 overflow-hidden xl:col-span-6 xl:row-span-2 card">
         <div className="flex items-center gap-3 card-header">
           <h6 className="card-title grow">Documents</h6>
-          <button
-            className="btn btn-primary btn-md"
-            onClick={() => handleApprovalStatus(ApprovalStatus.APPROVED)}>
-            Approve
-          </button>
+          {approvalStatus !== ApprovalStatus.APPROVED && (
+            <button
+              className="btn btn-primary btn-md"
+              onClick={() => handleApprovalStatus(ApprovalStatus.APPROVED)}>
+              Approve
+            </button>
+          )}
           <button
             data-modal-target="rejectModal"
             className="btn btn-red btn-md"

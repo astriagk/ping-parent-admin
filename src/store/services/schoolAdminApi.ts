@@ -1,11 +1,6 @@
-import {
-  RegisterSchoolAdminRequest,
-  SchoolAdminListResponse,
-  SchoolDriverListResponse,
-} from '@src/dtos/schoolAdmin'
+import { SchoolDriverListResponse } from '@src/dtos/schoolAdmin'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
 import {
-  NEXT_PUBLIC_ADMIN_LIST_API,
   NEXT_PUBLIC_SCHOOL_ADMIN_API,
   NEXT_PUBLIC_SCHOOL_DRIVER_API,
 } from '@utils/url_helper'
@@ -14,24 +9,6 @@ import { baseApi } from './baseApi'
 
 export const schoolAdminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSchoolAdmins: builder.query<SchoolAdminListResponse, string>({
-      query: (schoolId) => ({
-        url: `${NEXT_PUBLIC_ADMIN_LIST_API}/school-admins/${schoolId}`,
-        method: ApiMethods.GET,
-      }),
-      providesTags: [AuthTags.SCHOOL],
-    }),
-    registerSchoolAdmin: builder.mutation<
-      { success: boolean; message: string },
-      RegisterSchoolAdminRequest
-    >({
-      query: (body) => ({
-        url: `${NEXT_PUBLIC_ADMIN_LIST_API}`,
-        method: ApiMethods.POST,
-        body,
-      }),
-      invalidatesTags: [AuthTags.SCHOOL],
-    }),
     deactivateSchoolAdmin: builder.mutation<
       { success: boolean; message: string },
       string
@@ -51,12 +28,15 @@ export const schoolAdminApi = baseApi.injectEndpoints({
     }),
     assignDriverToSchool: builder.mutation<
       { success: boolean; message: string },
-      { driver_id: string; school_id: string }
+      { driverId: string; schoolId: string }
     >({
-      query: (body) => ({
+      query: ({ driverId, schoolId }) => ({
         url: `${NEXT_PUBLIC_SCHOOL_DRIVER_API}/assign`,
         method: ApiMethods.POST,
-        body,
+        body: {
+          driver_id: driverId,
+          school_id: schoolId,
+        },
       }),
       invalidatesTags: [AuthTags.SCHOOL],
     }),
@@ -74,8 +54,6 @@ export const schoolAdminApi = baseApi.injectEndpoints({
 })
 
 export const {
-  useGetSchoolAdminsQuery,
-  useRegisterSchoolAdminMutation,
   useDeactivateSchoolAdminMutation,
   useGetSchoolDriversQuery,
   useAssignDriverToSchoolMutation,

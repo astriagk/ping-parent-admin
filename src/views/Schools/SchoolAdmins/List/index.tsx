@@ -2,18 +2,25 @@
 
 import React, { useMemo, useState } from 'react'
 
-import { SchoolAdmin } from '@src/dtos/schoolAdmin'
+import { AdminListItem } from '@src/dtos/admin'
 import BreadCrumb from '@src/shared/common/BreadCrumb'
-import DatatablesHover from '@src/shared/components/Table/DatatablesHover'
-import { accessorkeys, badges, headerKeys } from '@src/shared/constants/columns'
-import { MESSAGES } from '@src/shared/constants/messages'
+import Pagination from '@src/shared/common/Pagination'
 import {
-  useDeactivateSchoolAdminMutation,
-  useGetSchoolAdminsQuery,
-  useRegisterSchoolAdminMutation,
-} from '@src/store/services/schoolAdminApi'
+  accessorkeys,
+  badgeMaps,
+  headerKeys,
+} from '@src/shared/constants/columns'
+import { UserRoles } from '@src/shared/constants/enums'
+import { MESSAGES } from '@src/shared/constants/messages'
+import TableContainer from '@src/shared/custom/table/table'
+import {
+  useCreateAdminMutation,
+  useDeactivateAdminMutation,
+  useGetAdminListQuery,
+} from '@src/store/services/adminApi'
 import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
-import { CirclePlus } from 'lucide-react'
+import { formatDate } from '@src/utils/formatters'
+import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
 import { toast } from 'react-toastify'
 
@@ -26,19 +33,31 @@ const RegisterSchoolAdminModal = ({
   schoolId: string
   onClose: () => void
 }) => {
-  const [registerAdmin, { isLoading }] = useRegisterSchoolAdminMutation()
+  const [registerAdmin, { isLoading }] = useCreateAdminMutation()
   const [form, setForm] = useState({
-    name: '',
+    username: '',
     email: '',
     phone_number: '',
     password: '',
+    admin_role: UserRoles.SCHOOL_ADMIN,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await registerAdmin({ school_id: schoolId, ...form }).unwrap()
-    setForm({ name: '', email: '', phone_number: '', password: '' })
-    onClose()
+    try {
+      await registerAdmin({ school_id: schoolId, ...form }).unwrap()
+      setForm({
+        username: '',
+        email: '',
+        phone_number: '',
+        password: '',
+        admin_role: UserRoles.SCHOOL_ADMIN,
+      })
+      onClose()
+      toast.success('Admin registered successfully')
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to register admin')
+    }
   }
 
   if (!open) return null
@@ -52,8 +71,8 @@ const RegisterSchoolAdminModal = ({
             <label className="form-label">Name</label>
             <input
               className="form-input"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
               required
             />
           </div>
@@ -109,20 +128,29 @@ const RegisterSchoolAdminModal = ({
 
 const SchoolAdminsList = () => {
   const { data: schoolsData } = useGetSchoolsListQuery()
-  const { data: schoolsList } = useGetSchoolsListQuery()
-  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>(() => {
-    const first = schoolsList?.data?.[0]?._id
-    return first || ''
-  })
+  const [selectedSchoolId, setSelectedSchoolId] = React.useState<string>('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [deactivateAdmin] = useDeactivateSchoolAdminMutation()
+  const [deactivateAdmin] = useDeactivateAdminMutation()
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
-  const firstSchoolId =
-    selectedSchoolId || schoolsData?.data?.[0]?._id || ''
+  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const { data: schoolAdminsData } = useGetSchoolAdminsQuery(firstSchoolId, {
-    skip: !firstSchoolId,
-  })
+  const firstSchoolId = selectedSchoolId || schoolsData?.data?.[0]?._id || ''
+
+  const { data: schoolAdminsData } = useGetAdminListQuery()
+
+  const schoolAdmins = useMemo(() => {
+    return (
+      schoolAdminsData?.data?.filter(
+        (sa: AdminListItem) =>
+          sa.is_active === true &&
+          sa.admin_role === UserRoles.SCHOOL_ADMIN &&
+          (selectedSchoolId === '' ||
+            (sa as any).school_id === selectedSchoolId)
+      ) || []
+    )
+  }, [schoolAdminsData, selectedSchoolId])
 
   const handleDeactivate = async (adminId: string) => {
     try {
@@ -137,41 +165,98 @@ const SchoolAdminsList = () => {
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const filteredRecords = schoolAdmins.filter((item: AdminListItem) =>
+    (item.username ?? item.email ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  )
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedData = filteredRecords.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
+
   const columns = useMemo(
     () => [
       {
-        accessorKey: accessorkeys.id,
-        header: headerKeys.id,
+        accessorKey: accessorkeys.schoolAdminsList.id,
+        header: headerKeys.schoolAdminsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.name, header: headerKeys.Name },
-      { accessorKey: accessorkeys.email, header: headerKeys.email },
-      { accessorKey: accessorkeys.phoneNumber, header: headerKeys.phoneNumber },
       {
-        accessorKey: accessorkeys.isActive,
-        header: headerKeys.isActive,
-        cell: ({ row }: { row: { original: SchoolAdmin } }) => {
-          const mapKey = String(row.original.is_active) as keyof typeof badges
-          const { label, className } = badges[mapKey] || badges.undefined
+        accessorKey: accessorkeys.schoolAdminsList.username,
+        header: headerKeys.schoolAdminsList.username,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.username || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAdminsList.email,
+        header: headerKeys.schoolAdminsList.email,
+      },
+      {
+        accessorKey: accessorkeys.schoolAdminsList.phoneNumber,
+        header: headerKeys.schoolAdminsList.phoneNumber,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.phone_number || '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAdminsList.isActive,
+        header: headerKeys.schoolAdminsList.isActive,
+        cell: ({ row }: { row: { original: AdminListItem } }) => {
+          const mapKey = String(
+            row.original.is_active
+          ) as keyof typeof badgeMaps
+          const badge = badgeMaps[mapKey] ?? badgeMaps['undefined']
           return (
             <span
-              className={`badge inline-flex items-center gap-1 ${className}`}>
-              {label}
+              className={`badge inline-flex items-center gap-1 ${badge.className}`}>
+              {badge.label}
             </span>
           )
         },
       },
       {
-        accessorKey: accessorkeys.actions,
-        header: headerKeys.actions,
-        cell: ({ row }: { row: { original: SchoolAdmin } }) => (
-          <div className="flex justify-end gap-2">
-            <button
-              className="btn btn-orange btn-sm"
-              onClick={() => handleDeactivate(row.original._id)}>
-              Deactivate
-            </button>
-          </div>
+        accessorKey: accessorkeys.schoolAdminsList.lastLogin,
+        header: headerKeys.schoolAdminsList.lastLogin,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.last_login ? formatDate(row.original.last_login) : '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAdminsList.createdAt,
+        header: headerKeys.schoolAdminsList.createdAt,
+        cell: ({ row }: { row: { original: any } }) =>
+          row.original.created_at ? formatDate(row.original.created_at) : '—',
+      },
+      {
+        accessorKey: accessorkeys.schoolAdminsList.actions,
+        header: headerKeys.schoolAdminsList.actions,
+        cell: ({ row }: { row: { original: AdminListItem } }) => (
+          <label className="switch-group switch-soft">
+            <div className="relative">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={row.original.is_active}
+                onChange={() => {
+                  handleDeactivate(row.original._id)
+                }}
+              />
+              <div className="switch-wrapper peer-checked:!bg-green-500/15"></div>
+              <div className="switch-dot peer-checked:translate-x-full rtl:peer-checked:-translate-x-full peer-checked:!bg-green-500"></div>
+            </div>
+          </label>
+          // <div className="flex justify-end gap-2">
+          //   <button
+          //     className="btn btn-sub-red btn-icon !size-8 rounded-md"
+          //     onClick={() => handleDeactivate(row.original._id)}>
+          //     <i className="ri-user-unfollow-line"></i>
+          //   </button>
+          // </div>
         ),
       },
     ],
@@ -183,44 +268,75 @@ const SchoolAdminsList = () => {
       <BreadCrumb title="School Admins" subTitle="Schools" />
       <div className="grid grid-cols-12 gap-x-space">
         <div className="col-span-12 card">
-          <div className="card-header flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div id="sortingByClass" className="w-full min-w-[260px]">
-                <Select
-                  classNamePrefix="select"
-                  options={(schoolsData?.data || []).map((school: any) => ({
-                    value: school._id,
-                    label: school.school_name,
-                  }))}
-                  value={
-                    (schoolsData?.data || [])
-                      .map((school: any) => ({
-                        value: school._id,
-                        label: school.school_name,
-                      }))
-                      .find((opt) => opt.value === selectedSchoolId) || null
-                  }
-                  onChange={(option: any) =>
-                    setSelectedSchoolId(option ? option.value : '')
-                  }
-                  placeholder="Select school"
-                  isClearable={true}
-                />
+          <div className="card-header">
+            <div className="grid items-center gap-3 grid-cols-12">
+              <div className="col-span-12 lg:col-span-4 xxl:col-span-3">
+                <div id="sortingByClass">
+                  <Select
+                    classNamePrefix="select"
+                    options={(schoolsData?.data || []).map((school: any) => ({
+                      value: school._id,
+                      label: school.school_name,
+                    }))}
+                    value={
+                      (schoolsData?.data || [])
+                        .map((school: any) => ({
+                          value: school._id,
+                          label: school.school_name,
+                        }))
+                        .find((opt) => opt.value === selectedSchoolId) || null
+                    }
+                    onChange={(option: any) =>
+                      setSelectedSchoolId(option ? option.value : '')
+                    }
+                    placeholder="Select school"
+                    isClearable={true}
+                  />
+                </div>
+              </div>
+              <div className="col-span-12 md:col-span-9 lg:col-span-4 xxl:col-span-3">
+                <div className="relative group/form grow">
+                  <input
+                    type="text"
+                    className="ltr:pl-9 rtl:pr-9 form-input ltr:group-[&.right]/form:pr-9 rtl:group-[&.right]/form:pl-9 ltr:group-[&.right]/form:pl-4 rtl:group-[&.right]/form:pr-4"
+                    placeholder="Search by Username or Email"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                  <button className="absolute inset-y-0 flex items-center ltr:left-3 rtl:right-3 focus:outline-hidden">
+                    <Search className="text-gray-500 dark:text-dark-500 size-4 fill-gray-100 dark:fill-dark-850" />
+                  </button>
+                </div>
+              </div>
+              <div className="col-span-12 md:col-span-3 lg:col-span-3 lg:col-start-11 xxl:col-span-2 xxl:col-start-11 ltr:md:text-right rtl:md:text-left">
+                <button
+                  className="btn btn-primary shrink-0"
+                  disabled={!firstSchoolId}
+                  onClick={() => setModalOpen(true)}>
+                  <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
+                  Register Admin
+                </button>
               </div>
             </div>
-            <button
-              className="btn btn-primary shrink-0"
-              disabled={!firstSchoolId}
-              onClick={() => setModalOpen(true)}>
-              <CirclePlus className="inline-block ltr:mr-1 rtl:ml-1 size-4" />
-              Register School Admin
-            </button>
           </div>
-          <div className="pt-4 card-body">
-            <DatatablesHover
-              columns={columns}
-              data={schoolAdminsData?.data || []}
-            />
+
+          <div className="pt-0 card-body">
+            <div>
+              <TableContainer
+                columns={columns}
+                data={paginatedData}
+                thClass="!font-medium cursor-pointer"
+                divClass="overflow-x-auto table-box whitespace-nowrap"
+                tableClass="table flush"
+                thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
+              />
+              <Pagination
+                totalItems={filteredRecords.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,10 @@
 import { DriverListResponse } from '@src/dtos/driver'
+import { ParentDetailsResponse } from '@src/dtos/parent'
 import { ApiMethods, AuthTags } from '@src/shared/constants/enums'
-import { NEXT_PUBLIC_USERS_LIST_API } from '@utils/url_helper'
+import {
+  NEXT_PUBLIC_PARENT_DETAILS_API,
+  NEXT_PUBLIC_USERS_LIST_API,
+} from '@utils/url_helper'
 
 import { baseApi } from './baseApi'
 
@@ -22,7 +26,18 @@ export const parentApi = baseApi.injectEndpoints({
       },
       providesTags: [AuthTags.PARENT],
     }),
+    getParentDetails: builder.query<ParentDetailsResponse, string>({
+      query: (id) => ({
+        url: `${NEXT_PUBLIC_PARENT_DETAILS_API}/${id}/details`,
+        method: ApiMethods.GET,
+      }),
+      providesTags: [AuthTags.PARENT],
+    }),
   }),
 })
 
-export const { useGetParentListQuery, useLazyGetParentListQuery } = parentApi
+export const {
+  useGetParentListQuery,
+  useLazyGetParentListQuery,
+  useGetParentDetailsQuery,
+} = parentApi
