@@ -33,6 +33,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'example.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'skolo.s3.eu-north-1.amazonaws.com',
+      },
     ],
   },
 }

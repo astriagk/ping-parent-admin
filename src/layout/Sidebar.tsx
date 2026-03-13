@@ -279,11 +279,11 @@ const Sidebar = ({
                             ] || 'Admin Role'}
                           </p>
                         </div>
-                        <div className="shrink-0 text-sidebar-text group-data-[sidebar=icon]:hidden group-data-[sidebar=small]:hidden group-data-[sidebar=medium]:hidden">
+                        {/* <div className="shrink-0 text-sidebar-text group-data-[sidebar=icon]:hidden group-data-[sidebar=small]:hidden group-data-[sidebar=medium]:hidden">
                           <ChevronDown className="size-4" />
-                        </div>
+                        </div> */}
                       </DropdownButton>
-                      <DropdownMenu menuClass="z-50 p-5 bg-white rounded-md shadow-lg !w-64 !left-3">
+                      {/* <DropdownMenu menuClass="z-50 p-5 bg-white rounded-md shadow-lg !w-64 !left-3">
                         <div className="flex items-center gap-2">
                           <Image
                             src={user77}
@@ -351,7 +351,7 @@ const Sidebar = ({
                             Out
                           </Link>
                         </div>
-                      </DropdownMenu>
+                      </DropdownMenu> */}
                     </Dropdown>
                   </div>
                 </div>

@@ -24,7 +24,6 @@ export interface SchoolAssignment {
   driver_id: string
   student_id: string
   school_id: string
-  driver_unique_id?: string
   monthly_fee?: number | null
   assignment_status: AssignmentStatus
   assigned_date?: string
