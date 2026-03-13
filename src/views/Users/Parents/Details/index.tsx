@@ -17,6 +17,7 @@ import {
   useDeleteUserMutation,
 } from '@src/store/services/adminApi'
 import { useGetParentDetailsQuery } from '@src/store/services/parentApi'
+import { safeLocaleDateString } from '@src/utils/formatters'
 import { toast } from 'react-toastify'
 
 const DetailRow = ({
@@ -133,7 +134,7 @@ const ParentDetails = () => {
         header: headerKeys.parentDetails.startDate,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.start_date
-            ? new Date(row.original.start_date).toLocaleDateString()
+            ? safeLocaleDateString(row.original.start_date)
             : '—',
       },
       {
@@ -141,7 +142,7 @@ const ParentDetails = () => {
         header: headerKeys.parentDetails.endDate,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.end_date
-            ? new Date(row.original.end_date).toLocaleDateString()
+            ? safeLocaleDateString(row.original.end_date)
             : '—',
       },
       {
@@ -194,7 +195,7 @@ const ParentDetails = () => {
         header: headerKeys.parentDetails.paymentDate,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.payment_date
-            ? new Date(row.original.payment_date).toLocaleDateString()
+            ? safeLocaleDateString(row.original.payment_date)
             : '—',
       },
     ],
@@ -251,7 +252,7 @@ const ParentDetails = () => {
               <DetailRow label="User ID" value={parent.user_id} mono />
               <DetailRow
                 label="Joined"
-                value={new Date(parent.created_at).toLocaleDateString('en-IN', {
+                value={safeLocaleDateString(parent.created_at, 'en-IN', {
                   day: '2-digit',
                   month: 'short',
                   year: 'numeric',

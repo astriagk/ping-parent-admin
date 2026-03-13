@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 interface BreadcrumbItems {
   title?: string
-  subTitle: string
+  subTitle: string | undefined
 }
 
 const BreadCrumb = ({ title, subTitle }: BreadcrumbItems) => {

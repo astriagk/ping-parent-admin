@@ -30,10 +30,13 @@ export const schoolAdminApi = baseApi.injectEndpoints({
       { success: boolean; message: string },
       { driverId: string; schoolId: string }
     >({
-      query: (body) => ({
+      query: ({ driverId, schoolId }) => ({
         url: `${NEXT_PUBLIC_SCHOOL_DRIVER_API}/assign`,
         method: ApiMethods.POST,
-        body,
+        body: {
+          driver_id: driverId,
+          school_id: schoolId,
+        },
       }),
       invalidatesTags: [AuthTags.SCHOOL],
     }),

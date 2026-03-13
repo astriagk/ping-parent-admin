@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -35,7 +35,13 @@ const SchoolsList = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
+    setCurrentPage(1)
   }
+
+  // Reset page when search query changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
 
   const handleAddSchool = () => {
     setModalMode(ModelModes.ADD)

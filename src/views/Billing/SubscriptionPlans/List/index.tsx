@@ -49,7 +49,7 @@ const SubscriptionPlansList = () => {
 
   const adminData: SubscriptionPlan[] = plansData?.data ?? []
 
-  const filierPlansRecords = adminData.filter((item: SubscriptionPlan) => {
+  const filteredPlansRecords = adminData.filter((item: SubscriptionPlan) => {
     const filterRecord = item.plan_name
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
@@ -57,7 +57,7 @@ const SubscriptionPlansList = () => {
   })
 
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedEvents = filierPlansRecords.slice(
+  const paginatedPlans = filteredPlansRecords.slice(
     startIndex,
     startIndex + itemsPerPage
   )
@@ -215,7 +215,7 @@ const SubscriptionPlansList = () => {
             <div>
               <TableContainer
                 columns={columns}
-                data={paginatedEvents}
+                data={paginatedPlans}
                 thClass="!font-medium cursor-pointer"
                 divClass="overflow-x-auto table-box whitespace-nowrap"
                 lastTrClass="text-end"
@@ -223,7 +223,7 @@ const SubscriptionPlansList = () => {
                 thtrClass="text-gray-500 bg-gray-100 dark:bg-dark-850 dark:text-dark-500"
               />
               <Pagination
-                totalItems={filierPlansRecords.length}
+                totalItems={filteredPlansRecords.length}
                 itemsPerPage={itemsPerPage}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}

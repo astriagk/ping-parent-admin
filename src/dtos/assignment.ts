@@ -67,3 +67,9 @@ export interface UpdateAssignmentRequest {
   status: string
   rejection_reason?: string
 }
+
+export interface CreateSchoolAssignmentRequest {
+  school_id: string
+  driver_id: string
+  student_ids: string[]
+}

@@ -15,6 +15,7 @@ import { TripStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetStudentDetailsQuery } from '@src/store/services/studentApi'
 import { useGetTripListQuery } from '@src/store/services/tripApi'
+import { safeLocaleDateString } from '@src/utils/formatters'
 
 const DetailRow = ({
   label,
@@ -57,10 +58,6 @@ const StudentDetails = () => {
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
       {
-        accessorKey: accessorkeys.tripsList.tripId,
-        header: headerKeys.tripsList.tripId,
-      },
-      {
         accessorKey: accessorkeys.tripsList.tripType,
         header: headerKeys.tripsList.tripType,
         cell: ({ row }: { row: { original: Trip } }) => (
@@ -86,7 +83,7 @@ const StudentDetails = () => {
         header: headerKeys.tripsList.tripDate,
         cell: ({ row }: { row: { original: Trip } }) =>
           row.original.trip_date
-            ? new Date(row.original.trip_date).toLocaleDateString()
+            ? safeLocaleDateString(row.original.trip_date)
             : '—',
       },
     ],
@@ -116,7 +113,10 @@ const StudentDetails = () => {
 
   return (
     <React.Fragment>
-      <BreadCrumb title="Student Details" subTitle={student.name} />
+      <BreadCrumb
+        title="Student Details"
+        subTitle={student.student_name ?? student.name}
+      />
       <div className="grid grid-cols-12 gap-x-space">
         {/* Profile Card */}
         <div className="col-span-12 card">
@@ -124,10 +124,10 @@ const StudentDetails = () => {
             <div className="flex justify-between items-start mb-6 pb-6 border-b">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {student.name}
+                  {student.student_name ?? student.name}
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  Grade: {student.grade}
+                  Grade: {student.class ?? student.grade}
                 </p>
               </div>
               <span
@@ -143,17 +143,21 @@ const StudentDetails = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 pb-6 border-b">
-              <DetailRow label="Name" value={student.name} />
-              <DetailRow label="Grade" value={student.grade} />
+              <DetailRow
+                label="Name"
+                value={student.student_name ?? student.name}
+              />
+              <DetailRow label="Grade" value={student.class ?? student.grade} />
               <DetailRow label="School" value={student.school_name} />
               <DetailRow label="Parent" value={student.parent_name} />
               <DetailRow label="Phone" value={student.phone_number} />
               <DetailRow
                 label="Joined"
-                value={new Date(student.created_at).toLocaleDateString(
-                  'en-IN',
-                  { day: '2-digit', month: 'short', year: 'numeric' }
-                )}
+                value={safeLocaleDateString(student.created_at, 'en-IN', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                })}
               />
             </div>
 

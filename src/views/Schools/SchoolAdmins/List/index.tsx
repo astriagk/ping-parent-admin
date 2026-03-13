@@ -44,15 +44,20 @@ const RegisterSchoolAdminModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await registerAdmin({ school_id: schoolId, ...form }).unwrap()
-    setForm({
-      username: '',
-      email: '',
-      phone_number: '',
-      password: '',
-      admin_role: UserRoles.SCHOOL_ADMIN,
-    })
-    onClose()
+    try {
+      await registerAdmin({ school_id: schoolId, ...form }).unwrap()
+      setForm({
+        username: '',
+        email: '',
+        phone_number: '',
+        password: '',
+        admin_role: UserRoles.SCHOOL_ADMIN,
+      })
+      onClose()
+      toast.success('Admin registered successfully')
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to register admin')
+    }
   }
 
   if (!open) return null

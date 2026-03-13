@@ -13,6 +13,11 @@ import {
 import { TripStatus } from '@src/shared/constants/enums'
 import TableContainer from '@src/shared/custom/table/table'
 import { useGetTripDetailsQuery } from '@src/store/services/tripApi'
+import {
+  safeLocaleDateString,
+  safeLocaleString,
+  safeLocaleTimeString,
+} from '@src/utils/formatters'
 
 const DetailRow = ({
   label,
@@ -81,20 +86,6 @@ const TripDetails = () => {
           )
         },
       },
-      {
-        accessorKey: accessorkeys.tripDetails.dropStatus,
-        header: headerKeys.tripDetails.dropStatus,
-        cell: ({ row }: { row: { original: any } }) => {
-          const status = row.original.drop_status
-          const badgeClass =
-            badgeMaps[status as keyof typeof badgeMaps]?.className
-          return (
-            <span className={`badge ${badgeClass}`}>
-              {badgeMaps[status as keyof typeof badgeMaps]?.label || '—'}
-            </span>
-          )
-        },
-      },
     ],
     []
   )
@@ -123,7 +114,7 @@ const TripDetails = () => {
         header: headerKeys.tripDetails.timestamp,
         cell: ({ row }: { row: { original: any } }) =>
           row.original.timestamp
-            ? new Date(row.original.timestamp).toLocaleString()
+            ? safeLocaleString(row.original.timestamp)
             : '—',
       },
     ],
@@ -166,7 +157,9 @@ const TripDetails = () => {
                 <h2 className="text-xl font-bold text-gray-900">
                   Trip #{trip._id.slice(-8)}
                 </h2>
-                <p className="text-gray-500 text-sm mt-1">{trip.school_name}</p>
+                <p className="text-gray-500 text-sm mt-1">
+                  {trip.driver?.name || 'N/A'}
+                </p>
               </div>
               <span
                 className={`badge inline-flex items-center gap-1 ${badge.className}`}>
@@ -176,8 +169,7 @@ const TripDetails = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 pb-6 border-b">
               <DetailRow label="Trip ID" value={trip._id} mono />
-              <DetailRow label="Driver" value={trip.driver_name} />
-              <DetailRow label="School" value={trip.school_name} />
+              <DetailRow label="Driver" value={trip.driver?.name} />
               <DetailRow
                 label="Type"
                 value={<span className="capitalize">{trip.trip_type}</span>}
@@ -186,7 +178,7 @@ const TripDetails = () => {
                 label="Date"
                 value={
                   trip.trip_date
-                    ? new Date(trip.trip_date).toLocaleDateString('en-IN', {
+                    ? safeLocaleDateString(trip.trip_date, 'en-IN', {
                         day: '2-digit',
                         month: 'short',
                         year: 'numeric',
@@ -202,12 +194,12 @@ const TripDetails = () => {
                     : undefined
                 }
               />
-              <DetailRow label="Students" value={trip.students_count} />
+              <DetailRow label="Students" value={trip.student_count} />
               <DetailRow
                 label="Start Time"
                 value={
                   trip.start_time
-                    ? new Date(trip.start_time).toLocaleTimeString('en-IN', {
+                    ? safeLocaleTimeString(trip.start_time, 'en-IN', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })
@@ -218,7 +210,7 @@ const TripDetails = () => {
                 label="End Time"
                 value={
                   trip.end_time
-                    ? new Date(trip.end_time).toLocaleTimeString('en-IN', {
+                    ? safeLocaleTimeString(trip.end_time, 'en-IN', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })

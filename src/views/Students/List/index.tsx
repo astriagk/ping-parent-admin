@@ -27,7 +27,9 @@ const SchoolStudentsList = () => {
   const studentData: any[] = studentsListData?.data ?? []
 
   const filteredRecords = studentData.filter((item: any) =>
-    (item.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+    (item.student_name ?? item.name ?? '')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
   )
 
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -43,11 +45,26 @@ const SchoolStudentsList = () => {
         header: headerKeys.schoolStudentsList.id,
         cell: ({ row }: { row: { index: number } }) => row.index + 1,
       },
-      { accessorKey: accessorkeys.schoolStudentsList.name, header: headerKeys.schoolStudentsList.name },
-      { accessorKey: accessorkeys.schoolStudentsList.grade, header: headerKeys.schoolStudentsList.grade },
-      { accessorKey: accessorkeys.schoolStudentsList.parentName, header: headerKeys.schoolStudentsList.parentName },
-      { accessorKey: accessorkeys.schoolStudentsList.phoneNumber, header: headerKeys.schoolStudentsList.phoneNumber },
-      { accessorKey: accessorkeys.schoolStudentsList.assignedDriver, header: headerKeys.schoolStudentsList.assignedDriver },
+      {
+        accessorKey: accessorkeys.schoolStudentsList.name,
+        header: headerKeys.schoolStudentsList.name,
+      },
+      {
+        accessorKey: accessorkeys.schoolStudentsList.grade,
+        header: headerKeys.schoolStudentsList.grade,
+      },
+      {
+        accessorKey: accessorkeys.schoolStudentsList.parentName,
+        header: headerKeys.schoolStudentsList.parentName,
+      },
+      {
+        accessorKey: accessorkeys.schoolStudentsList.phoneNumber,
+        header: headerKeys.schoolStudentsList.phoneNumber,
+      },
+      {
+        accessorKey: accessorkeys.schoolStudentsList.assignedDriver,
+        header: headerKeys.schoolStudentsList.assignedDriver,
+      },
       {
         accessorKey: accessorkeys.schoolStudentsList.actions,
         header: headerKeys.schoolStudentsList.actions,

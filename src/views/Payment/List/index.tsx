@@ -9,6 +9,7 @@ import BreadCrumb from '@src/shared/common/BreadCrumb'
 import Pagination from '@src/shared/common/Pagination'
 import {
   accessorkeys,
+  badgeClassNames,
   badgeMaps,
   headerKeys,
 } from '@src/shared/constants/columns'
@@ -112,8 +113,12 @@ const PaymentList = () => {
         accessorKey: accessorkeys.payments.paymentStatus,
         header: headerKeys.payments.paymentStatus,
         cell: ({ row }: { row: { original: Payment } }) => {
-          const badge =
-            badgeMaps[row.original.payment_status as keyof typeof badgeMaps]
+          const badge = badgeMaps[
+            row.original.payment_status as keyof typeof badgeMaps
+          ] || {
+            className: badgeClassNames.secondary,
+            label: row.original.payment_status,
+          }
           return (
             <span
               className={`badge inline-flex items-center gap-1 ${badge?.className}`}>

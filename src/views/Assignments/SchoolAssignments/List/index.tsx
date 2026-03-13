@@ -22,6 +22,7 @@ import { useGetSchoolsListQuery } from '@src/store/services/schoolApi'
 import { formatAmount, formatDate } from '@src/utils/formatters'
 import { CirclePlus, Search } from 'lucide-react'
 import Select from 'react-select'
+import { toast } from 'react-toastify'
 
 const CreateSchoolAssignmentModal = ({
   open,
@@ -39,9 +40,18 @@ const CreateSchoolAssignmentModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedDriverId) return
-    await createAssignment({ schoolId, driver_id: selectedDriverId, student_ids: [] }).unwrap()
-    setSelectedDriverId('')
-    onClose()
+    try {
+      await createAssignment({
+        schoolId,
+        driver_id: selectedDriverId,
+        student_ids: [],
+      }).unwrap()
+      setSelectedDriverId('')
+      onClose()
+      toast.success('Assignment created successfully')
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to create assignment')
+    }
   }
 
   if (!open) return null
@@ -129,7 +139,7 @@ const SchoolAssignmentsList = () => {
   const assignmentsArr: SchoolAssignment[] = assignmentsData?.data ?? []
 
   const filteredRecords = assignmentsArr.filter((item: SchoolAssignment) =>
-    (item.driver_name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+    (item.driver?.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -149,7 +159,7 @@ const SchoolAssignmentsList = () => {
         accessorKey: accessorkeys.schoolAssignmentsList.driverName,
         header: headerKeys.schoolAssignmentsList.driverName,
         cell: ({ row }: { row: { original: any } }) =>
-          row.original.driver_name || '—',
+          row.original.driver?.name || '—',
       },
       {
         accessorKey: accessorkeys.schoolAssignmentsList.driverUniqueId,

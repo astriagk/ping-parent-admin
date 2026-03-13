@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 
 import { useGetSubscriptionPlansQuery } from '@src/store/services/subscriptionApi'
 import { useCreateSchoolSubscriptionMutation } from '@src/store/services/subscriptionApi'
+import { toast } from 'react-toastify'
 
 interface CreateSubscriptionModalProps {
   open: boolean
@@ -23,14 +24,19 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await createSubscription({
-      school_id: schoolId,
-      plan_id: form.plan_id,
-      start_date: form.startDate,
-      end_date: form.endDate,
-    }).unwrap()
-    setForm({ plan_id: '', startDate: '', endDate: '' })
-    onClose()
+    try {
+      await createSubscription({
+        school_id: schoolId,
+        plan_id: form.plan_id,
+        start_date: form.startDate,
+        end_date: form.endDate,
+      }).unwrap()
+      setForm({ plan_id: '', startDate: '', endDate: '' })
+      onClose()
+      toast.success('Subscription created successfully')
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to create subscription')
+    }
   }
 
   if (!open) return null
